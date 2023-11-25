@@ -1,0 +1,82 @@
+{% extends 'nav.html' %}
+{% load static %}
+{% block contends %}
+<!-- Begin Li's Breadcrumb Area -->
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="breadcrumb-content">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="active">Sign Up</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Li's Breadcrumb Area End Here -->
+<!-- Begin Login Content Area -->
+<!-- jersey man user registration -->
+<div class="page-section mb-60">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-sm-12 col-md-12 col-lg-6 col-xs-12">
+                <form action="user_registration" method="POST">
+                    {% csrf_token %}
+                    <div class="login-form">
+                        <h4 class="login-title">Sign Up</h4>
+                        <div class="row">
+                            <div class="col-md-6 col-12 mb-20">
+                                <label>First Name *</label>
+                                <input class="mb-0" type="text" placeholder="Enter Your First Name"
+                                    name="firstname">
+                            </div>
+                            <div class="col-md-6 col-12 mb-20">
+                                <label>Last Name *</label>
+                                <input class="mb-0" type="text" placeholder="Enter Your Last Name" name="lastname">
+                            </div>
+                            <div class="col-md-12 mb-20">
+                                <label>Email Address*</label>
+                                <input class="mb-0" type="email" placeholder="Enter Your Email Address"
+                                    name="email">
+                            </div>
+                            <div class="col-md-12 mb-20">
+                                <label>Phone Number *</label>
+                                <input class="mb-0" type="text" placeholder="Enter Your Phone Number"
+                                    name="phoneno">
+                            </div>
+                            <div class="col-md-6 mb-20">
+                                <label>Password *</label>
+                                <input class="mb-0" type="password" placeholder="Enter Your Password"
+                                    name="password">
+                            </div>
+                            <div class="col-md-6 mb-20">
+                                <label>Confirm Password *</label>
+                                <input class="mb-0" type="password" placeholder="Confirm Your Password"
+                                    name="cpassword">
+                            </div>
+
+                            <div class="col-12 d-flex justify-content-center">
+                                {% for message in messages %}
+                                <p class="text-danger">{{message}}</p>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="col-12">
+                                <button class="register-button mt-0" type="submit">Sign Up</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    setTimeout(function () {
+        var element = document.getElementById('message');
+        element.style.display = 'none';
+    }, 2500);
+</script>
+<!-- Login Content Area End Here -->
+{% endblock contends %}

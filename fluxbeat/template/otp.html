@@ -1,0 +1,57 @@
+{% extends 'nav.html' %}
+{% load static %}
+{% block contends %}
+ <!-- Begin Li's Breadcrumb Area -->
+ <div class="breadcrumb-area">
+    <div class="container">
+        <div class="breadcrumb-content">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="active">OTP varification</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Li's Breadcrumb Area End Here -->
+<!-- Begin Login Content Area -->
+   <!-- jersey man user login-->
+<div class="page-section mb-60">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-sm-12 col-md-12 col-xs-12 col-lg-6 mb-30 ">
+                <!-- Login Form s-->
+                <form action="otp_varify" method="POST">
+                    {% csrf_token %}
+                    <div class="login-form ">
+                        <h4 class="login-title">Varify OTP</h4>
+                        <div class="row">
+                            <div class="col-md-12 col-12 mb-20">
+                                <label>OTP</label>
+                                <input class="mb-0" type="text" placeholder="Enter the OTP" name="otp">
+                           </div>
+
+                            <div class="col-md-8">
+                                <div class="check-box d-inline-block ml-0 ml-md-2 mt-10">
+                                    <a href="{% url 'otp' %}"  class="btn li-button-dark">Resent</a>
+                                    <label for="remember_me">Resend OTP</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-10 mb-20 text-dark font-weight-bold text-left text-md-right">
+                                <p id="timecounter">1</p>
+                               
+                            </div>
+                            <div class="col-md-12">
+                                {% for message in messages %}
+                                <p class="text-danger">{{message}}</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-12">
+                                <button class="register-button mt-0" type="submit">Varify OTP</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
