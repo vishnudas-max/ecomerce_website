@@ -9,7 +9,11 @@ class customer(AbstractUser):
     email=models.CharField(max_length=60,unique=True)
     password=models.CharField(max_length=80)
     is_superuser=models.BooleanField(default=False)
-    username=models.CharField(max_length=50,blank=True,unique=False)
+    username=models.CharField(max_length=30,unique=True)
+
+    def save(self, *args, **kwargs):
+        self.username = f"{self.first_name.lower()}{self.last_name.lower()}"
+        super().save(*args, **kwargs)
 
     
     groups = models.ManyToManyField(Group, related_name='customer_groups')

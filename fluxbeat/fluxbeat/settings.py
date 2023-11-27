@@ -140,3 +140,8 @@ EMAIL_FROM='fluxbeatauth@gmail.com'
 EMAIL_HOST_USER='fluxbeatauth@gmail.com'
 EMAIL_HOST_PASSWORD='zgof yacd dfui jnue'
 EMAIL_PORT=587
+
+from django.contrib import auth
+
+# settings.py
+AUTH_USER_MODEL = 'user.customer'

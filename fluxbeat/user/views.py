@@ -79,24 +79,28 @@ def  send_otp(request):
 # ----------------------------------USER LOGIN ----------------------------
 def user_signin(request):
     try:
-         if 'user' not in request.session:
+         
              if request.method=='POST':
                  email=request.POST['email']
                  password=request.POST['password']
-                 user=customer.objects.get(email=email)
-                #  login validation----------
-                 if user.email==email and user.password==password :
-    
-                     request.session['user']=email
-                     return redirect(home)
+                 try:
+                    user=customer.objects.get(email=email)
+                 except Exception as e:
+                   messages.info(request,'Username of Password does not match')
+                   return redirect(user_signin)
+
+                 if user.email == email and user.password == password and not user.is_superuser:
+                       request.session['user']=user.username
+
+                       
+                       print(user.username)
+                       return redirect(home)
+
                  else:
-                     messages.info(request,'Email or Password does not match !')
-                     return redirect(user_signin)
-                     
-    
+                       messages.info(request,'Email or Password does not match !')
+                       return redirect(user_signin)
+
              return render(request,'user_login.html')
-         else:
-             return redirect(home)
 
     except Exception as e:
         return HttpResponse(e)
