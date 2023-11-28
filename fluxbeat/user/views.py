@@ -16,6 +16,7 @@ def home(request):
 
 
 # USER REGISTRATION AND VALIDATION........................................................................-----------------
+import re
 def user_reg(request):
     try:
          if request.method=='POST':
@@ -31,10 +32,13 @@ def user_reg(request):
              request.session['email']=email
              request.session['phoneno']=phoneno
              request.session['password']=password
-
+             password_pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
              if password != cpassword:
                 messages.info(request,'password does not match !')
                 return redirect(user_reg)
+             elif not re.match(password_pattern,password):
+                 messages.info(request,'Password is not Strong!')
+                 return redirect(user_reg)
              if customer.objects.filter(email=email).exists():
                 messages.info(request,'Email already exist !')
                 return redirect(user_reg)

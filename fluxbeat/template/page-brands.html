@@ -4,6 +4,7 @@
 <html lang="en">
 {% load static %}
 
+
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-brands.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:35 GMT -->
 
 <head>
@@ -130,39 +131,51 @@
                 </header> <!-- card-header end// -->
                 <div class="row">
                 <div class="col-md-3 p-5">
-                    <form action="" method="POST">
-                        <div class="mb-4">
-                            <label for="product_name" class="form-label">Brand Name</label>
-                            <input type="text" placeholder="Type here" class="form-control" id="product_name" />
-                        </div>
-                        <div class="mb-4">
-                            <label for="product_slug" class="form-label">Brand Image</label>
-                            <input type="text" placeholder="Type here" class="form-control" id="product_slug" />
-                        </div>
+                    <form action="{% url 'admin_brand_page' %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.as_p }}
                         <div class="d-grid">
-                            <button class="btn btn-primary" type="submit">Create category</button>
+                            <button class="btn" type="submit" style="background-color: rgba(0, 0, 0, 0.87); color: rgb(221, 210, 210);">Add Brand</button>
                         </div>
                     </form>
                 </div>
                 <div class="col-md-9">
-                    <div class="card-body">
-                        <div class="row gx-3">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
 
-
-                            <div class="col-xl-2 col-lg-3 col-md-4 col-6">
-                                <figure class="card border-1">
-                                    <div class="card-header bg-white text-center">
-                                        <img height="76" src="assets/imgs/brands/brand-1.jpg" class="img-fluid"
-                                            alt="Logo">
-                                    </div>
-                                    <figcaption class="card-body text-center">
-                                        <h6 class="card-title m-0">Cardinal</h6>
-                                        <a href="#"> 398 items </a>
-                                    </figcaption>
-                                </figure>
-                            </div> <!-- col.// -->
-
-                        </div> <!-- row.// -->
+                                        <th>ID</th>
+                                        <th>Image</th>
+                                        <th>Brand Name</th>
+                                        <th>Acive</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in c %}
+                                    <tr>
+ 
+                                        <td>{{data.id}}</td>
+                                        <td><div style="width: 70px;"><img src="{{ data.brand_image.url }}" alt="brand_image"></div></td>
+                                        <td>{{data.brand_name}}</td>
+                                        <td> {% if data.is_active %} <span class="badge rounded-pill bg-success">Active</span>
+                                             {% else %} <span class="badge rounded-pill bg-danger">Inactive</span> {% endif %} </td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="{% url 'brand_blocker' data.id %}">{% if data.is_active %}block
+                                                        {% else %} UnBlock {% endif %}
+                                                    </a>
+                                                    <a class="dropdown-item text-danger" href="#">Delete</a>
+                                                </div>
+                                            </div> <!-- dropdown //end -->
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                     </div> <!-- card-body end// -->
                 </div>
                 </div>

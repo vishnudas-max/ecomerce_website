@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from user import views
-from admin import urls
-from admin import views as a
+from fluxadmin import urls
+from fluxadmin import views as a
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,4 +33,5 @@ urlpatterns = [
     path('admin_login',a.admin_login,name='admin_login')
   
     
-]
+] + static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)
+
