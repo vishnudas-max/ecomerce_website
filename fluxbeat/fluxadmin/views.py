@@ -1,26 +1,102 @@
 from django.shortcuts import render,HttpResponse,redirect
 from user.models import customer
+from fluxadmin.models import *
 from django.contrib.auth import login,logout,authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import *
 # Create your views here.
 def dashboard(request):
     if 'admin' in request.session:
-      return render(request,'admindashboard.html')
+      
+      return render(request,'admindashboard.html',)
     else:
         return redirect(admin_login)
 
+
+# ----------------------------------ADDING PRODUCT -----------------------------------------
+
 def add_product(request):
-    return render(request,'page-form-product-1.html')
+    try:
+       choices=product.HEADPHONE_TYPES
+       category_choice=category.objects.all()
+       brand_choice=brand.objects.all()
+       if request.method ==  'POST':
+           product_id=request.POST['product_id']
+           product_name=request.POST['product_name']
+           product_des=request.POST['product_description']
+           product_price=request.POST['product_price']
+           product_sale=request.POST['sale_price']
+           product_type=request.POST['headphone_type']
+           product_cat=request.POST['headphone_cate']
+           cate_id=category.objects.get(id=product_cat)
+           product_brand=request.POST['headphone_brand']
+           brand_id=brand.objects.get(id=product_brand)
+           if product.objects.filter(Q(pr_id=product_id) | Q(product_name=product_name)).exists():
+               messages.info(request,'Product Already Exists !')
+               return redirect(add_product)
+           product_obj=product.objects.create(pr_id=product_id,product_name=product_name,description=product_des,product_price=product_price,sale_prce=product_sale,headphone_type=product_type,category_id=cate_id,brand_id=brand_id,total_quantity=0)
+           product_obj.save()
+       return render(request,'page-form-product-1.html',{'choice':choices,'category_choice':category_choice,'brand_choice':brand_choice})
+    except Exception as e:
+        return HttpResponse(e)
   
 
+
+
 def product_list(request):
-    return render(request,'page-products-list.html')
+    return render(request,'page-products-list.html',)
 
 # ------------------------------------------- VARIENT MANAGEMENT ------------------------------------------
 
 def varient(request):
-    return render(request,'varient.html')
+    try:
+   
+        product_data=product.objects.all()
+        imgag_data=images.objects.all().order_by('-id')
+        if request.method == 'POST' and request.FILES.get('varient_color'):
+            varient_color=request.FILES.get('varient_color')
+
+            productss=request.POST['product_id']
+            productt_id=product.objects.get(id=productss)
+
+            quantity=request.POST['varienet_quantity']
+            varient_images = request.POST.getlist('varient_images')
+
+            varient = verients.objects.create(
+            varient_color=varient_color,
+            quantity=quantity,
+            product_id=productt_id
+            )
+
+            for image_id in varient_images:
+                image = images.objects.get(id=image_id)
+                varient.image_field.add(image)
+            return redirect(varient)
+        else:
+
+            return render(request,'varient_management.html',{'product_data':product_data,'image_data':imgag_data})
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+
+
+# ----------------------------------------MULTIPLE IMAGES FOR THE VARIENT -----------------------------------
+
+def varient_img_add(request):
+    try:
+        if request.method == 'POST' and request.FILES.getlist('varient_images'):
+            varient_images=request.FILES.getlist('varient_images')
+            owner=request.POST['owner']
+            for i in varient_images:
+                new_file=images(image_1=i,owner=owner)
+                new_file.save()
+            return redirect(varient)
+        else:
+            return redirect(varient)
+    except Exception as e:
+        return HttpResponse(e)
 
 # ------------------------------------------BRAND MANAGEMENT ---------------------------------------
 from .forms import ImageForm,CategoryForm
@@ -102,7 +178,7 @@ def admin_login(request):
             except:
                 messages.info(request,'Username or Password does not match !')
                 return redirect(admin_login)
-            if user.username == username and user.password==pasword:
+            if user.username == username and user.password==pasword and user.is_superuser:
                 request.session['admin']=user.email
                 return redirect(dashboard)
             else:

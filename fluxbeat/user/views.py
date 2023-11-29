@@ -53,6 +53,7 @@ def user_reg(request):
              if not first_name or not last_name or not email or not phoneno or not password or not cpassword:
                  messages.info(request,'All feilds must be filled !')
                  return redirect(user_reg)
+             
              return redirect(send_otp)
                 
          else: 

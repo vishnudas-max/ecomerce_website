@@ -22,6 +22,8 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/imgs/theme/favicon.svg' %}">
     <!-- Template CSS -->
     <link href="{% static 'assets/css/main.css' %}" rel="stylesheet" type="text/css" />
+  
+    
 </head>
 
 <body>
@@ -100,100 +102,91 @@
             </div>
         </header>
         <section class="content-main">
+
+            <div class="col-lg-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Add 4 Prodcut Varient images</h4>
+                    </div>
+                    <form action="{% url 'add_varient_images' %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="card-body">
+                            <div class="input-upload">
+                                <img src="{% static 'assets/imgs/theme/upload.svg' %}" alt="">
+                                <input class="form-control" type="file" multiple name="varient_images">
+                            </div>
+                            <div class="input-upload mt-2">
+                                <label for="owner" class="form-label">owner of the image</label>
+                                    <input type="text" placeholder="Enter the name of the product to identity the image" class="form-control" id="owner"
+                                        name="owner">
+                            </div>
+                            <div class="">
+
+                                <input class="btn btn-success" type="submit" value="Add images">
+                            </div>
+                        </div>
+                    </form>
+                </div> <!-- card end// -->
+
+            </div>
             <div class="row">
 
                 <div class="col-lg-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h4>Add Product</h4>
+                            <h4>Add varient</h4>
                         </div>
 
                         <!-- -----------------------------product adding form------------------------------- -->
                         <div class="card-body">
-                            <form action="{% url 'admin_add_product' %}" method="post" enctype="multipart/form-data">
+                            <form action="{% url 'varient' %}" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
 
                                 <div class="mb-4">
-                                    {% for message in messages %}
-                                    <p class="d-flex justify-contend-center text-danger">{{message}}</p>
-                                        {% endfor %}
-
+                                    <label for="product_id" class="form-label">Varient color</label>
+                                    <input type="file" placeholder="Type here" class="form-control" id="product_id"
+                                        name="varient_color">
                                 </div>
                                 <div class="mb-4">
-                                    <label for="product_id" class="form-label">Product ID</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_id"
-                                        name="product_id">
+                                    <label for="product_id" class="form-label">Varient quantity</label>
+                                    <input type="number" placeholder="Enter the quantity of the varienet "
+                                        class="form-control" id="product_id" name="varienet_quantity">
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label" for="product_name">Product Name</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_name"
-                                        name="product_name">
-                                    <!-- <textarea placeholder="Type here" class="form-control" rows="4"></textarea> -->
+                                    <select name="product_id" id="headphone_type" class="form-select">
+                                        {% for i in product_data%}
+                                        <option value="{{i.id}}">{{ i.product_name }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="mb-4">
-                                    <label class="form-label">Product Description</label>
-                                    <textarea placeholder="Type here" class="form-control" rows="4"
-                                        name="product_description"></textarea>
-                                </div>
+                                    <label class="form-label" for="product_name">Select images</label>
+                                    <select  id="headphone_type" class="form-select" multiple
+                                        name="varient_images" style="height: 100px;">
+                                        {% for i in image_data %}
+                                        <option value="{{ i.id }}">
+                                            {{i.owner}} &nbsp;&nbsp;&nbsp; &nbsp;: &nbsp;&nbsp;   "{{ i.image_1 }}" 
+                                        </option>
+                                        {% endfor %}
+                                    </select>
 
-                                <div class="row">
-                                    <div class="col-lg-4">
-                                        <div class="mb-4">
-                                            <label class="form-label">Product price</label>
-                                            <div class="row gx-2">
-                                                <input placeholder="$" type="text" class="form-control"
-                                                    name="product_price">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="mb-4">
-                                            <label class="form-label">Sale price</label>
-                                            <input placeholder="$" type="text" class="form-control" name="sale_price">
-                                        </div>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="headphone_type" class="form-label">Headphone Type:</label>
-                                        <select name="headphone_type" id="headphone_type" class="form-select">
-                                            {% for value,label in choice%}
-                                            <option value="{{ value }}">{{ label }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="mb-4">
-                                            <label for="headphone_cate" class="form-label">HeadPhone category :</label>
-                                            <select name="headphone_cate" id="headphone_type" class="form-select">
-                                                {% for i in category_choice%}
-                                                <option value="{{ i.id }}">{{ i.category_name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="mb-4">
-                                            <label for="headphone_brand" class="form-label">Headphone Brand:</label>
-                                            <select name="headphone_brand" id="headphone_type" class="form-select">
-                                                {% for i in brand_choice%}
-                                                <option value="{{ i.id }}">{{ i.brand_name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
 
-                                    <div class="mb-4">
-                                        <input type="submit" value="Add Product " class="btn btn-success">
-                                    </div>
 
                                 </div>
+                                <div class="mb-4">
+                                    <input type="submit" value="Add varienet" class="btn btn-success">
+                                </div>
+
+
 
                             </form>
                         </div>
                         <!-- end of product adding form------------------------------- -->
 
                     </div> <!-- card end// -->
-                    </div>
-                   
+
+                </div>
         </section> <!-- content-main end// -->
         <footer class="main-footer font-xs">
             <div class="row pb-30 pt-15">

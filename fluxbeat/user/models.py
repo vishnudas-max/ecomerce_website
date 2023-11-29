@@ -10,7 +10,7 @@ class customer(AbstractUser):
     def save(self, *args, **kwargs):
         self.username = self.email
         super().save(*args, **kwargs)
-
+ 
     
     groups = models.ManyToManyField(Group, related_name='customer_groups')
     user_permissions = models.ManyToManyField(Permission, related_name='customer_user_permissions')

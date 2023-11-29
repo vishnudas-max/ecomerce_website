@@ -1,5 +1,5 @@
 from django import forms
-from .models import brand,category
+from .models import brand,category,images
 class ImageForm(forms.ModelForm):
     class Meta:
         model = brand
@@ -10,7 +10,3 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = category
         fields =('category_name',)
-
-
-    # class VarientForm(forms.ModelForm):
-    #     cle

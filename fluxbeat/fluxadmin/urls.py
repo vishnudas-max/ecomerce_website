@@ -28,7 +28,9 @@ urlpatterns = [
             path('admin_logout',views.admin_logout,name='admin_logout'),
             path('category_blocker/<int:cat_id>',views.category_blocker,name='category_blocker'),
             path('brand_blocker/<int:brand_id>',views.brand_blocker,name='brand_blocker'),
-            path('varient',views.varient,name='vaient')
+            path('varient',views.varient,name='varient'),
+            path('add_varient_images',views.varient_img_add,name='add_varient_images')
+        
             
     
 ]
