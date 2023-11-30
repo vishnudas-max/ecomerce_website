@@ -7,12 +7,16 @@ import random
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
 import time
+from fluxadmin.models import *
 from datetime import timedelta
 from django.contrib.auth import authenticate,login,logout
 # Create your views here.
 def home(request):
-    return render(request,'home.html')
-
+    try:
+        products=product.objects.select_related('brand_id','category_id').order_by('product_date')[:5]
+        return render(request,'home.html',{"products":products})
+    except Exception as e:
+        return HttpResponse(e)
 
 
 # USER REGISTRATION AND VALIDATION........................................................................-----------------

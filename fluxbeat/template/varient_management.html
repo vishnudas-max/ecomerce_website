@@ -118,7 +118,7 @@
                             <div class="input-upload mt-2">
                                 <label for="owner" class="form-label">owner of the image</label>
                                     <input type="text" placeholder="Enter the name of the product to identity the image" class="form-control" id="owner"
-                                        name="owner">
+                                        name="owner" required>
                             </div>
                             <div class="">
 
@@ -141,7 +141,14 @@
                         <div class="card-body">
                             <form action="{% url 'varient' %}" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
-
+                               {% for message in messages %}
+                               <p>{{message}}</p>
+                               {% endfor %} 
+                               <div class="mb-4">
+                                <label for="product_id" class="form-label">Varient color</label>
+                                <input type="text" placeholder="Enter the color" class="form-control" id="product_id"
+                                    name="varient_id">
+                            </div>
                                 <div class="mb-4">
                                     <label for="product_id" class="form-label">Varient color</label>
                                     <input type="file" placeholder="Type here" class="form-control" id="product_id"
@@ -163,7 +170,7 @@
                                 <div class="mb-4">
                                     <label class="form-label" for="product_name">Select images</label>
                                     <select  id="headphone_type" class="form-select" multiple
-                                        name="varient_images" style="height: 100px;">
+                                        name="varient_images" style="height: 150px;">
                                         {% for i in image_data %}
                                         <option value="{{ i.id }}">
                                             {{i.owner}} &nbsp;&nbsp;&nbsp; &nbsp;: &nbsp;&nbsp;   "{{ i.image_1 }}" 

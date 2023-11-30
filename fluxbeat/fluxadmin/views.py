@@ -5,6 +5,7 @@ from django.contrib.auth import login,logout,authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import *
+import time
 # Create your views here.
 def dashboard(request):
     if 'admin' in request.session:
@@ -22,6 +23,7 @@ def add_product(request):
        category_choice=category.objects.all()
        brand_choice=brand.objects.all()
        if request.method ==  'POST':
+           product_image=request.FILES.get('product_image')
            product_id=request.POST['product_id']
            product_name=request.POST['product_name']
            product_des=request.POST['product_description']
@@ -32,10 +34,15 @@ def add_product(request):
            cate_id=category.objects.get(id=product_cat)
            product_brand=request.POST['headphone_brand']
            brand_id=brand.objects.get(id=product_brand)
+           
+           if product_price < product_sale:
+               messages.info(request,'Sale price must be lower than product price !')
+               return redirect(add_product)
+
            if product.objects.filter(Q(pr_id=product_id) | Q(product_name=product_name)).exists():
                messages.info(request,'Product Already Exists !')
                return redirect(add_product)
-           product_obj=product.objects.create(pr_id=product_id,product_name=product_name,description=product_des,product_price=product_price,sale_prce=product_sale,headphone_type=product_type,category_id=cate_id,brand_id=brand_id,total_quantity=0)
+           product_obj=product.objects.create(pr_id=product_id,product_image=product_image,product_name=product_name,description=product_des,product_price=product_price,sale_prce=product_sale,headphone_type=product_type,category_id=cate_id,brand_id=brand_id,total_quantity=0)
            product_obj.save()
        return render(request,'page-form-product-1.html',{'choice':choices,'category_choice':category_choice,'brand_choice':brand_choice})
     except Exception as e:
@@ -45,25 +52,37 @@ def add_product(request):
 
 
 def product_list(request):
-    return render(request,'page-products-list.html',)
+    try:
+        verient=verients.objects.all()
+        products = product.objects.select_related('category_id', 'brand_id').all()
+        return render(request,'page-products-list.html',{'products':products,"verient":verient})
+    except Exception as e:
+        return HttpResponse(e)
 
 # ------------------------------------------- VARIENT MANAGEMENT ------------------------------------------
 
 def varient(request):
-    try:
+    # try:
    
         product_data=product.objects.all()
         imgag_data=images.objects.all().order_by('-id')
         if request.method == 'POST' and request.FILES.get('varient_color'):
+            varient_id=request.POST['varient_id']
             varient_color=request.FILES.get('varient_color')
-
             productss=request.POST['product_id']
             productt_id=product.objects.get(id=productss)
 
+            vari_id=f"{productt_id.pr_id}-{varient_id}"
+
             quantity=request.POST['varienet_quantity']
             varient_images = request.POST.getlist('varient_images')
-
-            varient = verients.objects.create(
+            
+            if verients.objects.filter(varient_id=vari_id).exists():
+                messages.info(request,'Varient already excits !')
+                return redirect(varient)
+            
+            varien = verients.objects.create(
+            varient_id=vari_id,
             varient_color=varient_color,
             quantity=quantity,
             product_id=productt_id
@@ -71,13 +90,19 @@ def varient(request):
 
             for image_id in varient_images:
                 image = images.objects.get(id=image_id)
-                varient.image_field.add(image)
+                varien.image_field.add(image)
+
+            prod_qunt=product.objects.get(id=productss)
+            prod_qunt.total_quantity += int(quantity)
+            prod_qunt.save()
+
+            
             return redirect(varient)
         else:
 
             return render(request,'varient_management.html',{'product_data':product_data,'image_data':imgag_data})
-    except Exception as e:
-        return HttpResponse(e)
+    # except Exception as e:
+    #     return HttpResponse(e)
     
 
 
@@ -128,7 +153,7 @@ def brand_blocker(request,brand_id):
         else:
             brand.objects.filter(id=brand_id).update(is_active='True')
         return redirect(brands)
-    except Exception as e:      
+    except Exception as e:          # try:
         return HttpResponse(e)
    
 
