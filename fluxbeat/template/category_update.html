@@ -1,0 +1,102 @@
+{% extends 'admin_sidebar.html' %}
+{% block sidebar%}
+
+{% load static %}
+
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Category </h2>
+            <p>Edit Category</p>
+        </div>
+
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+
+                <!-- <div class="col-lg-2 col-6">
+                            <div class="custom_select">
+                                <select class="form-select select-nice">
+                                    <option selected>Categories</option>
+                                    <option>Technology</option>
+                                    <option>Fashion</option>
+                                    <option>Home Decor</option>
+                                    <option>Healthy</option>
+                                    <option>Travel</option>
+                                    <option>Auto-car</option>
+                                </select>
+                            </div>
+                        </div> -->
+
+            </div>
+        </header> <!-- card-header end// -->
+        <div class="row">
+            <div class="card-body">
+                <form action="{% url 'update_category' category.id %}" method="post" >
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <p class="d-flex justify-contend-center text-danger">{{message}}</p>
+                            {% endfor %}
+
+                    </div>
+                   <!-- <input type="number" value="{{brandd.id}}" hidden> -->
+                    <div class="mb-4">
+                        <label for="product_id" class="form-label">Category</label>
+                        <input type="text" placeholder="Type here" class="form-control" id="product_id"
+                            name="category_name" value="{{category.category_name}}">
+                    </div>
+      
+              
+                    
+
+
+                        <div class="mb-4">
+                            <input type="submit" value="Update Category" class="btn btn-success">
+                        </div>
+
+                    </div>
+
+                </form>
+            </div>
+            
+    </div> <!-- card end// -->
+   
+</section> <!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear())
+            </script> ©, Evara - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">
+                All rights reserved
+            </div>
+        </div>
+    </div>
+</footer>
+</main>
+<script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/vendors/jquery.fullscreen.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/chart.js' %}"></script>
+<!-- Main Scr{% static 'ipt -->
+<script src="{% static 'assets/js/main.js" type="text/javascript' %}"></script>
+<script src="{% static 'assets/js/custom-chart.js" type="text/javascript' %}"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-brands.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:49 GMT -->
+
+</html>
+{% endblock sidebar %}

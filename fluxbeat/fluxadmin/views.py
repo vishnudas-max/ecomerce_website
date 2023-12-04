@@ -35,8 +35,11 @@ def add_product(request):
            product_brand=request.POST['headphone_brand']
            brand_id=brand.objects.get(id=product_brand)
            
-           if product_price < product_sale:
+           if int(product_price) < int(product_sale):
                messages.info(request,'Sale price must be lower than product price !')
+               return redirect(add_product)
+           if int(product_price) <=0 and int(product_sale) <=0:
+               messages.info(login_required,'Price should Greater than 0 !')
                return redirect(add_product)
 
            if product.objects.filter(Q(pr_id=product_id) | Q(product_name=product_name)).exists():
@@ -141,6 +144,29 @@ def brands(request):
 
     except Exception as e:
         return HttpResponse(e)
+# ----------------------------------------------------------UPDATING BRAND--------------------------------------
+from PIL import Image
+def update_brand(request,brand_id):
+   try:
+     brandd=brand.objects.get(id=brand_id)
+     if request.method == 'POST':
+         brand_name=request.POST['brand_name']
+         if brand.objects.filter(brand_name__iexact=brand_name).exclude(id=brand_id).exists():
+             messages.info(request,'Brand Name already excits!')
+             return render(request,'brand_update.html',{'brandd':brandd})
+         brand_image=request.FILES.get('brand_image')
+         if brand_image:
+            brandd.brand_image.delete()
+         brandd.brand_image=brand_image
+         brandd.brand_name=brand_name
+         brandd.save()
+         return redirect(brands)
+        
+
+     return render(request,'brand_update.html',{'brandd':brandd})      
+   except Exception as e:
+       return HttpResponse(e)
+        
     
 
 # ---------------------------------------------------------------------BRAND BLOCKER----------------------------------
@@ -165,6 +191,7 @@ def category_(request):
        if request.method == 'POST':
            form=CategoryForm(request.POST)
            if form.is_valid():
+
                form.save()
                return redirect(category_)
        else:
@@ -173,7 +200,24 @@ def category_(request):
     except Exception as e:
         return HttpResponse(e)
     
-
+# -----------------------------------------------UPDATE CATEGORY ------------------------------------------------
+def update_category(request,category_id):
+    try:
+        try:
+            catego=category.objects.get(id=category_id)
+        except:
+            messages.info(request,'Category not Found !')
+        if request.method == 'POST':
+            category_name=request.POST['category_name']
+            if category.objects.filter(category_name__iexact=category_name).exclude(id=category_id).exists():
+                messages.info(request,'Category Already Excits !')
+                return redirect(update_category,category_id)
+            category.objects.filter(id=category_id).update(category_name=category_name)
+            return redirect(category_)
+        else:
+            return render(request,'category_update.html',{"category":catego})
+    except Exception as e:
+        return HttpResponse(e)
 # ----------------------------------------------CATEGORY BLOCKER ------------------------------------------------
 def category_blocker(request,cat_id):
     try:

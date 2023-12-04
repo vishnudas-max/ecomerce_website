@@ -8,7 +8,7 @@
     <div class="content-header">
         <div>
             <h2 class="content-title card-title">Brand </h2>
-            <p>Brand Management</p>
+            <p>Edit Brand</p>
         </div>
 
     </div>
@@ -31,74 +31,47 @@
                                 </select>
                             </div>
                         </div> -->
-                <div class="col-lg-2 col-6">
-                    <input type="date" class="form-control" name="">
-                </div>
+
             </div>
         </header> <!-- card-header end// -->
         <div class="row">
-            <div class="col-md-3 p-5">
-                <form action="{% url 'admin_brand_page' %}" method="POST" enctype="multipart/form-data">
+            <div class="card-body">
+                <form action="{% url 'update_brand' brandd.id %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form.as_p }}
-                    <div class="d-grid">
-                        <button class="btn" type="submit"
-                            style="background-color: rgba(0, 0, 0, 0.87); color: rgb(221, 210, 210);">Add Brand</button>
+
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <p class="d-flex justify-contend-center text-danger">{{message}}</p>
+                            {% endfor %}
+
                     </div>
+                   <!-- <input type="number" value="{{brandd.id}}" hidden> -->
+                    <div class="mb-4">
+                        <label for="product_id" class="form-label">Bramd Name</label>
+                        <input type="text" placeholder="Type here" class="form-control" id="product_id"
+                            name="brand_name" value="{{brandd.brand_name}}">
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-4">
+                            <label class="form-label">Product Image</label>
+                            <input placeholder="$" type="file" class="form-control" name="brand_image" value="{{brandd.brand_image.url}}" required>
+                        </div>
+                    </div>
+              
+                    
+
+
+                        <div class="mb-4">
+                            <input type="submit" value="Edit Brand" class="btn btn-success">
+                        </div>
+
+                    </div>
+
                 </form>
             </div>
-            <div class="col-md-9">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-
-                                <th>ID</th>
-                                <th>Image</th>
-                                <th>Brand Name</th>
-                                <th>Acive</th>
-                                <th class="text-end">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for data in c %}
-                            <tr>
-
-                                <td>{{data.id}}</td>
-                                <td>
-                                    <div style="width: 70px;"><img src="{{ data.brand_image.url }}" alt="brand_image">
-                                    </div>
-                                </td>
-                                <td>{{data.brand_name}}</td>
-                                <td> {% if data.is_active %} <span class="badge rounded-pill bg-success">Active</span>
-                                    {% else %} <span class="badge rounded-pill bg-danger">Inactive</span> {% endif %}
-                                </td>
-                                <td class="text-end p-3">
-
-                                    <a class="badge  bg-danger  btn-sm rounded-pill text-white"
-                                        href="{% url 'brand_blocker' data.id %}">{% if data.is_active %}block
-                                        {% else %} UnBlock {% endif %}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{% url 'update_brand' data.id%}" class="btn btn-warning" >Edit</a> 
-                                      
-                                        
-                     
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% for messge in messages %}
-                    <p>{{message}}</p>
-                    {% endfor %}
-                </div> <!-- card-body end// -->
-            </div>
-        </div>
-
+            
     </div> <!-- card end// -->
-    
+   
 </section> <!-- content-main end// -->
 <footer class="main-footer font-xs">
     <div class="row pb-30 pt-15">
