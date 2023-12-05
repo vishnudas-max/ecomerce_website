@@ -43,6 +43,12 @@ def user_reg(request):
              elif not re.match(password_pattern,password):
                  messages.info(request,'Password is not Strong!')
                  return redirect(user_reg)
+             elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
+                 messages.info(request,'Enter a valid first name !')
+                 return redirect(user_reg)
+             elif len(phoneno) !=  10:
+                 messages.info(request,'Enter a valid Phone number !')
+                 return redirect(user_reg)
              if customer.objects.filter(email=email).exists():
                 messages.info(request,'Email already exist !')
                 return redirect(user_reg)
