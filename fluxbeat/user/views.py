@@ -13,8 +13,8 @@ from django.contrib.auth import authenticate,login,logout
 # Create your views here.
 def home(request):
     try:
-        products=product.objects.select_related('brand_id','category_id').order_by('product_date')[:5]
-        return render(request,'home.html',{"products":products})
+        
+        return render(request,'home.html')
     except Exception as e:
         return HttpResponse(e)
 

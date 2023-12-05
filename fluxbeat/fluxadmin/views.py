@@ -52,20 +52,90 @@ def add_product(request):
         return HttpResponse(e)
   
 
+# -----------------------------------------------------EDIT PRODUCT---------------------------------------------
 
+def edit_product(request,product_id):
+    try:
+        choices=product.HEADPHONE_TYPES
+        categor=category.objects.all()
+        bran=brand.objects.all()
+        pro=product.objects.select_related('category_id','brand_id').get(id=product_id)
+        if request.method == 'POST':
+            product_image=request.FILES.get('product_image')
+            product_name=request.POST['product_name']
+            product_des=request.POST['product_description']
+            prodct_price=request.POST['product_price']
+            sale_price=request.POST['sale_price']
+            prodcut_type=request.POST['headphone_type']
+            h_category=request.POST['headphone_cate']
+            h_cate=category.objects.get(id=h_category)
+            h_brand=request.POST['headphone_brand']
+            h_bran=brand.objects.get(id=h_brand)
+            if product.objects.filter(product_name=product_name).exclude(id=product_id).exists():
+                messages.info(request,'Product with this name already excists!')
+                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+            
+            elif int(prodct_price) < int(sale_price):
+                messages.info(request,'sale price should be less than product price !')
+                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+            
+            elif int(prodct_price) < 1 and int(sale_price) < 1:
+                messages.info(request,'Price should be greater than zero!')
+                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+            
+            print(product_image,product_name,product_des,prodct_price,sale_price,prodcut_type,h_category,h_brand)
+            p=product.objects.get(id=product_id)
+            p.product_name=product_name
+            p.description=product_des
+            p.product_price=prodct_price
+            p.sale_prce=sale_price
+            p.headphone_type=prodcut_type
+            p.category_id=h_cate
+            p.brand_id=h_bran
+            if p.product_image:
+                p.product_image.delete()
+            p.product_image=product_image
+            p.save()
+            
+            return redirect(product_list)
+        else:
+            return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+        
+    except Exception as e:
+        return HttpResponse(e)
+
+# ----------------------------------------------------------BLOCK PRODUCT ----------------------------------------
+
+def product_block(request,product_id):
+    try:
+       c=product.objects.get(id=product_id)
+       if c.is_active:
+           c.is_active ='False'
+           c.save()
+       else:
+           c.is_active ='True'
+           c.save()
+
+       return redirect(product_list)
+    except Exception as e:
+        return HttpResponse(e)
+
+
+# ---------------------------------------------------------------PRODUCT LISTING -----------------------------------------
 
 def product_list(request):
     try:
-        verient=verients.objects.all()
+        verient=verients.objects.all().order_by('id')
         products = product.objects.select_related('category_id', 'brand_id').all()
         return render(request,'page-products-list.html',{'products':products,"verient":verient})
     except Exception as e:
         return HttpResponse(e)
 
+
 # ------------------------------------------- VARIENT MANAGEMENT ------------------------------------------
 
 def varient(request):
-    # try:
+    try:
    
         product_data=product.objects.all()
         imgag_data=images.objects.all().order_by('-id')
@@ -104,8 +174,8 @@ def varient(request):
         else:
 
             return render(request,'varient_management.html',{'product_data':product_data,'image_data':imgag_data})
-    # except Exception as e:
-    #     return HttpResponse(e)
+    except Exception as e:
+        return HttpResponse(e)
     
 
 

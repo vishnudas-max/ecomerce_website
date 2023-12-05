@@ -31,7 +31,9 @@ urlpatterns = [
             path('varient',views.varient,name='varient'),
             path('add_varient_images',views.varient_img_add,name='add_varient_images'),
             path('update_brand/<int:brand_id>',views.update_brand,name='update_brand'),
-            path('update_category/<int:category_id>',views.update_category,name='update_category')
+            path('update_category/<int:category_id>',views.update_category,name='update_category'),
+            path('edit_product/<int:product_id>',views.edit_product,name='edit_product'),
+            path('product_block/<int:product_id>',views.product_block,name='product_block')
         
             
     
