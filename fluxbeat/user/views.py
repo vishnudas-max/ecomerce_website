@@ -7,14 +7,17 @@ import random
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
 import time
+from django.db.models import *
 from fluxadmin.models import *
 from datetime import timedelta
 from django.contrib.auth import authenticate,login,logout
 # Create your views here.
 def home(request):
     try:
-        
-        return render(request,'home.html')
+        products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
+        arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+        brands=brand.objects.all()
+        return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival})
     except Exception as e:
         return HttpResponse(e)
 
