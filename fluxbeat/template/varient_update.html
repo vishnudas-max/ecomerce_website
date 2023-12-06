@@ -1,0 +1,131 @@
+{% extends 'admin_sidebar.html' %}
+{% block sidebar%}
+{% load static %}
+
+        <section class="content-main">
+
+            <div class="col-lg-3">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Add 4 Prodcut Varient images</h4>
+                    </div>
+                    <form action="{% url 'image_update' varients.id %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {%for message in messages %}
+                         
+                        <span class="text-warning ms-5">{{message}}</span>
+                       
+                        {% endfor %}
+                        <div class="card-body">
+                            <div class="input-upload">
+                                <img src="{% static 'assets/imgs/theme/upload.svg' %}" alt="">
+                                <input class="form-control" type="file" multiple name="varient_images">
+                            </div>
+                            <div class="input-upload mt-2">
+                                <label for="owner" class="form-label">owner of the image</label>
+                                    <input type="text" placeholder="Enter the name of the product to identity the image" class="form-control" id="owner"
+                                        name="owner" required>
+                            </div>
+                            <div class="">
+
+                                <input class="btn btn-success" type="submit" value="Add images">
+                            </div>
+                        </div>
+                    </form>
+                </div> <!-- card end// -->
+
+            </div>
+            <div class="row">
+
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Add varient</h4>
+                        </div>
+
+                        <!-- -----------------------------product adding form------------------------------- -->
+                        <div class="card-body">
+                            <form action="{% url 'update_varient' varients.id %}" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                               {% for message in messages %}
+                               <p>{{message}}</p>
+                               {% endfor %} 
+                               <div class="mb-4">
+                                <label for="product_id" class="form-label">Varient color</label>
+                                <input type="text" placeholder="Enter the color" class="form-control" id="product_id"
+                                    name="varient_color" value="{{varients.varient_id}}">
+                            </div>
+                                <div class="mb-4">
+                                    <label for="product_id" class="form-label">Varient color_image</label>
+                                    <input type="file" placeholder="Type here" class="form-control" id="product_id"
+                                        name="varient_color_img" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="product_id" class="form-label">Varient quantity</label>
+                                    <input type="number" placeholder="Enter the quantity of the varienet "
+                                        class="form-control" id="product_id" name="varient_quantity" value="{{varients.quantity}}">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label" for="product_name">Product Name</label>
+                                    <input type="text" placeholder="Enter the quantity of the varienet "
+                                        class="form-control" id="product_id" name="varienet_quantity" value="{{varients.product_id.product_name}}" readonly>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label" for="product_name">Select images</label>
+                                    <select  id="headphone_type" class="form-select" multiple
+                                        name="varient_images" style="height: 150px;">
+                                        {% for i in image_data %}
+                                        <option value="{{ i.id }}">
+                                            {{i.owner}} &nbsp;&nbsp;&nbsp; &nbsp;: &nbsp;&nbsp;   "{{ i.image_1 }}" 
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+
+
+
+                                </div>
+                                <div class="mb-4">
+                                    <input type="submit" value="Add varienet" class="btn btn-success">
+                                </div>
+
+
+
+                            </form>
+                        </div>
+                        <!-- end of product adding form------------------------------- -->
+
+                    </div> <!-- card end// -->
+
+                </div>
+        </section> <!-- content-main end// -->
+        <footer class="main-footer font-xs">
+            <div class="row pb-30 pt-15">
+                <div class="col-sm-6">
+                    <script>
+                        document.write(new Date().getFullYear())
+                    </script> ©, Evara - HTML Ecommerce Template .
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-sm-end">
+                        All rights reserved
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+    <script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/vendors/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/vendors/perfect-scrollbar.js' %}"></script>
+    <script src="{% static 'assets/js/vendors/jquery.fullscreen.min.js' %}"></script>
+    <script src="{% static 'assets/js/vendors/chart.js' %}"></script>
+    <!-- Main Scr{% static 'ipt -->
+    <script src="{% static 'assets/js/main.js" type="text/javascript' %}"></script>
+    <script src="{% static 'assets/js/custom-chart.js" type="text/javascript' %}"></script>
+</body>
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-form-product-1.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:32 GMT -->
+
+</html>
+{% endblock sidebar %}

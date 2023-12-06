@@ -45,9 +45,18 @@ def add_product(request):
            if product.objects.filter(Q(pr_id=product_id) | Q(product_name=product_name)).exists():
                messages.info(request,'Product Already Exists !')
                return redirect(add_product)
+           try:
+               with Image.open(product_image) as img:
+                   width, height = img.size
+           except Exception as e:
+               messages.info(request,"File type does not match.try to upload image only!")
+               return redirect(add_product)
            product_obj=product.objects.create(pr_id=product_id,product_image=product_image,product_name=product_name,description=product_des,product_price=product_price,sale_prce=product_sale,headphone_type=product_type,category_id=cate_id,brand_id=brand_id,total_quantity=0)
            product_obj.save()
-       return render(request,'page-form-product-1.html',{'choice':choices,'category_choice':category_choice,'brand_choice':brand_choice})
+           success_message = "Product addes succesfully!"
+           return render(request,'page-form-product-1.html',{'choice':choices,'category_choice':category_choice,'brand_choice':brand_choice,'success_message': success_message})
+       success_message=False
+       return render(request,'page-form-product-1.html',{'choice':choices,'category_choice':category_choice,'brand_choice':brand_choice,'success_message': success_message})
     except Exception as e:
         return HttpResponse(e)
   
@@ -56,6 +65,8 @@ def add_product(request):
 
 def edit_product(request,product_id):
     try:
+        j=product.objects.get(id=product_id)
+        product_cates=j.product_varients.all()
         choices=product.HEADPHONE_TYPES
         categor=category.objects.all()
         bran=brand.objects.all()
@@ -73,15 +84,15 @@ def edit_product(request,product_id):
             h_bran=brand.objects.get(id=h_brand)
             if product.objects.filter(product_name=product_name).exclude(id=product_id).exists():
                 messages.info(request,'Product with this name already excists!')
-                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates})
             
             elif int(prodct_price) < int(sale_price):
                 messages.info(request,'sale price should be less than product price !')
-                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates})
             
             elif int(prodct_price) < 1 and int(sale_price) < 1:
                 messages.info(request,'Price should be greater than zero!')
-                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+                return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates})
             
             print(product_image,product_name,product_des,prodct_price,sale_price,prodcut_type,h_category,h_brand)
             p=product.objects.get(id=product_id)
@@ -96,10 +107,11 @@ def edit_product(request,product_id):
                 p.product_image.delete()
             p.product_image=product_image
             p.save()
-            
-            return redirect(product_list)
+            success_message = "Product Updation succes"
+            return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates,'success_message': success_message})
         else:
-            return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices})
+            success_message = False
+            return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates,'success_message': success_message})
         
     except Exception as e:
         return HttpResponse(e)
@@ -178,6 +190,75 @@ def varient(request):
         return HttpResponse(e)
     
 
+# ----------------------------------------   UPDATE VARIENT --------------------------------------------
+def update_varient(request,varient_id):
+    try:
+        img=images.objects.all().order_by('-id')
+        varient=verients.objects.select_related('product_id').get(id=varient_id)
+
+        if request.method == 'POST':
+            
+            varient_color=request.POST['varient_color']
+            var_color= f"{varient.product_id.pr_id}-{varient_color}"
+
+            varient_color_img=request.FILES.get('varient_color_img')
+            varient_quantity=request.POST['varient_quantity']
+            varient_images=request.POST.getlist('varient_images')
+            
+            varient.varient_id=var_color
+
+            if varient.varient_color:
+                varient.varient_color.delete()
+            varient.varient_color=varient_color_img
+
+            qun=varient.product_id.total_quantity-varient.quantity
+            varient.quantity=varient_quantity
+            
+
+            new_images=images.objects.filter(id__in=varient_images)
+
+            varient.image_field.set(new_images)
+            
+            varient.save()
+
+            # quantity upation ---------------------------- start
+            qun =qun + int(varient.quantity)
+            pro_qun=product.objects.get(id=varient.product_id.id)
+            pro_qun.total_quantity=qun
+            pro_qun.save()
+
+            #  quantity updation end-------------------------------
+
+        return render(request,'varient_update.html',{"varients":varient,"image_data":img})
+    except Exception as e:
+        return HttpResponse(e)
+
+
+
+
+#  ------------------------------------------UPDATING VARIENT IMAGES -------------------------
+#    
+def image_update(request,varient_id):
+    try:
+        img=images.objects.all().order_by('-id')
+        varient=verients.objects.select_related('product_id').get(id=varient_id)
+        if request.method == 'POST' and request.FILES.getlist('varient_images'):
+            varient_images=request.FILES.getlist('varient_images')
+            owner=request.POST['owner']
+            v=images.objects.order_by('-id').first()
+            if v.owner == owner:
+                messages.info(request,'Try another name to understand !')
+                return render(request,'varient_update.html',{"varients":varient,"image_data":img})
+            for i in varient_images:
+                new_file=images(image_1=i,owner=owner)
+                new_file.save()
+            return render(request,'varient_update.html',{"varients":varient,"image_data":img})
+        else:
+            return render(request,'varient_update.html',{"varients":varient,"image_data":img})
+    except Exception as e:
+        return HttpResponse(e)
+    
+
 
 
 # ----------------------------------------MULTIPLE IMAGES FOR THE VARIENT -----------------------------------
@@ -195,6 +276,10 @@ def varient_img_add(request):
             return redirect(varient)
     except Exception as e:
         return HttpResponse(e)
+    
+
+
+
 
 # ------------------------------------------BRAND MANAGEMENT ---------------------------------------
 from .forms import ImageForm,CategoryForm
@@ -214,6 +299,9 @@ def brands(request):
 
     except Exception as e:
         return HttpResponse(e)
+    
+
+
 # ----------------------------------------------------------UPDATING BRAND--------------------------------------
 from PIL import Image
 def update_brand(request,brand_id):
