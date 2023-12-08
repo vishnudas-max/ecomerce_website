@@ -152,3 +152,26 @@ def otp_varify(request):
                 return render(request,'otp.html')
     except Exception as e:
         return HttpResponse(e)
+    
+
+def product_detail(request,product_id):
+    try:
+        productt=product.objects.get(id=product_id)
+        offer=productt.product_price - productt.sale_prce
+        current=productt.product_varients.all().first()
+        varientss=productt.product_varients.all()
+        imagess=current.image_field.all().order_by('-id')
+        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer})
+    except Exception as e:
+        return HttpResponse(e)
+    
+def varient_change(request,product_id,varient_id):
+    try:
+        productt=product.objects.get(id=product_id)
+        offer=productt.product_price - productt.sale_prce
+        current=verients.objects.get(id=varient_id)
+        varientss=productt.product_varients.all()
+        imagess=current.image_field.all().order_by('-id')
+        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer})
+    except Exception as e:
+        return HttpResponse(e)

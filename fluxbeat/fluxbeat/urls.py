@@ -30,7 +30,9 @@ urlpatterns = [
     path('otp',views.send_otp,name='otp'),
     path('otp_varify',views.otp_varify),
     path('flux_admin/',include(urls)),
-    path('admin_login',a.admin_login,name='admin_login')
+    path('admin_login',a.admin_login,name='admin_login'),
+    path('product_detail/<int:product_id>',views.product_detail,name='product_detail'),
+    path('varient_change/<int:product_id>/<int:varient_id>',views.varient_change,name='varient_change')
   
     
 ] + static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)
