@@ -268,6 +268,10 @@ def varient_img_add(request):
         if request.method == 'POST' and request.FILES.getlist('varient_images'):
             varient_images=request.FILES.getlist('varient_images')
             owner=request.POST['owner']
+            v=images.objects.order_by('-id').first()
+            if v.owner == owner:
+                messages.info(request,'Try another name to understand !')
+                return redirect(varient)
             for i in varient_images:
                 new_file=images(image_1=i,owner=owner)
                 new_file.save()
@@ -417,3 +421,20 @@ def admin_login(request):
     except Exception as e:
         return HttpResponse(e)
   
+
+# ---USER MANAGEMENT ----------------------------
+from user.models import *
+def user_management(request):
+    try:
+        users=customer.objects.all().exclude(is_superuser='True').order_by('id')
+        return render(request,'user_management.html',{'users':users})
+    except Exception as e:
+        return HttpResponse(e)
+    
+def user_block(request,user_id):
+        userr=customer.objects.get(id=user_id)
+        if userr.is_active == True:
+             customer.objects.filter(id=user_id).update(is_active='False')
+        else:
+            customer.objects.filter(id=user_id).update(is_active='True')
+        return redirect(user_management)

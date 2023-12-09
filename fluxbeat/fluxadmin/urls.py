@@ -35,7 +35,9 @@ urlpatterns = [
             path('edit_product/<int:product_id>',views.edit_product,name='edit_product'),
             path('product_block/<int:product_id>',views.product_block,name='product_block'),
             path('update_varient/<int:varient_id>',views.update_varient,name='update_varient'),
-            path('image_updation/<int:varient_id>',views.image_update,name='image_update')
+            path('image_updation/<int:varient_id>',views.image_update,name='image_update'),
+            path('user_management',views.user_management,name='user_management'),
+            path('user_block/<int:user_id>',views.user_block,name='user_block')
         
             
     

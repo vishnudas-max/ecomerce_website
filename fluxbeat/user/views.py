@@ -106,7 +106,9 @@ def user_signin(request):
                  except Exception as e:
                    messages.info(request,'Username of Password does not match')
                    return redirect(user_signin)
-
+                 if user.is_active == False:
+                     messages.info(request,'Your account is currently blocked !')
+                     return redirect(user_signin)
                  if user.email == email and user.password == password and not user.is_superuser:
                        request.session['user']=user.username
 
