@@ -27,12 +27,15 @@ urlpatterns = [
     path('',views.home,name='user_home'),
     path('user_registration',views.user_reg,name='user_reg'),
     path('user_signin',views.user_signin,name='user_signin'),
+    path('user_logout',views.user_logout,name='user_logout'),
     path('otp',views.send_otp,name='otp'),
     path('otp_varify',views.otp_varify),
     path('flux_admin/',include(urls)),
     path('admin_login',a.admin_login,name='admin_login'),
     path('product_detail/<int:product_id>',views.product_detail,name='product_detail'),
-    path('varient_change/<int:product_id>/<int:varient_id>',views.varient_change,name='varient_change')
+    path('varient_change/<int:product_id>/<int:varient_id>',views.varient_change,name='varient_change'),
+    path('user_account',views.user_account,name='user_account'),
+    path('user_update/<int:user_id>',views.user_update,name='user_update')
   
     
 ] + static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)

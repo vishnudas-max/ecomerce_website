@@ -1,6 +1,6 @@
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib import messages
-from user.models import customer
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 import random
@@ -11,13 +11,23 @@ from django.db.models import *
 from fluxadmin.models import *
 from datetime import timedelta
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+
+User=get_user_model()
 # Create your views here.
 def home(request):
     try:
-        products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
-        arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
-        brands=brand.objects.all()
-        return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival})
+            if request.user.is_authenticated and not request.user.is_superuser:
+                c=1
+            else:
+                c=0
+      
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+            brands=brand.objects.all()
+            return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c})
+        
     except Exception as e:
         return HttpResponse(e)
 
@@ -52,7 +62,7 @@ def user_reg(request):
              elif len(phoneno) !=  10:
                  messages.info(request,'Enter a valid Phone number !')
                  return redirect(user_reg)
-             if customer.objects.filter(email=email).exists():
+             if User.objects.filter(email=email).exists():
                 messages.info(request,'Email already exist !')
                 return redirect(user_reg)
              try:
@@ -102,18 +112,16 @@ def user_signin(request):
                  email=request.POST['email']
                  password=request.POST['password']
                  try:
-                    user=customer.objects.get(email=email)
+                    user=User.objects.get(email=email)
                  except Exception as e:
                    messages.info(request,'Username of Password does not match')
                    return redirect(user_signin)
                  if user.is_active == False:
                      messages.info(request,'Your account is currently blocked !')
                      return redirect(user_signin)
-                 if user.email == email and user.password == password and not user.is_superuser:
-                       request.session['user']=user.username
-
-                       
-                       print(user.username)
+                 user=authenticate(request,email=email,password=password)
+                 if user is not None and not user.is_superuser:
+                       login(request,user)
                        return redirect(home)
 
                  else:
@@ -126,6 +134,10 @@ def user_signin(request):
         return HttpResponse(e)
    
 
+# ----------------------------------------USER LOGOUT --------------------------------------------------
+def user_logout(request):
+    logout(request)
+    return redirect(home)
 
 
 
@@ -142,7 +154,7 @@ def otp_varify(request):
             if otpgen_time and (time.time() - otpgen_time) < 60:
               
               if request.session['otp']==otp_:
-                  user=customer.objects.create(first_name=request.session['first_name'],last_name=request.session['last_name'],email=request.session['email'],phoneno=request.session['phoneno'],password=request.session['password'])
+                  user=User.objects.create_user(first_name=request.session['first_name'],last_name=request.session['last_name'],email=request.session['email'],phone_number=request.session['phoneno'],password=request.session['password'])
                   user.save()
                   request.session.clear()
                   return redirect(user_signin)
@@ -158,22 +170,84 @@ def otp_varify(request):
 
 def product_detail(request,product_id):
     try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+                c=1
+        else:
+                c=0
         productt=product.objects.get(id=product_id)
         offer=productt.product_price - productt.sale_prce
         current=productt.product_varients.all().first()
         varientss=productt.product_varients.all()
         imagess=current.image_field.all().order_by('-id')
-        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer})
+        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c})
     except Exception as e:
         return HttpResponse(e)
     
 def varient_change(request,product_id,varient_id):
     try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+                c=1
+        else:
+                c=0
         productt=product.objects.get(id=product_id)
         offer=productt.product_price - productt.sale_prce
         current=verients.objects.get(id=varient_id)
         varientss=productt.product_varients.all()
         imagess=current.image_field.all().order_by('-id')
-        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer})
+        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c})
     except Exception as e:
         return HttpResponse(e)
+    
+
+
+# -----------------------------------------------USER ACCOUNT ----------------------------------------
+@login_required(login_url='user_signin')
+def user_account(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+                c=1
+        else:
+                c=0
+        user=request.user
+        try:
+            user=User.objects.get(id=user.id)
+        except:
+            print("Something went wrong")
+        return render(request,'page-account.html',{'login_status':c,'user':user})
+    except Exception as e:
+        return HttpResponse(e)
+    
+# -------------------------------------------USER UPDATION ------------------------------------------------/
+
+@login_required(login_url='user_signiin')
+def user_update(request,user_id):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+             password_pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+             if request.method == 'POST':
+                 user=User.objects.get(id=user_id)
+                 first_name=request.POST['first_name']
+                 last_name=request.POST['last_name']
+                 phone_number=request.POST['phoneno']
+                 cpassword=request.POST['cpassword']
+                 npassword=request.POST['npassword']
+                 if npassword == "" and cpassword ==  "":
+                     User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number)
+                     return redirect(user_account)
+                 else:
+                     if npassword != cpassword:
+                         messages.info(request,'password does not match !')
+                         return redirect(user_account)
+                     elif not re.match(password_pattern,npassword):
+                          messages.info(request,'Password is not Strong!')
+                          return redirect(user_account)
+                     elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
+                          messages.info(request,'Enter a valid first name !')
+                          return redirect(user_account)
+                     User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number,password=make_password(npassword))
+                     return redirect(user_account)
+        else:
+            return redirect(user_signin)
+    except Exception as e:
+        return HttpResponse(e)
+        

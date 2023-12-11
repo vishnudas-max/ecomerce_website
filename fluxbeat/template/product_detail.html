@@ -265,9 +265,9 @@
                                             </div>
                                         </div>
                                         <ul class="product-meta font-xs color-grey mt-50">
-                                            <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
-                                            <li class="mb-5">Tags: <a href="#" rel="tag">Cloth</a>, <a href="#" rel="tag">Women</a>, <a href="#" rel="tag">Dress</a> </li>
-                                            <li>Availability:<span class="in-stock text-success ml-5">8 Items In Stock</span></li>
+                                            <li class="mb-5">SKU: <a href="#">{{product.pr_id}}</a></li>
+                                            <li class="mb-5">Tags: <a href="#" rel="tag">{{product.category_id.category_name}}</a>, <a href="#" rel="tag"></a>,<a href="#" rel="tag">{{product.brand_id.brand_name}}</a> </li>
+                                            <li>Availability:<span class="in-stock text-success ml-5">{% if current.quantity < 1 %}<span style="color: red;">out of stock</span>{% else%} {{current.quantity}} {% endif%}</span></li>
                                         </ul>
                                     </div>
                                     <!-- Detail Info -->
@@ -288,29 +288,9 @@
                                 <div class="tab-content shop_info_tab entry-main-content">
                                     <div class="tab-pane fade show active" id="Description">
                                         <div class="">
-                                            <p>Uninhibited carnally hired played in whimpered dear gorilla koala depending and much yikes off far quetzal goodness and from for grimaced goodness unaccountably and meadowlark near unblushingly crucial scallop
-                                                tightly neurotic hungrily some and dear furiously this apart.</p>
-                                            <p>Spluttered narrowly yikes left moth in yikes bowed this that grizzly much hello on spoon-fed that alas rethought much decently richly and wow against the frequent fluidly at formidable acceptably flapped
-                                                besides and much circa far over the bucolically hey precarious goldfinch mastodon goodness gnashed a jellyfish and one however because.
-                                            </p>
-                                            <ul class="product-more-infor mt-30">
-                                                <li><span>Type Of Packing</span> Bottle</li>
-                                                <li><span>Color</span> Green, Pink, Powder Blue, Purple</li>
-                                                <li><span>Quantity Per Case</span> 100ml</li>
-                                                <li><span>Ethyl Alcohol</span> 70%</li>
-                                                <li><span>Piece In One</span> Carton</li>
-                                            </ul>
-                                            <hr class="wp-block-separator is-style-dots">
-                                            <p>Laconic overheard dear woodchuck wow this outrageously taut beaver hey hello far meadowlark imitatively egregiously hugged that yikes minimally unanimous pouted flirtatiously as beaver beheld above forward
-                                                energetic across this jeepers beneficently cockily less a the raucously that magic upheld far so the this where crud then below after jeez enchanting drunkenly more much wow callously irrespective limpet.</p>
-                                            <h4 class="mt-30">Packaging & Delivery</h4>
-                                            <hr class="wp-block-separator is-style-wide">
-                                            <p>Less lion goodness that euphemistically robin expeditiously bluebird smugly scratched far while thus cackled sheepishly rigid after due one assenting regarding censorious while occasional or this more crane
-                                                went more as this less much amid overhung anathematic because much held one exuberantly sheep goodness so where rat wry well concomitantly.
-                                            </p>
-                                            <p>Scallop or far crud plain remarkably far by thus far iguana lewd precociously and and less rattlesnake contrary caustic wow this near alas and next and pled the yikes articulate about as less cackled dalmatian
-                                                in much less well jeering for the thanks blindly sentimental whimpered less across objectively fanciful grimaced wildly some wow and rose jeepers outgrew lugubrious luridly irrationally attractively
-                                                dachshund.
+                                            <p>{{product.description}}</p>
+                                            
+
                                             </p>
                                         </div>
                                     </div>
@@ -318,89 +298,36 @@
                                         <table class="font-md">
                                             <tbody>
                                                 <tr class="stand-up">
-                                                    <th>Stand Up</th>
+                                                    <th>product name</th>
                                                     <td>
-                                                        <p>35″L x 24″W x 37-45″H(front to back wheel)</p>
+                                                        <p>{{product.product_name}}</p>
                                                     </td>
                                                 </tr>
                                                 <tr class="folded-wo-wheels">
-                                                    <th>Folded (w/o wheels)</th>
+                                                    <th>Product color</th>
                                                     <td>
-                                                        <p>32.5″L x 18.5″W x 16.5″H</p>
+                                                        <p>{{current.varient_id}}</p>
                                                     </td>
                                                 </tr>
                                                 <tr class="folded-w-wheels">
-                                                    <th>Folded (w/ wheels)</th>
+                                                    <th>Headphone Type</th>
                                                     <td>
-                                                        <p>32.5″L x 24″W x 18.5″H</p>
+                                                        <p>{{product.headphone_type}}</p>
                                                     </td>
                                                 </tr>
                                                 <tr class="door-pass-through">
-                                                    <th>Door Pass Through</th>
+                                                    <th>Brand</th>
                                                     <td>
-                                                        <p>24</p>
+                                                        <p>{{product.brand_id.brand_name}}</p>
                                                     </td>
                                                 </tr>
                                                 <tr class="frame">
-                                                    <th>Frame</th>
+                                                    <th>category</th>
                                                     <td>
-                                                        <p>Aluminum</p>
+                                                        <p>{{product.category_id.category_name}}</p>
                                                     </td>
                                                 </tr>
-                                                <tr class="weight-wo-wheels">
-                                                    <th>Weight (w/o wheels)</th>
-                                                    <td>
-                                                        <p>20 LBS</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="weight-capacity">
-                                                    <th>Weight Capacity</th>
-                                                    <td>
-                                                        <p>60 LBS</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="width">
-                                                    <th>Width</th>
-                                                    <td>
-                                                        <p>24″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="handle-height-ground-to-handle">
-                                                    <th>Handle height (ground to handle)</th>
-                                                    <td>
-                                                        <p>37-45″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="wheels">
-                                                    <th>Wheels</th>
-                                                    <td>
-                                                        <p>12″ air / wide track slick tread</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="seat-back-height">
-                                                    <th>Seat back height</th>
-                                                    <td>
-                                                        <p>21.5″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="head-room-inside-canopy">
-                                                    <th>Head room (inside canopy)</th>
-                                                    <td>
-                                                        <p>25″</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="pa_color">
-                                                    <th>Color</th>
-                                                    <td>
-                                                        <p>Black, Blue, Red, White</p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="pa_size">
-                                                    <th>Size</th>
-                                                    <td>
-                                                        <p>M, S</p>
-                                                    </td>
-                                                </tr>
+                                               
                                             </tbody>
                                         </table>
                                     </div>
@@ -702,59 +629,14 @@
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
-                                <li><a href="shop-grid-right.html">Shoes & Bags</a></li>
-                                <li><a href="shop-grid-right.html">Blouses & Shirts</a></li>
-                                <li><a href="shop-grid-right.html">Dresses</a></li>
-                                <li><a href="shop-grid-right.html">Swimwear</a></li>
-                                <li><a href="shop-grid-right.html">Beauty</a></li>
-                                <li><a href="shop-grid-right.html">Jewelry & Watch</a></li>
-                                <li><a href="shop-grid-right.html">Accessories</a></li>
+                                <li><a href="shop-grid-right.html">Blutooth</a></li>
+                                <li><a href="shop-grid-right.html">Wired</a></li>
+                                <li><a href="shop-grid-right.html">Blutooth/Wired</a></li>
+                              
                             </ul>
                         </div>
                         <!-- Fillter By Price -->
-                        <div class="sidebar-widget price_range range mb-30">
-                            <div class="widget-header position-relative mb-20 pb-10">
-                                <h5 class="widget-title mb-10">Fill by price</h5>
-                                <div class="bt-1 border-color-1"></div>
-                            </div>
-                            <div class="price-filter">
-                                <div class="price-filter-inner">
-                                    <div id="slider-range"></div>
-                                    <div class="price_slider_amount">
-                                        <div class="label-input">
-                                            <span>Range:</span><input type="text" id="amount" name="price" placeholder="Add Your Price" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="list-group">
-                                <div class="list-group-item mb-10 mt-10">
-                                    <label class="fw-900">Color</label>
-                                    <div class="custome-checkbox">
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="">
-                                        <label class="form-check-label" for="exampleCheckbox1"><span>Red (56)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox2" value="">
-                                        <label class="form-check-label" for="exampleCheckbox2"><span>Green (78)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox3" value="">
-                                        <label class="form-check-label" for="exampleCheckbox3"><span>Blue (54)</span></label>
-                                    </div>
-                                    <label class="fw-900 mt-15">Item Condition</label>
-                                    <div class="custome-checkbox">
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
-                                        <label class="form-check-label" for="exampleCheckbox11"><span>New (1506)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox21" value="">
-                                        <label class="form-check-label" for="exampleCheckbox21"><span>Refurbished (27)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox31" value="">
-                                        <label class="form-check-label" for="exampleCheckbox31"><span>Used (45)</span></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Fillter</a>
-                        </div>
+                        
                         <!-- Product sidebar Widget -->
                         <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
                             <div class="widget-header position-relative mb-20 pb-10">

@@ -146,7 +146,7 @@ EMAIL_PORT=587
 from django.contrib import auth
 
 # settings.py
-AUTH_USER_MODEL = 'user.customer'
+AUTH_USER_MODEL = 'user.customeUser'
 
 # -------------------------------------------specifying the directory for the media ----------------------------------------
 MEDIA_ROOT= os.path.join(BASE_DIR, 'media/')
