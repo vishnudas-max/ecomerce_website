@@ -190,7 +190,7 @@
                                     <div class="product-extra-link2">
                                         <button type="submit" class="button button-add-to-cart">Add to cart</button>
                                         <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                            href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                            href="{% url 'view_cart' %}"><i class="fi-rs-heart"></i></a>
                                         <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i
                                                 class="fi-rs-shuffle"></i></a>
                                     </div>
@@ -293,15 +293,15 @@
                         <div class="header-action-right">
                             <div class="header-action-2">
                                 <div class="header-action-icon-2">
-                                    <a href="shop-wishlist.html">
+                                    <a href="{% url 'view_cart' %}">
                                         <img class="svgInject" alt="Evara"
-                                            src="userassets/imgs/theme/icons/icon-heart.svg">
+                                            src="{% static 'userassets/imgs/theme/icons/icon-heart.svg' %}">
                                         <span class="pro-count blue">4</span>
                                     </a>
                                 </div>
                                 <div class="header-action-icon-2">
-                                    <a class="mini-cart-icon" href="shop-cart.html">
-                                        <img alt="Evara" src="userassets/imgs/theme/icons/icon-cart.svg">
+                                    <a class="mini-cart-icon" href="{% url 'view_cart' %}">
+                                        <img alt="Evara" src="{% static 'userassets/imgs/theme/icons/icon-cart.svg' %}">
                                         <span class="pro-count blue">2</span>
                                     </a>
                                     <div class="cart-dropdown-wrap cart-dropdown-hm2">
@@ -638,7 +638,7 @@
                                                 </ul>
                                             </li>
                                             <li><a href="shop-filter.html">Shop – Filter</a></li>
-                                            <li><a href="shop-wishlist.html">Shop – Wishlist</a></li>
+                                            <li><a href="{% url 'view_cart' %}">Shop – Wishlist</a></li>
                                             <li><a href="shop-cart.html">Shop – Cart</a></li>
                                             <li><a href="shop-checkout.html">Shop – Checkout</a></li>
                                             <li><a href="shop-compare.html">Shop – Compare</a></li>
@@ -728,7 +728,7 @@
                                             <li><a href="page-purchase-guide.html">Purchase Guide</a></li>
                                             <li><a href="page-privacy-policy.html">Privacy Policy</a></li>
                                             <li><a href="page-terms.html">Terms of Service</a></li>
-                                            <li><a href="page-404.html">404 Page</a></li>
+                                            <li><a href="{% url 'view_cart' %}">404 Page</a></li>
                                         </ul>
                                     </li>
                                     <li>
@@ -746,14 +746,15 @@
                     <div class="header-action-right d-block d-lg-none">
                         <div class="header-action-2">
                             <div class="header-action-icon-2">
-                                <a href="shop-wishlist.html">
-                                    <img alt="Evara" src="userassets/imgs/theme/icons/icon-heart.svg">
+                                <a href="{% url 'view_cart' %}">
+                                    <img alt="" src="{% static 'userassets/imgs/theme/icons/icon-heart.svg' %}">
                                     <span class="pro-count white">4</span>
                                 </a>
                             </div>
+                            <a href="{% url 'view_cart' %}"></a>
                             <div class="header-action-icon-2">
-                                <a class="mini-cart-icon" href="shop-cart.html">
-                                    <img alt="Evara" src="userassets/imgs/theme/icons/icon-cart.svg">
+                                <a class="mini-cart-icon" href="{% url 'view_cart' %}">
+                                    <img alt="Evara" src="{% static 'userassets/imgs/theme/icons/icon-cart.svg' %}">
                                     <span class="pro-count white">2</span>
                                 </a>
                                 <div class="cart-dropdown-wrap cart-dropdown-hm2">
@@ -761,7 +762,7 @@
                                         <li>
                                             <div class="shopping-cart-img">
                                                 <a href="shop-product-right.html"><img alt="Evara"
-                                                        src="userassets/imgs/shop/thumbnail-3.jpg"></a>
+                                                        src="{% static 'userassets/imgs/shop/thumbnail-3.jpg' %}"></a>
                                             </div>
                                             <div class="shopping-cart-title">
                                                 <h4><a href="shop-product-right.html">Plain Striola Shirts</a></h4>
@@ -774,7 +775,7 @@
                                         <li>
                                             <div class="shopping-cart-img">
                                                 <a href="shop-product-right.html"><img alt="Evara"
-                                                        src="userassets/imgs/shop/thumbnail-4.jpg"></a>
+                                                        src="{% static 'userassets/imgs/shop/thumbnail-4.jpg' %}"></a>
                                             </div>
                                             <div class="shopping-cart-title">
                                                 <h4><a href="shop-product-right.html">Macbook Pro 2022</a></h4>
@@ -790,7 +791,7 @@
                                             <h4>Total <span>$383.00</span></h4>
                                         </div>
                                         <div class="shopping-cart-button">
-                                            <a href="shop-cart.html">View cart</a>
+                                            <a href="{% url 'view_cart' %}">View cart</a>
                                             <a href="shop-checkout.html">Checkout</a>
                                         </div>
                                     </div>

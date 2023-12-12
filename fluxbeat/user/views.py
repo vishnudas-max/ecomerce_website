@@ -250,4 +250,33 @@ def user_update(request,user_id):
             return redirect(user_signin)
     except Exception as e:
         return HttpResponse(e)
-        
+
+@login_required(login_url='user_signin')
+def view_cart(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            c=1
+            cart_items=cart.objects.filter(user_id=request.user.id).all()
+            return render(request,'shop-cart.html',{'login_status':c,'cart_itmes':cart_items})
+        else:
+            return redirect(user_signin)
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+def add_to_cart(request,product_id,varient_id):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            productt=product.objects.get(id=product_id)
+            if varient_id == 0:
+                current_varient=productt.product_varients.all().first()
+            else:
+                current_varient=verients.objects.get(id=varient_id)
+            userr=User.objects.get(id=request.user.id)
+            if cart.objects.filter(Q(user_id=userr) & Q(proudct_id=productt) & Q(varient_id=current_varient)).exists():
+                return redirect(home)
+            cart.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient)
+            return redirect(view_cart)
+
+    except Exception as e:
+        return HttpResponse(e)
