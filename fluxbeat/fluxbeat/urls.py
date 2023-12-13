@@ -37,7 +37,14 @@ urlpatterns = [
     path('user_account',views.user_account,name='user_account'),
     path('user_update/<int:user_id>',views.user_update,name='user_update'),
     path('view_cart',views.view_cart,name='view_cart'),
-    path('add_to_cart/<int:product_id>/<int:varient_id>',views.add_to_cart,name='add_to_cart')
+    path('add_to_cart/<int:product_id>/<int:varient_id>',views.add_to_cart,name='add_to_cart'),
+    path('update_quantity/', views.update_quantity, name='update_quantity'),
+    path('delete_cart/<int:cart_id>',views.delete_cart,name='delete_cart'),
+    path('check_out',views.check_out,name='check_out'),
+    path('add_address',views.add_address,name='add_address'),
+    path('delete_address/<int:address_id>',views.delete_address,name='delete_address'),
+    path('edit_address/<int:address_id>',views.edit_address,name='edit_address')
+
   
     
 ] + static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)

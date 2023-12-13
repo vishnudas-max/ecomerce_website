@@ -285,31 +285,24 @@
                                     <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                                         <div class="row">
                                             <div class="col-lg-6">
+                                                {% for i in user_addresses %}
                                                 <div class="card mb-3 mb-lg-0">
                                                     <div class="card-header">
-                                                        <h5 class="mb-0">Billing Address</h5>
+                                                        <h5 class="mb-0">Shippig Address</h5>
                                                     </div>
                                                     <div class="card-body">
-                                                        <address>3522 Interstate<br> 75 Business Spur,<br> Sault Ste. <br>Marie, MI 49783</address>
-                                                        <p>New York</p>
-                                                        <a href="#" class="btn-small">Edit</a>
+                                                        <address>{{i.address}}</address>
+                                                        <p>{{i.state}}</p>
+                                                        <p>{{i.country}}</p>
+                                                        <a class="btn-sm btn-primary mt-3" href="{% url 'edit_address' address_id=i.id %}" class="btn-small">Edit</a>
+                                                        <a class="btn-sm btn-primary ms-3" href="{% url 'delete_address' address_id=i.id %}" class="btn-small">delete</a>
                                                     </div>
                                                 </div>
+                                                {% endfor %}
                                             </div>
-                                            <div class="col-lg-6">
-                                                <div class="card">
-                                                    <div class="card-header">
-                                                        <h5 class="mb-0">Shipping Address</h5>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <address>4299 Express Lane<br>
-                                                            Sarasota, <br>FL 34249 USA <br>Phone: 1.941.227.4444</address>
-                                                        <p>Sarasota</p>
-                                                        <a href="#" class="btn-small">Edit</a>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            
                                         </div>
+                                        <a href="{% url 'add_address' %}"  class="btn btn-primary mt-5">Add Address</a>
                                     </div>
                                     <div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
                                         <div class="card">
@@ -500,4 +493,27 @@
 
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/page-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:11:15 GMT -->
 </html>
+<script src="{% static 'userassets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+    <script src="{% static 'userassets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'userassets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+    <script src="{% static 'userassets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/slick.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.syotimer.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/wow.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery-ui.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/perfect-scrollbar.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/magnific-popup.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/select2.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/waypoints.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/counterup.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.countdown.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/images-loaded.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/isotope.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/scrollup.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.vticker-min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.theia.sticky.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.elevatezoom.js' %}"></script>
+    <!-- Template{% static '  JS -->
+    <script src="{% static 'userassets/js/maind134.js' %}"></script>
+    <script src="{% static 'userassets/js/shopd134.js' %}"></script>
 {% endblock %}

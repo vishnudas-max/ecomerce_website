@@ -204,6 +204,7 @@ def varient_change(request,product_id,varient_id):
 @login_required(login_url='user_signin')
 def user_account(request):
     try:
+        user_address=address.objects.filter(user_id=request.user.id)
         if request.user.is_authenticated and not request.user.is_superuser:
                 c=1
         else:
@@ -213,7 +214,7 @@ def user_account(request):
             user=User.objects.get(id=user.id)
         except:
             print("Something went wrong")
-        return render(request,'page-account.html',{'login_status':c,'user':user})
+        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address})
     except Exception as e:
         return HttpResponse(e)
     
@@ -251,17 +252,7 @@ def user_update(request,user_id):
     except Exception as e:
         return HttpResponse(e)
 
-@login_required(login_url='user_signin')
-def view_cart(request):
-    try:
-        if request.user.is_authenticated and not request.user.is_superuser:
-            c=1
-            cart_items=cart.objects.filter(user_id=request.user.id).all()
-            return render(request,'shop-cart.html',{'login_status':c,'cart_itmes':cart_items})
-        else:
-            return redirect(user_signin)
-    except Exception as e:
-        return HttpResponse(e)
+
     
 
 def add_to_cart(request,product_id,varient_id):
@@ -278,5 +269,146 @@ def add_to_cart(request,product_id,varient_id):
             cart.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient)
             return redirect(view_cart)
 
+    except Exception as e:
+        return HttpResponse(e)
+
+@login_required(login_url='user_signin')
+def view_cart(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            c=1
+            cart_items=cart.objects.filter(user_id=request.user.id).all()
+            sum=0
+            for i in cart_items:
+                sum +=i.total_price
+            return render(request,'shop-cart.html',{'login_status':c,'cart_itmes':cart_items,'grand_total':sum})
+        else:
+            return redirect(user_signin)
+    except Exception as e:
+        return HttpResponse(e)
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+
+@require_POST
+def update_quantity(request):
+    cart_id = request.POST.get('cart_item_id')
+    value = request.POST.get('quantity')  
+    cart_item=cart.objects.get(id=cart_id)
+
+    cart_item.proudct_quantity=value
+
+    cart_item.save()
+
+    data = {
+        'updated_quantity': cart_item.proudct_quantity,
+        'updated_total_price': cart_item.total_price,  # adjust if needed
+    }
+
+    return JsonResponse(data)
+
+login_required(login_url='user_signin')
+def delete_cart(request,cart_id):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            cart.objects.filter(id=cart_id).delete()
+            return redirect(view_cart)
+        else:
+            return redirect(user_signin)
+    except Exception as e:
+        return HttpResponse(e)
+    
+def check_out(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            cart_items=cart.objects.filter(user_id=request.user.id).all
+            return render(request,'shop-checkout.html',{'cart_items':cart_items})
+
+    except Exception as e:
+        return HttpResponse(e)
+
+from .models import address
+@login_required(login_url='user_signin')
+def add_address(request):
+    try:
+            if request.user.is_authenticated and not request.user.is_superuser:
+                c=1
+               
+                if request.method == 'POST':
+                    
+                    fname = request.POST.get('fname')
+                    lname = request.POST.get('lname')
+                    cname = request.POST.get('cname')
+                    country = request.POST.get('country')
+                    addres = request.POST.get('shipping_address')
+                    address_2 = request.POST.get('shipping_address_2')
+                    city = request.POST.get('city')
+                    state = request.POST.get('state')
+                    zipcode = request.POST.get('zipcode')
+                    address_type = request.POST.get('address_type')
+                   
+                    ADDRESS=address.objects.create(
+                        user_id=request.user,
+                        first_name=fname,
+                        last_name=lname,
+                        company_name=cname,
+                        country=country,
+                        address=addres,
+                        address_2=address_2,
+                        city=city,
+                        state=state,
+                        pin=zipcode,
+                        address_type=address_type
+                    )
+                    return redirect('user_account')
+
+                return render(request, 'add_address.html',{'login_status':c})
+    except Exception as e:
+        return HttpResponse(e)
+@login_required(login_url='user_signin')
+def delete_address(request,address_id):
+    try:
+         if request.user.is_authenticated and not request.user.is_superuser:
+             address.objects.filter(id=address_id).delete()
+             return redirect(user_account)
+    except Exception as e:
+        return HttpResponse(e)
+
+def edit_address(request,address_id):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            current_address=address.objects.get(id=address_id)
+            if request.method == 'POST':
+                    
+                    fname = request.POST.get('fname')
+                    lname = request.POST.get('lname')
+                    cname = request.POST.get('cname')
+                    country = request.POST.get('country')
+                    addres = request.POST.get('shipping_address')
+                    address_2 = request.POST.get('shipping_address_2')
+                    city = request.POST.get('city')
+                    state = request.POST.get('state')
+                    zipcode = request.POST.get('zipcode')
+                    address_type = request.POST.get('address_type')
+
+                    address.objects.filter(id=address_id).update(
+                        user_id=request.user,
+                        first_name=fname,
+                        last_name=lname,
+                        company_name=cname,
+                        country=country,
+                        address=addres,
+                        address_2=address_2,
+                        city=city,
+                        state=state,
+                        pin=zipcode,
+                        address_type=address_type
+                    )
+                    return redirect(user_account)
+            return render(request,'edit_address.html',{'login_status':1,'address':current_address})
+        else:
+            return render(user_signin)
     except Exception as e:
         return HttpResponse(e)
