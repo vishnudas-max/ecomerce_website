@@ -168,6 +168,9 @@ def otp_varify(request):
         return HttpResponse(e)
     
 
+
+# ---------------------------------------- PRODUCT DETAIELS ------------------------
+
 def product_detail(request,product_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
@@ -183,6 +186,9 @@ def product_detail(request,product_id):
     except Exception as e:
         return HttpResponse(e)
     
+
+# ---------------------------------------------------CHANGE VARIENT --------------------------------
+
 def varient_change(request,product_id,varient_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
@@ -204,6 +210,8 @@ def varient_change(request,product_id,varient_id):
 @login_required(login_url='user_signin')
 def user_account(request):
     try:
+        user_order=orders.objects.filter(user_id=request.user).all()
+        order_itemss=order_items.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
         if request.user.is_authenticated and not request.user.is_superuser:
                 c=1
@@ -214,7 +222,7 @@ def user_account(request):
             user=User.objects.get(id=user.id)
         except:
             print("Something went wrong")
-        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address})
+        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss})
     except Exception as e:
         return HttpResponse(e)
     
@@ -253,7 +261,9 @@ def user_update(request,user_id):
         return HttpResponse(e)
 
 
-    
+
+
+# ---------------------------------------ADD TO CART------------------------------------------
 
 def add_to_cart(request,product_id,varient_id):
     try:
@@ -271,6 +281,10 @@ def add_to_cart(request,product_id,varient_id):
 
     except Exception as e:
         return HttpResponse(e)
+
+
+
+# -----------------------------------------VIEW CART --------------------------
 
 @login_required(login_url='user_signin')
 def view_cart(request):
@@ -292,6 +306,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 
+# --------------------------------------------UPDATE CART QUANTITY -------------------------------
+
 @require_POST
 def update_quantity(request):
     cart_id = request.POST.get('cart_item_id')
@@ -309,7 +325,11 @@ def update_quantity(request):
 
     return JsonResponse(data)
 
-login_required(login_url='user_signin')
+
+
+# ------------------------------------------------------------DELTEe CART ----------------------
+
+@login_required(login_url='user_signin')
 def delete_cart(request,cart_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
@@ -320,14 +340,13 @@ def delete_cart(request,cart_id):
     except Exception as e:
         return HttpResponse(e)
     
-def check_out(request):
-    try:
-        if request.user.is_authenticated and not request.user.is_superuser:
-            cart_items=cart.objects.filter(user_id=request.user.id).all
-            return render(request,'shop-checkout.html',{'cart_items':cart_items})
 
-    except Exception as e:
-        return HttpResponse(e)
+
+
+
+
+
+# ------------------------------------------ ADD ADDRESS------------------------------
 
 from .models import address
 @login_required(login_url='user_signin')
@@ -367,6 +386,10 @@ def add_address(request):
                 return render(request, 'add_address.html',{'login_status':c})
     except Exception as e:
         return HttpResponse(e)
+    
+
+
+# --------------------------------------------------------DELETE ADDRESS ---------------------------
 @login_required(login_url='user_signin')
 def delete_address(request,address_id):
     try:
@@ -375,7 +398,12 @@ def delete_address(request,address_id):
              return redirect(user_account)
     except Exception as e:
         return HttpResponse(e)
+    
 
+
+# -----------------------------------------   EDIT ADDRESSS--------------------------
+
+@login_required(login_url='user_signin')
 def edit_address(request,address_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
@@ -408,6 +436,92 @@ def edit_address(request,address_id):
                     )
                     return redirect(user_account)
             return render(request,'edit_address.html',{'login_status':1,'address':current_address})
+        else:
+            return render(user_signin)
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+
+from .models import *
+# -----------------   CHEKCK OUT -------------------------------------------
+@login_required(login_url='user_signin')
+def check_out(request):
+    try:
+        c=1
+
+        user_address=address.objects.filter(user_id=request.user.id)
+        cart_items=cart.objects.filter(user_id=request.user.id).all()
+        sum=0
+        for i in cart_items:
+            sum +=i.total_price
+
+        if request.user.is_authenticated and not request.user.is_superuser:
+                if request.method == 'POST':
+                    # --------------------------- address settting part start --------------------
+
+                    if request.POST.get('address') =='add_address':
+                        fname = request.POST.get('fname')
+                        lname = request.POST.get('lname')
+                        cname = request.POST.get('cname')
+                        country = request.POST.get('country')
+                        addres = request.POST.get('shipping_address')
+                        address_2 = request.POST.get('shipping_address_2')
+                        city = request.POST.get('city')
+                        state = request.POST.get('state')
+                        zipcode = request.POST.get('zipcode')
+                        address_type = request.POST.get('address_type')
+                        if not fname or not lname or not cname or not country or not addres or not address_2 or not city or not state or not zipcode or not address_type:
+                            messages.info(request,'All the fields must be filled !')
+                            return redirect(check_out)
+                        ADDRESS=address.objects.create(
+                            user_id=request.user,
+                            first_name=fname,
+                            last_name=lname,
+                            company_name=cname,
+                            country=country,
+                            address=addres,
+                            address_2=address_2,
+                            city=city,
+                            state=state,
+                            pin=zipcode,
+                            address_type=address_type
+                        )
+                        
+                    else:
+                        order_address_id=request.POST.get('address')
+                        ADDRESS=address.objects.get(id=order_address_id)
+                    # -----------------------address setting part end ---------------------------------------
+                    
+                    # -----------------------------Paymment setting part start here-------------------
+                    payment_type=request.POST.get('payment_option')
+                    if payment_type == 'cash on delivery':
+                        order_payment=Paymment.objects.create(Paymment_type=payment_type)
+                    print(order_payment)
+                    # -------------------------------Paymment setting part end here ---------------------
+
+                    # -------------------------order settin part start here---------------
+                    add_inform=request.POST.get('add_inform')
+                    print(add_inform)
+                    order_idd=orders.objects.create(user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=0,payment_id=order_payment,add_information=add_inform)
+
+
+                    # ------------------------------------------order setting part end here ------------------------------
+
+                    
+                    for i in cart_items:
+                        order_itemss=order_items(
+                            order_id=order_idd,
+                            user_id=i.user_id,
+                            proudct_id=i.proudct_id,
+                            varient_id=i.varient_id,
+                            proudct_quantity=i.proudct_quantity,
+                            total_price=i.total_price
+                        )
+                        order_itemss.save()
+                        cart_items.delete()
+
+                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c})
         else:
             return render(user_signin)
     except Exception as e:
