@@ -1,6 +1,4 @@
 from django.shortcuts import render,HttpResponse,redirect
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
 from fluxadmin.models import *
 from django.contrib.auth import login,logout,authenticate
 from django.contrib import messages
@@ -8,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import *
 import time
 from user.models import customeUser
-User =get_user_model
+
 # Create your views here.
 @login_required(login_url='admin_login')
 def dashboard(request):
@@ -475,28 +473,29 @@ def admin_login(request):
   
 
 # ---USER MANAGEMENT ----------------------------
-from user.models import *
+
 @login_required(login_url='admin_login')
 def user_management(request):
     try:
         if request.user.is_authenticated and request.user.is_superuser:
-            users=User.objects.all().exclude(is_superuser='True').order_by('id')
+            users=customeUser.objects.all().exclude(is_superuser='True').order_by('id')
             return render(request,'user_management.html',{'users':users})
         else:
             return redirect(admin_login)
     except Exception as e:
         return HttpResponse(e)
     
-    # ------------------------------------   BLAOCKING USER--------------------------------
+    # ------------------------------------   BLAOCKING USER--------------------------------\
+
 @login_required(login_url='admin_login')
 def user_block(request,user_id):
         try:
             if request.user.is_authenticated and request.user.is_superuser:
-                    userr=User.objects.get(id=user_id)
+                    userr=customeUser.objects.get(id=user_id)
                     if userr.is_active == True:
-                         User.objects.filter(id=user_id).update(is_active='False')
+                         customeUser.objects.filter(id=user_id).update(is_active='False')
                     else:
-                        User.objects.filter(id=user_id).update(is_active='True')
+                        customeUser.objects.filter(id=user_id).update(is_active='True')
                     return redirect(user_management)
             else:
                 return redirect(admin_login)

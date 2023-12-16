@@ -231,7 +231,7 @@
                                             aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" href="page-login-register.html"><i
+                                        <a class="nav-link" href="{% url 'user_logout' %}"><i
                                                 class="fi-rs-sign-out mr-10"></i>Logout</a>
                                     </li>
                                 </ul>
@@ -268,6 +268,7 @@
                                                             <th>Date</th>
                                                             <th>Status</th>
                                                             <th>Total</th>
+                                                          
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -276,6 +277,14 @@
                                                             <td>{{i.order_date}}</td>
                                                             <td>{{i.order_status}}</td>
                                                             <td>{{i.sub_total}}</td>
+                                                            <td></td>
+                                                            {% if i.order_status == 'Processing' or i.order_status == 'shipped' %}
+                                                            <td><a href="{% url 'cancel_order'  i.id 'all' %}" class="btn-sm btn-warning">cancel all</a></td>
+                                                            {% endif %}
+                                                            {% if i.order_status == 'canceld' %}
+                                                            <td class="text-danger">Canceld!</td>
+                                                            {% endif %}
+                                                            
                                                         </tr>
                                                         {% for j in order_items %}
                                             
@@ -290,6 +299,16 @@
                                                             </td>
                                                             <td>{{j.proudct_id.product_name}}</td>
                                                             <td>X {{j.proudct_quantity}}</td>
+                                                            <td>{{j.proudct_status}}</td>
+                                                            {% if i.order_status != 'canceld' %}
+                                                                 {% if j.order_status == 'Processing' or j.order_status == 'shipped' %}
+                                                                 <td><a href="{% url 'cancel_order'  j.id 'order' %}" class="btn-sm btn-warning">cancel order</a></td>
+                                                                 {% endif %}
+                                                                 {% if j.order_status == 'canceld' %}
+                                                                 <td  class="text-danger">Canceled</td>
+                                                                 {% endif %}
+                                                            {% endif %}
+                                                            <td><a href="{% url 'order_detailes'  j.id %}" class="">view </a></td>
                                                         </tr>
                                                         {% endif %}
                                                         {% endfor %}

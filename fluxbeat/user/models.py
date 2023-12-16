@@ -26,6 +26,7 @@ class address(models.Model):
     city=models.CharField(max_length=100,null=False)
     state=models.CharField(max_length=100,null=False)
     pin=models.CharField(max_length=50,null=False)
+    phone=models.CharField(max_length=50,null=False)
     address_type=models.CharField(max_length=100,null=False)
 
     def __str__(self):
@@ -58,7 +59,14 @@ class orders(models.Model):
 from fluxadmin.models import product,verients
 from django.core.validators import MinValueValidator
 class order_items(models.Model):
-    order_id=models.ForeignKey(orders,on_delete=models.CASCADE,related_name='order_items')
+    status = [
+        ('Processing', 'processing'),
+        ('shipped', 'shipped'),
+        ('delivered', 'delivered'),
+        ('canceld','canceld')
+        ]
+    order_id=models.ForeignKey(orders,on_delete=models.CASCADE,related_name='order_itemss')
+    order_status=models.CharField(max_length=20, choices=status, default='Processing')
     user_id=models.ForeignKey(customeUser,on_delete=models.CASCADE,related_name='cartt_items',null=False)
     proudct_id=models.ForeignKey(product,on_delete=models.CASCADE,related_name='cartt_items',null=False)
     varient_id=models.ForeignKey(verients,on_delete=models.CASCADE,null=False)

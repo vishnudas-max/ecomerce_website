@@ -43,7 +43,9 @@ urlpatterns = [
     path('check_out',views.check_out,name='check_out'),
     path('add_address',views.add_address,name='add_address'),
     path('delete_address/<int:address_id>',views.delete_address,name='delete_address'),
-    path('edit_address/<int:address_id>',views.edit_address,name='edit_address')
+    path('edit_address/<int:address_id>',views.edit_address,name='edit_address'),
+    path('cancel_order/<int:order_id>/<str:order_type>',views.cancel_order,name='cancel_order'),
+    path('view_order_detailes/<int:order_id>',views.order_detailes,name='order_detailes')
 
   
     

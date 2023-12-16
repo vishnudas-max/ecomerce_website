@@ -1,4 +1,4 @@
-from django.shortcuts import render,HttpResponse,redirect
+from django.shortcuts import render,HttpResponse,redirect,reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -210,7 +210,7 @@ def varient_change(request,product_id,varient_id):
 @login_required(login_url='user_signin')
 def user_account(request):
     try:
-        user_order=orders.objects.filter(user_id=request.user).all()
+        user_order=orders.objects.filter(user_id=request.user).all().order_by('-order_date')
         order_itemss=order_items.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
         if request.user.is_authenticated and not request.user.is_superuser:
@@ -264,7 +264,7 @@ def user_update(request,user_id):
 
 
 # ---------------------------------------ADD TO CART------------------------------------------
-
+@login_required(login_url='user_signin')
 def add_to_cart(request,product_id,varient_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
@@ -278,7 +278,8 @@ def add_to_cart(request,product_id,varient_id):
                 return redirect(home)
             cart.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient)
             return redirect(view_cart)
-
+        else:
+            return redirect(user_signin)
     except Exception as e:
         return HttpResponse(e)
 
@@ -366,8 +367,11 @@ def add_address(request):
                     city = request.POST.get('city')
                     state = request.POST.get('state')
                     zipcode = request.POST.get('zipcode')
+                    phone = request.POST.get('phone')
                     address_type = request.POST.get('address_type')
-                   
+                    if len(phone) !=10:
+                        messages.info(request,'Enter a valid phone number')
+                        return redirect(add_address)
                     ADDRESS=address.objects.create(
                         user_id=request.user,
                         first_name=fname,
@@ -379,6 +383,7 @@ def add_address(request):
                         city=city,
                         state=state,
                         pin=zipcode,
+                        phone=phone,
                         address_type=address_type
                     )
                     return redirect('user_account')
@@ -419,8 +424,11 @@ def edit_address(request,address_id):
                     city = request.POST.get('city')
                     state = request.POST.get('state')
                     zipcode = request.POST.get('zipcode')
+                    phone = request.POST.get('phone')
                     address_type = request.POST.get('address_type')
-
+                    if len(phone) != 10:
+                        messages.info(request,'Enter a valid Phone Numer')
+                        return redirect(reverse('edit_address' ,args=[address_id]))
                     address.objects.filter(id=address_id).update(
                         user_id=request.user,
                         first_name=fname,
@@ -432,6 +440,7 @@ def edit_address(request,address_id):
                         city=city,
                         state=state,
                         pin=zipcode,
+                        phone=phone,
                         address_type=address_type
                     )
                     return redirect(user_account)
@@ -470,9 +479,13 @@ def check_out(request):
                         city = request.POST.get('city')
                         state = request.POST.get('state')
                         zipcode = request.POST.get('zipcode')
+                        phone  = request.POST.get('phoneno')
                         address_type = request.POST.get('address_type')
-                        if not fname or not lname or not cname or not country or not addres or not address_2 or not city or not state or not zipcode or not address_type:
+                        if not fname or not lname or not cname or not country or not addres or not address_2 or not city or not state or not zipcode or not address_type or not phone:
                             messages.info(request,'All the fields must be filled !')
+                            return redirect(check_out)
+                        if len(phone) !=10:
+                            messages.info(request,'Enter a valid Phone Numer')
                             return redirect(check_out)
                         ADDRESS=address.objects.create(
                             user_id=request.user,
@@ -485,7 +498,8 @@ def check_out(request):
                             city=city,
                             state=state,
                             pin=zipcode,
-                            address_type=address_type
+                            address_type=address_type,
+                            phone=phone
                         )
                         
                     else:
@@ -526,3 +540,52 @@ def check_out(request):
             return render(user_signin)
     except Exception as e:
         return HttpResponse(e)
+    
+
+
+# ----------------------------------------CANCEL ORDER-------------------------------------
+def cancel_order(request,order_id,order_type):
+    try:
+         if request.user.is_authenticated and not request.user.is_superuser:
+             
+            #  ---------------------------------canceling each product in that purchase-------------------
+             if order_type == 'order':
+                 order=order_items.objects.get(id=order_id)
+                 order.order_status='canceld'
+                 order.save()
+                 p=order.order_id.sub_total - order.total_price
+                 orders.objects.filter(id=order.order_id.id).update(sub_total=p)
+                 print(order.order_id)
+                 k=order.order_id.order_itemss.all()
+                 b=0
+                 for i in k:
+                     if i.order_status != 'canceld':
+                         b=1
+                 if b == 0:
+                    cart_order=order.order_id
+                    cart_order.order_status = 'canceld'
+                    cart_order.save()
+
+                 return redirect(user_account)
+             
+            # ---------------------------------- cancelling the all project in that purchase------------------------------
+             if order_type == 'all':
+                 order=orders.objects.get(id=order_id)
+                 order.order_status = 'canceld'
+                 order.sub_total = 0
+                 order.save()
+                 b=order.order_itemss.all()
+                 for i in b:
+                     i.order_status = 'canceld'
+                     i.save()
+                 return redirect(user_account)
+         else:
+             return redirect(user_signin)
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+def order_detailes(request,order_id):
+    c=1
+    order=order_items.objects.get(id=order_id)
+    return render(request,'view_order.html',{'login_status':1,'order':order})

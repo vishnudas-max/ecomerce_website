@@ -197,6 +197,9 @@
                 <div class="col-12 ">
                     <form action="{% url 'edit_address' address.id %}" method="post">
                         {% csrf_token %}
+                        {% for i in messages %}
+                        <div class="d-flex  text-danger">{{i}}</div>
+                        {% endfor %}
                         <div class="ship_detail">
                             <div class="form-group">
                                 <div class="chek-form">
@@ -334,6 +337,9 @@
                                             <option {% if address.address_type == 'work' %} selected{% endif %} value="work">Work Address</option>
                                         </select>
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <input required="" type="text" name="phone" placeholder="Phone Number*" value="{{address.phone}}">
                                 </div>
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Edit Address</button>
