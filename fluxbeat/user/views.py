@@ -517,6 +517,7 @@ def check_out(request):
                     # -------------------------order settin part start here---------------
                     add_inform=request.POST.get('add_inform')
                     print(add_inform)
+                 
                     order_idd=orders.objects.create(user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=0,payment_id=order_payment,add_information=add_inform)
 
 
@@ -532,8 +533,11 @@ def check_out(request):
                             proudct_quantity=i.proudct_quantity,
                             total_price=i.total_price
                         )
+                        qun=i.varient_id.quantity -1
+                        verients.objects.filter(id=i.varient_id.id).update(quantity=qun)
                         order_itemss.save()
                         cart_items.delete()
+                    return render(request,'succes.html',{'order':order_idd,'login_status':1})
 
                 return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c})
         else:

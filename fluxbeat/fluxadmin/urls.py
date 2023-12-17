@@ -37,7 +37,9 @@ urlpatterns = [
             path('update_varient/<int:varient_id>',views.update_varient,name='update_varient'),
             path('image_updation/<int:varient_id>',views.image_update,name='image_update'),
             path('user_management',views.user_management,name='user_management'),
-            path('user_block/<int:user_id>',views.user_block,name='user_block')
+            path('user_block/<int:user_id>',views.user_block,name='user_block'),
+            path('order_management',views.order_management,name='order_management'),
+            path('order_detail/<int:order_id>',views.order_detail,name='order_detail')
         
             
     

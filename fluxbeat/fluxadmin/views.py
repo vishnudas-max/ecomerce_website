@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import *
 import time
-from user.models import customeUser
+from user.models import customeUser,order_items,orders
 
 # Create your views here.
 @login_required(login_url='admin_login')
@@ -501,3 +501,55 @@ def user_block(request,user_id):
                 return redirect(admin_login)
         except Exception as e:
             return HttpResponse(e)
+        
+@login_required(login_url='admin_login')
+def order_management(request):
+
+        if request.user.is_authenticated and request.user.is_superuser:
+           
+            order=order_items.objects.all().order_by('-added_date')
+            order_list=orders.objects.all().order_by('-order_date')
+            return render(request,'order_management.html',{'order':order,'order_list':order_list})
+        else:
+            return redirect(admin_login)
+def order_detail(request,order_id):
+     if request.user.is_authenticated and request.user.is_superuser:
+         choices=order_items.status
+         order=order_items.objects.get(id=order_id)
+         if request.method == 'POST':
+             order_status=request.POST.get('order_stauts')
+             if order_status == 'canceld':
+                 order.order_id.sub_total -= order.total_price
+                 order.order_id.save()
+             order.order_status=order_status
+             order.save()
+             k=order.order_id.order_itemss.all()
+             b=len(k)
+             print(b)
+             ss=0
+             sd=0
+             sc=0
+             for i in k:
+                 if i.order_status == 'shipped':
+                     ss +=1
+                 if i.order_status == 'delivered':
+                     sd +=1
+                 if i.order_status == 'canceld':
+                    sc +=1
+             if ss == b:
+                 print('shipped')
+                 order.order_id.order_status = 'shipped'
+                 order.order_id.save()
+             if sd == b:
+                 print('deliverd')
+                 order.order_id.order_status = 'delivered'
+                 order.order_id.save()
+             if sc == b:
+                 print('cancled')
+                 order.order_id.order_status = 'canceld'
+                 order.order_id.save()
+                    
+             return redirect(order_management)
+         return render(request,'page-orders-detail.html',{'order':order,'choice':choices})
+     else:
+        return redirect(admin_login)
