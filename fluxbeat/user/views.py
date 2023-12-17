@@ -210,7 +210,7 @@ def varient_change(request,product_id,varient_id):
 @login_required(login_url='user_signin')
 def user_account(request):
     try:
-        user_order=orders.objects.filter(user_id=request.user).all().order_by('-order_date')
+        user_order=orders.objects.filter(user_id=request.user).all().order_by('-id')
         order_itemss=order_items.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
         if request.user.is_authenticated and not request.user.is_superuser:
@@ -238,23 +238,23 @@ def user_update(request,user_id):
                  first_name=request.POST['first_name']
                  last_name=request.POST['last_name']
                  phone_number=request.POST['phoneno']
-                 cpassword=request.POST['cpassword']
-                 npassword=request.POST['npassword']
-                 if npassword == "" and cpassword ==  "":
-                     User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number)
-                     return redirect(user_account)
-                 else:
-                     if npassword != cpassword:
-                         messages.info(request,'password does not match !')
-                         return redirect(user_account)
-                     elif not re.match(password_pattern,npassword):
-                          messages.info(request,'Password is not Strong!')
-                          return redirect(user_account)
-                     elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
-                          messages.info(request,'Enter a valid first name !')
-                          return redirect(user_account)
-                     User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number,password=make_password(npassword))
-                     return redirect(user_account)
+                #  cpassword=request.POST['cpassword']
+                #  npassword=request.POST['npassword']
+                #  if npassword == "" and cpassword ==  "":
+                 User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number)
+                 return redirect(user_account)
+                #  else:
+                #      if npassword != cpassword:
+                #          messages.info(request,'password does not match !')
+                #          return redirect(user_account)
+                #      elif not re.match(password_pattern,npassword):
+                #           messages.info(request,'Password is not Strong!')
+                #           return redirect(user_account)
+                #      elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
+                #           messages.info(request,'Enter a valid first name !')
+                #           return redirect(user_account)
+                #      User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number,password=make_password(npassword))
+                    #  return redirect(user_account)
         else:
             return redirect(user_signin)
     except Exception as e:
@@ -515,7 +515,7 @@ def check_out(request):
                             proudct_quantity=i.proudct_quantity,
                             total_price=i.total_price
                         )
-                        qun=i.varient_id.quantity -1
+                        qun=i.varient_id.quantity - i.proudct_quantity
                         verients.objects.filter(id=i.varient_id.id).update(quantity=qun)
                         order_itemss.save()
                         cart_items.delete()
@@ -538,6 +538,8 @@ def cancel_order(request,order_id,order_type):
              if order_type == 'order':
                  order=order_items.objects.get(id=order_id)
                  order.order_status='canceld'
+                 order.varient_id.quantity += order.proudct_quantity
+                 order.varient_id.save()
                  order.save()
                  p=order.order_id.sub_total - order.total_price
                  orders.objects.filter(id=order.order_id.id).update(sub_total=p)

@@ -502,16 +502,20 @@ def user_block(request,user_id):
         except Exception as e:
             return HttpResponse(e)
         
+
 @login_required(login_url='admin_login')
 def order_management(request):
 
         if request.user.is_authenticated and request.user.is_superuser:
            
             order=order_items.objects.all().order_by('-added_date')
-            order_list=orders.objects.all().order_by('-order_date')
+            order_list=orders.objects.all().order_by('-id')
             return render(request,'order_management.html',{'order':order,'order_list':order_list})
         else:
             return redirect(admin_login)
+        
+
+@login_required(login_url='admin_login')
 def order_detail(request,order_id):
      if request.user.is_authenticated and request.user.is_superuser:
          choices=order_items.status
@@ -521,6 +525,8 @@ def order_detail(request,order_id):
              if order_status == 'canceld':
                  order.order_id.sub_total -= order.total_price
                  order.order_id.save()
+                 order.varient_id.quantity += order.proudct_quantity
+                 order.varient_id.save()
              order.order_status=order_status
              order.save()
              k=order.order_id.order_itemss.all()
@@ -536,17 +542,18 @@ def order_detail(request,order_id):
                      sd +=1
                  if i.order_status == 'canceld':
                     sc +=1
-             if ss == b:
+             if ss == b-sc:
                  print('shipped')
                  order.order_id.order_status = 'shipped'
                  order.order_id.save()
-             if sd == b:
+             if sd == b-sc:
                  print('deliverd')
                  order.order_id.order_status = 'delivered'
                  order.order_id.save()
              if sc == b:
                  print('cancled')
                  order.order_id.order_status = 'canceld'
+                 order.sub_total = 0
                  order.order_id.save()
                     
              return redirect(order_management)
