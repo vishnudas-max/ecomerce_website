@@ -307,24 +307,6 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 
-# --------------------------------------------UPDATE CART QUANTITY -------------------------------
-
-@require_POST
-def update_quantity(request):
-    cart_id = request.POST.get('cart_item_id')
-    value = request.POST.get('quantity')  
-    cart_item=cart.objects.get(id=cart_id)
-
-    cart_item.proudct_quantity=value
-
-    cart_item.save()
-
-    data = {
-        'updated_quantity': cart_item.proudct_quantity,
-        'updated_total_price': cart_item.total_price,  # adjust if needed
-    }
-
-    return JsonResponse(data)
 
 
 
@@ -593,3 +575,44 @@ def order_detailes(request,order_id):
     c=1
     order=order_items.objects.get(id=order_id)
     return render(request,'view_order.html',{'login_status':1,'order':order})
+
+
+
+# views.py
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from fluxadmin.models import cart
+
+def update_cart_quantity(request, cart_item_id, operation):
+    cart_item = get_object_or_404(cart, id=cart_item_id)
+
+    if operation == 'increase':
+        if cart_item.varient_id.quantity <= cart_item.proudct_quantity:
+            data = {
+                'error': 'Stock over',
+            }
+            return JsonResponse(data)
+        cart_item.proudct_quantity += 1
+
+    elif operation == 'decrease':
+        if cart_item.proudct_quantity == 1:
+            data = {
+                'quantity': cart_item.proudct_quantity,
+                'total_price': float(cart_item.total_price),
+            }
+            return JsonResponse(data)
+        cart_item.proudct_quantity -= 1
+
+    # Update the total_price
+    cart_item.total_price = cart_item.proudct_quantity * cart_item.proudct_id.sale_prce
+
+    # Save the changes
+    cart_item.save()
+
+    # Prepare data for the JSON response
+    data = {
+        'quantity': cart_item.proudct_quantity,
+        'total_price': float(cart_item.total_price),
+    }
+
+    return JsonResponse(data)
