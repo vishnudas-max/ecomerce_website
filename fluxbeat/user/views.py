@@ -31,6 +31,22 @@ def home(request):
     except Exception as e:
         return HttpResponse(e)
 
+# -------------------------SHOP PRODUCT LIST---------------------------------------------------------------------------
+def shop_product_list(request):
+  try:
+            if request.user.is_authenticated and not request.user.is_superuser:
+                c=1
+            else:
+                c=0
+      
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+            brands=brand.objects.all()
+            return render(request,'shop-list-left.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c})
+        
+  except Exception as e:
+        return HttpResponse(e)
+
 
 # USER REGISTRATION AND VALIDATION........................................................................-----------------
 import re
@@ -98,7 +114,7 @@ def  send_otp(request):
        send_mail("FLUXBEAT OTP VARIFICATION ",f"Your OTP of for SignUp is {s}",'fluxbeatauth@gmail.com',[request.session['email']],fail_silently=False)
        otp_gen_time=time.time()
        request.session['otp_time']=otp_gen_time
-       return render(request,'otp.html')
+       return render(request,'otp.html',{'k':0})
     except Exception as e:
         return HttpResponse(e)
 
@@ -160,10 +176,10 @@ def otp_varify(request):
                   return redirect(user_signin)
               else:
                   messages.info(request,'Invalid OTP')
-                  return render(request,'otp.html')
+                  return render(request,'otp.html',{'k':0})
             else:
                 messages.info(request,'Time limit is exceeded !')
-                return render(request,'otp.html')
+                return render(request,'otp.html',{'k':1})
     except Exception as e:
         return HttpResponse(e)
     
@@ -461,7 +477,7 @@ def check_out(request):
                         city = request.POST.get('city')
                         state = request.POST.get('state')
                         zipcode = request.POST.get('zipcode')
-                        phone  = request.POST.get('phoneno')
+                        phone  = request.POST.get('phone')
                         address_type = request.POST.get('address_type')
                         if not fname or not lname or not cname or not country or not addres or not address_2 or not city or not state or not zipcode or not address_type or not phone:
                             messages.info(request,'All the fields must be filled !')

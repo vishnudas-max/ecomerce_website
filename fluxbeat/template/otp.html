@@ -64,7 +64,8 @@
 
                            <div class="col-md-8" id="resendContainer">
                             <div class="check-box d-inline-block ml-0 ml-md-2 mt-10">
-                                <a href="{% url 'otp' %}" class="btn li-button-dark">Resend</a>
+                                <a {% if k == 1 %} href="{% url 'otp' %}" {% endif %} class="btn li-button-dark" >Resend</a>
+                                
                                 <label for="remember_me">Resend OTP</label>
                             </div>
                         </div>
@@ -88,28 +89,40 @@
     </div>
 </div>
 <script>
-    let timerElement = document.getElementById('timer');
-    let timeInSeconds = 60;
+let timerElement = document.getElementById('timer');
+let timeInSeconds;
 
-    function updateTimer() {
-        const minutes = Math.floor(timeInSeconds / 60);
-        const seconds = timeInSeconds % 60;
-        const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        timerElement.textContent = formattedTime;
+// Retrieve the timer value from sessionStorage
+if (sessionStorage.getItem('timerValue')) {
+    timeInSeconds = parseInt(sessionStorage.getItem('timerValue'));
+} else {
+    timeInSeconds = 60;
+}
 
-        timeInSeconds--;    
+function updateTimer() {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    timerElement.textContent = formattedTime;
 
-        if (timeInSeconds < 0) {
-            clearInterval(timerInterval);
-            
-        }
+    timeInSeconds--;
+
+    // Save the updated timer value to sessionStorage
+    sessionStorage.setItem('timerValue', timeInSeconds);
+
+    if (timeInSeconds < 0) {
+        clearInterval(timerInterval);
+        // Clear the sessionStorage when the timer reaches 0
+        sessionStorage.removeItem('timerValue');
     }
+}
 
-    // Call updateTimer immediately to display the initial time
-    updateTimer();
+// Call updateTimer immediately to display the initial time
+updateTimer();
 
-    // Set up an interval to update the timer every second
-    const timerInterval = setInterval(updateTimer, 1000);
+// Set up an interval to update the timer every second
+const timerInterval = setInterval(updateTimer, 1000);
+
 </script>
 
 {% endblock contends %}
