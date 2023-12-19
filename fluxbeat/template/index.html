@@ -1843,4 +1843,37 @@
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:09:48 GMT -->
 
 </html>
+<!-- Include SweetAlert CSS and JS -->
+
+
+<script>
+    // Add this script section to your template
+    // This script will be executed when the page loads
+
+    // Check if the success message is available (you can set this in your Django view)
+    {% if success_message == 'Out of stock !' %}
+        // Display SweetAlert for success
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Stock Over !',
+                text: '{{ success_message }}',  // Display your success message here
+                showConfirmButton: false,
+                timer: 2000  // Automatically close after 1.5 seconds
+            });
+        });
+    {% elif success_message == 'All ready in cart !' %}
+         document.addEventListener('DOMContentLoaded', function() {
+                 Swal.fire({
+                     icon: 'error',
+                     title: 'Already in cart!',
+                     text: '{{ success_message }}',  // Display your success message here
+                     showConfirmButton: false,
+                     timer: 2000  // Automatically close after 1.5 seconds
+                 });
+             });
+    {% endif %}
+</script>
+
+
 {% endblock %}

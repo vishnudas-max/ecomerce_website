@@ -208,6 +208,7 @@
                             </form>
                         </div>
                     </div>
+                   
                 </div>
             </div>
             <div class="row">
@@ -220,16 +221,19 @@
                 <div class="row">
 
                     <div class="col-md-6">
-
+                        {% if user_addresses %}
+                        <div class="d-flex pt-4 pb-2 ms-3"><a href="#select" >Select Address Here </div>
+                            {% endif %}
+                     
 
                         {% for i in user_addresses %}
 
-                        <div class="card mb-3 mb-lg-4">
+                        <div class="card mb-3 mb-lg-4" id="select">
 
-                            <div class="card-header">
-                                <h5 class="mb-0">Shippig Address</h5>
+                            <div class="card-header"    style="    background-color: #18936f;">
+                                <h5 class="mb-0">Address </h5>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body" style=" background: #06ce8e4d;">
                                 <input type="radio" name="address" value="{{i.id}}" style="width: 20px;" required>
                                 <address>{{i.address}}</address>
                                 <p>{{i.state}}</p>
@@ -238,13 +242,19 @@
                             </div>
                         </div>
                         {% endfor %}
-                        <div class="mt-5 d-flex align-items-center ms-3">
+                        <label for="" id="a"></label>
+                          <a href="#a" class="ms-3"> Dont't have an address! Create Add address here</a>
+                        <div class="mt-5 d-flex align-items-center ms-3" >
+                       
+                         <br>
                             <input type="radio" name="address" value="add_address" style="width: 20px;"
-                                onclick="toggleShipperDetails()" required>
-                            &nbsp;<a href="#shipper"
-                                style="width: 14px; font-weight: 700;color: rgba(0, 0, 0, 0.786); ">New_address</a>
+                                onclick="toggleShipperDetails()" required  id="adder" {% if l.add == 'add_address' %} checked {% endif %}>
+                            &nbsp;
+
+                            <label for="adder" style="text-decoration: underline;" >Add new Address here</label>
+                        
                         </div>
-                        <div class="ship_detail" id="shipper">
+                        <div class="ship_detail" style="padding: 10px; border: 1px solid rgba(0, 116, 68, 0.344); margin-bottom: 10px;">
 
                             <div class="form-group">
 
@@ -252,17 +262,17 @@
                             <div>
                                 <div class="form-group">
                                     {% for message in messages %}
-                                    <label for="" class="text-warning">{{message}}</label>
+                                    <label for="" class="text-danger">{{message}}</label>
                                     {% endfor %}
                                 </div>
                                 <div class="form-group">
-                                    <input type="text"  name="fname" placeholder="First name *">
+                                    <input type="text"  name="fname" placeholder="First name *" value="{{l.fname}}">
                                 </div>
                                 <div class="form-group">
-                                    <input type="text"  name="lname" placeholder="Last name *">
+                                    <input type="text"  name="lname" placeholder="Last name *" value="{{l.lname}}">
                                 </div>
                                 <div class="form-group">
-                                    <input  type="text" name="cname" placeholder="Company Name/house Name">
+                                    <input  type="text" name="cname" placeholder="Company Name/house Name" value="{{l.cname}}">
                                 </div>
                                 <div class="form-group">
                                     <div class="custom_select">
@@ -360,20 +370,20 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" name="shipping_address"  placeholder="Address *">
+                                    <input type="text" name="shipping_address"  placeholder="Address *" value="{{l.add1}}">
                                 </div>
                                 <div class="form-group">
                                     <input type="text" name="shipping_address_2" 
-                                        placeholder="Address line2">
+                                        placeholder="Address line2" value="{{l.add2}}">
                                 </div>
                                 <div class="form-group">
-                                    <input  type="text" name="city" placeholder="City*">
+                                    <input  type="text" name="city" placeholder="City*" value="{{l.city}}">
                                 </div>
                                 <div class="form-group">
-                                    <input  type="text" name="state" placeholder="State*">
+                                    <input  type="text" name="state" placeholder="State*" value="{{l.state}}">
                                 </div>
                                 <div class="form-group">
-                                    <input  type="text" name="zipcode" placeholder="Postcode*">
+                                    <input  type="text" name="zipcode" placeholder="Postcode*" value="{{l.pin}}">
                                 </div>
                                 <div class="form-group">
                                     <div class="custom_select">
@@ -384,7 +394,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" name="phone"  placeholder="Phoen Number *">
+                                    <input type="text" name="phone"  placeholder="Phoen Number *" value="{{l.phone}}">
                                 </div>
                               
                             </div>
@@ -620,5 +630,28 @@
 <!-- Main Scr{% static 'ipt -->
 <script src="{% static 'assets/js/main.js" type="text/javascript' %}"></script>
 <script src="{% static 'assets/js/custom-chart.js" type="text/javascript' %}"></script>
+<script>
+     {% if message == 'All field must be filled !' %}
+         document.addEventListener('DOMContentLoaded', function() {
+                 Swal.fire({
+                     icon: 'error',
+                     title: 'All fields must be filled',
+                     text: '{{ message }}',  // Display your success message here
+                     showConfirmButton: false,
+                     timer: 2000  // Automatically close after 1.5 seconds
+                 });
+             });
+        {% elif message == 'Phone Number is not Valid!' %}
+            document.addEventListener('DOMContentLoaded', function() {
+                 Swal.fire({
+                     icon: 'error',
+                     title: 'Phone Number is not Valid!',
+                     text: '{{ message }}',  // Display your success message here
+                     showConfirmButton: false,
+                     timer: 2000  // Automatically close after 1.5 seconds
+                 });
+             });
+    {% endif %}
+</script>
 
 {% endblock contend %}

@@ -181,10 +181,10 @@
                                     <div class="detail-gallery">
                                         <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                         <!-- MAIN SLIDES -->
-                                        <div class="product-image-slider">
+                                        <div class="product-image-slider " style="width: 400px;  background-color: white;">
                                             {% for k in images %}
-                                            <figure class="border-radius-10">
-                                                <img src="{{k.image_1.url}}" alt="product image" style="height: inherit; width: inherit;">
+                                            <figure class="border-radius-10 d-flex justify-content-center" >
+                                                <img src="{{k.image_1.url}}" alt="product image"  style="width: 300px;">
                                             </figure>
                                             {% endfor %}
                                            
@@ -192,7 +192,7 @@
                                         <!-- THUMBNAILS -->
                                         <div class="slider-nav-thumbnails pl-15 pr-15">
                                             {% for i in images %}
-                                            <div><img src="{{i.image_1.url}}" alt="product image" style="width: 80px; height: 80px;"></div>
+                                            <div><img src="{{i.image_1.url}}" alt="product image" ></div>
                                             {% endfor %}
                                             
                                         </div>
@@ -826,4 +826,29 @@
 
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/shop-product-right.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:10:05 GMT -->
 </html>
+<script src="{% static 'userassets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+    <script src="{% static 'userassets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'userassets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+    <script src="{% static 'userassets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/slick.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.syotimer.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/wow.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery-ui.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/perfect-scrollbar.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/magnific-popup.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/select2.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/waypoints.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/counterup.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.countdown.min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/images-loaded.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/isotope.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/scrollup.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.vticker-min.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.theia.sticky.js' %}"></script>
+    <script src="{% static 'userassets/js/plugins/jquery.elevatezoom.js' %}"></script>
+    <!-- Template{% static '  JS -->
+    <script src="{% static 'userassets/js/maind134.js' %}"></script>
+    <script src="{% static 'userassets/js/shopd134.js' %}"></script>
+
+    
 {% endblock %}

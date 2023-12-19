@@ -40,9 +40,10 @@ def shop_product_list(request):
                 c=0
       
             products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
-            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
             brands=brand.objects.all()
-            return render(request,'shop-list-left.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c})
+            categorie=category.objects.all()
+            return render(request,'shop-list-left.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie})
         
   except Exception as e:
         return HttpResponse(e)
@@ -59,7 +60,7 @@ def user_reg(request):
              phoneno=request.POST['phoneno']
              password=request.POST['password']
              cpassword=request.POST['cpassword']
-
+             b={'fname':first_name,'lname':last_name,'email':email,'phone':phoneno}
              request.session['first_name']=first_name
              request.session['last_name']=last_name
              request.session['email']=email
@@ -68,19 +69,24 @@ def user_reg(request):
              password_pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
              if password != cpassword:
                 messages.info(request,'password does not match !')
-                return redirect(user_reg)
+                return render(request,'user_reg.html',b)
+             
              elif not re.match(password_pattern,password):
                  messages.info(request,'Password is not Strong!')
-                 return redirect(user_reg)
+                 return render(request,'user_reg.html',b)
+             
              elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
                  messages.info(request,'Enter a valid first name !')
-                 return redirect(user_reg)
+                 return render(request,'user_reg.html',b)
+             
              elif len(phoneno) !=  10:
                  messages.info(request,'Enter a valid Phone number !')
-                 return redirect(user_reg)
+                 return render(request,'user_reg.html',b)
+             
              if User.objects.filter(email=email).exists():
                 messages.info(request,'Email already exist !')
-                return redirect(user_reg)
+                return render(request,'user_reg.html',b)
+             
              try:
                email_validator = EmailValidator(message="Enter a valid email address.")
                email_validator(email)
@@ -88,10 +94,10 @@ def user_reg(request):
              except ValidationError as e:
                  error_message = e.message
                  messages.info(request,error_message)
-                 return redirect(user_reg)
+                 return render(request,'user_reg.html',b)
              if not first_name or not last_name or not email or not phoneno or not password or not cpassword:
                  messages.info(request,'All feilds must be filled !')
-                 return redirect(user_reg)
+                 return render(request,'user_reg.html',b)
              
              return redirect(send_otp)
                 
@@ -254,23 +260,27 @@ def user_update(request,user_id):
                  first_name=request.POST['first_name']
                  last_name=request.POST['last_name']
                  phone_number=request.POST['phoneno']
-                #  cpassword=request.POST['cpassword']
-                #  npassword=request.POST['npassword']
-                #  if npassword == "" and cpassword ==  "":
-                 User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number)
-                 return redirect(user_account)
-                #  else:
-                #      if npassword != cpassword:
-                #          messages.info(request,'password does not match !')
-                #          return redirect(user_account)
-                #      elif not re.match(password_pattern,npassword):
-                #           messages.info(request,'Password is not Strong!')
-                #           return redirect(user_account)
-                #      elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
-                #           messages.info(request,'Enter a valid first name !')
-                #           return redirect(user_account)
-                #      User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number,password=make_password(npassword))
-                    #  return redirect(user_account)
+                 cpassword=request.POST['cpassword']
+                 npassword=request.POST['npassword']
+                 email=request.POST['email']
+                 if npassword == "" and cpassword ==  "":
+                     User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number)
+                     return redirect(user_account)
+                 else:
+                     if npassword != cpassword:
+                         messages.info(request,'password does not match !')
+                         return redirect(user_account)
+                     elif not re.match(password_pattern,npassword):
+                          messages.info(request,'Password is not Strong!')
+                          return redirect(user_account)
+                     elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
+                          messages.info(request,'Enter a valid first name !')
+                          return redirect(user_account)
+                     b=User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number,password=make_password(npassword))
+                     user=authenticate(request,email=email,password=cpassword)
+                     if user is not None:
+                         login(request,user)
+                     return redirect(user_account)
         else:
             return redirect(user_signin)
     except Exception as e:
@@ -284,6 +294,9 @@ def user_update(request,user_id):
 def add_to_cart(request,product_id,varient_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+            brands=brand.objects.all()
             productt=product.objects.get(id=product_id)
             if varient_id == 0:
                 current_varient=productt.product_varients.all().first()
@@ -291,7 +304,15 @@ def add_to_cart(request,product_id,varient_id):
                 current_varient=verients.objects.get(id=varient_id)
             userr=User.objects.get(id=request.user.id)
             if cart.objects.filter(Q(user_id=userr) & Q(proudct_id=productt) & Q(varient_id=current_varient)).exists():
-                return redirect(home)
+                    already = "All ready in cart !"
+                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already})
+            if current_varient.quantity  == 0:
+
+
+                # ----------------sweet alert for items
+                stock_over = "Out of stock !"
+                return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':stock_over})
+            
             cart.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient)
             return redirect(view_cart)
         else:
@@ -468,6 +489,7 @@ def check_out(request):
                     # --------------------------- address settting part start --------------------
 
                     if request.POST.get('address') =='add_address':
+                        add=request.POST.get('address')
                         fname = request.POST.get('fname')
                         lname = request.POST.get('lname')
                         cname = request.POST.get('cname')
@@ -479,12 +501,20 @@ def check_out(request):
                         zipcode = request.POST.get('zipcode')
                         phone  = request.POST.get('phone')
                         address_type = request.POST.get('address_type')
+                        b={'fname':fname,'lname':lname,'cname':cname,'country':country,'add1':addres,'add2':address_2,
+                           'city':city,
+                           'state':state,
+                           'pin':zipcode,
+                           'phone':phone,
+                           'address_type':address_type,
+                           'add':add}
                         if not fname or not lname or not cname or not country or not addres or not address_2 or not city or not state or not zipcode or not address_type or not phone:
-                            messages.info(request,'All the fields must be filled !')
-                            return redirect(check_out)
+                            message='All field must be filled !'
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message})
                         if len(phone) !=10:
-                            messages.info(request,'Enter a valid Phone Numer')
-                            return redirect(check_out)
+                            message='Phone Number is not Valid!'
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message})
+                    
                         ADDRESS=address.objects.create(
                             user_id=request.user,
                             first_name=fname,
@@ -590,9 +620,12 @@ def cancel_order(request,order_id,order_type):
     
 
 def order_detailes(request,order_id):
-    c=1
-    order=order_items.objects.get(id=order_id)
-    return render(request,'view_order.html',{'login_status':1,'order':order})
+     if request.user.is_authenticated and not request.user.is_superuser:
+        c=1
+        order=order_items.objects.get(id=order_id)
+        return render(request,'view_order.html',{'login_status':1,'order':order})
+     else:
+         return redirect(user_signin)
 
 
 
@@ -602,35 +635,38 @@ from django.shortcuts import get_object_or_404
 from fluxadmin.models import cart
 
 def update_cart_quantity(request, cart_item_id, operation):
-    cart_item = get_object_or_404(cart, id=cart_item_id)
+     if request.user.is_authenticated and not request.user.is_superuser:
+            cart_item = get_object_or_404(cart, id=cart_item_id)
 
-    if operation == 'increase':
-        if cart_item.varient_id.quantity <= cart_item.proudct_quantity:
-            data = {
-                'error': 'Stock over',
-            }
-            return JsonResponse(data)
-        cart_item.proudct_quantity += 1
+            if operation == 'increase':
+                if cart_item.varient_id.quantity <= cart_item.proudct_quantity:
+                    data = {
+                        'error': 'Stock over',
+                    }
+                    return JsonResponse(data)
+                cart_item.proudct_quantity += 1
 
-    elif operation == 'decrease':
-        if cart_item.proudct_quantity == 1:
+            elif operation == 'decrease':
+                if cart_item.proudct_quantity == 1:
+                    data = {
+                        'quantity': cart_item.proudct_quantity,
+                        'total_price': float(cart_item.total_price),
+                    }
+                    return JsonResponse(data)
+                cart_item.proudct_quantity -= 1
+
+            # Update the total_price
+            cart_item.total_price = cart_item.proudct_quantity * cart_item.proudct_id.sale_prce
+
+            # Save the changes
+            cart_item.save()
+
+            # Prepare data for the JSON response
             data = {
                 'quantity': cart_item.proudct_quantity,
                 'total_price': float(cart_item.total_price),
             }
+
             return JsonResponse(data)
-        cart_item.proudct_quantity -= 1
-
-    # Update the total_price
-    cart_item.total_price = cart_item.proudct_quantity * cart_item.proudct_id.sale_prce
-
-    # Save the changes
-    cart_item.save()
-
-    # Prepare data for the JSON response
-    data = {
-        'quantity': cart_item.proudct_quantity,
-        'total_price': float(cart_item.total_price),
-    }
-
-    return JsonResponse(data)
+     else:
+         return redirect(user_signin)

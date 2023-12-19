@@ -13,6 +13,8 @@
       background-color: #f8f9f7; /* Add a hover effect for better visibility */
     }
   </style>
+
+
 <div class="mobile-header-active mobile-header-wrapper-style">
     <div class="mobile-header-wrapper-inner">
         <div class="mobile-header-top">
@@ -419,8 +421,8 @@
                                                         <input required="" class="form-control square" name="phoneno"
                                                             type="text" value="{{user.phone_number}}">
                                                     </div>
-
-                                                    <!-- <div class="form-group col-md-12">
+                                                    <label for="" style="color: blue; font-weight: 700; font-size: 15px; text-decoration: underline;">Change password here</label>
+                                                    <div class="form-group col-md-12">
                                                         <label>New Password <span class="required">*</span></label>
                                                         <input class="form-control square" name="npassword"
                                                             type="password" value="">
@@ -429,12 +431,12 @@
                                                         <label>Confirm Password <span class="required">*</span></label>
                                                         <input class="form-control square" name="cpassword"
                                                             type="password">
-                                                    </div> -->
+                                                    </div>
                                                     <div class="col-md-12">
                                                         <button type="submit" class="btn btn-fill-out submit"
                                                             name="submit" value="Submit">Save</button>
                                                     </div><!-- Include this link wherever you want to provide a password reset option -->
-                                                    <a href="{% url 'password_reset' %}">Change Password?</a>
+                                          
                                                     
                                                 </div>
                                             </form>
