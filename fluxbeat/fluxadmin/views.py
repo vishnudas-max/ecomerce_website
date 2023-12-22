@@ -560,3 +560,11 @@ def order_detail(request,order_id):
          return render(request,'page-orders-detail.html',{'order':order,'choice':choices})
      else:
         return redirect(admin_login)
+     
+
+# -------------------------------COUPON MANAGEMENT -------------------------
+def coupon_management(request):
+    try:
+        return render(request,'coupon_mangement.html')
+    except Exception as e:
+        return HttpResponse(e)

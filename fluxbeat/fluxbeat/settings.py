@@ -38,8 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user',
+    'user',  
     'fluxadmin',
+    'payment',
+
+
+  
   
 ]
 
@@ -151,3 +155,7 @@ AUTH_USER_MODEL = 'user.customeUser'
 # -------------------------------------------specifying the directory for the media ----------------------------------------
 MEDIA_ROOT= os.path.join(BASE_DIR, 'media/')
 MEDIA_URL= "/media/"
+
+razor_pay_key_id='rzp_test_RYGKB5eIB5WyOL'
+key_secret='1JmgrxDtdMxMhvfw8c2Mb5Lh'
+

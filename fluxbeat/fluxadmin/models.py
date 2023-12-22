@@ -66,3 +66,13 @@ class cart(models.Model):
         # Calculate total_price before saving
         self.total_price = self.proudct_quantity * self.proudct_id.sale_prce
         super().save(*args, **kwargs)
+class coupon(models.Model):
+    coupon_name=models.CharField(max_length=50,null=False,unique=True)
+    code=models.CharField(max_length=50,null=False,unique=True)
+    min_amount=models.DecimalField(max_digits=10,decimal_places=2)
+    offer_per=models.DecimalField(max_digits=4,decimal_places=2)
+    starting_date=models.DateField(auto_now_add=True)
+    exp_date=models.DateField(null=False)
+
+    def __str__(self):
+        return self.coupon_name

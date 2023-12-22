@@ -13,7 +13,7 @@ from datetime import timedelta
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-
+from payment.views import *
 User=get_user_model()
 # Create your views here.
 def home(request):
@@ -539,12 +539,26 @@ def check_out(request):
                     payment_type=request.POST.get('payment_option')
                     if payment_type == 'cash on delivery':
                         order_payment=Paymment.objects.create(Paymment_type=payment_type)
-                    print(order_payment)
+
+
+
+
+
+                    elif payment_type == 'paypal':
+                       print("thsin tis notn")
+                       return redirect(payment)
+              
+
+
+
+
+
+
                     # -------------------------------Paymment setting part end here ---------------------
 
                     # -------------------------order settin part start here---------------
                     add_inform=request.POST.get('add_inform')
-                    print(add_inform)
+     
                  
                     order_idd=orders.objects.create(user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=0,payment_id=order_payment,add_information=add_inform)
 
@@ -565,7 +579,7 @@ def check_out(request):
                         verients.objects.filter(id=i.varient_id.id).update(quantity=qun)
                         order_itemss.save()
                         cart_items.delete()
-                    return render(request,'succes.html',{'order':order_idd,'login_status':1})
+                    return redirect(reverse('success',args=[order_idd.id]))
 
                 return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c})
         else:
@@ -573,7 +587,15 @@ def check_out(request):
     except Exception as e:
         return HttpResponse(e)
     
-
+     
+# -=---------------------------------SUCCES PAGE------------------ 
+def success(request,order_id):
+    try:
+        order_idd=orders.objects.get(id=order_id)
+        if request.user.is_authenticated and not request.user.is_superuser:
+            return render(request,'succes.html',{'order':order_idd,'login_status':1})
+    except Exception as e:
+        return HttpResponse(e)
 
 # ----------------------------------------CANCEL ORDER-------------------------------------
 def cancel_order(request,order_id,order_type):
@@ -670,3 +692,4 @@ def update_cart_quantity(request, cart_item_id, operation):
             return JsonResponse(data)
      else:
          return redirect(user_signin)
+

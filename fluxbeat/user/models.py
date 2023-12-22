@@ -39,6 +39,7 @@ class Paymment(models.Model):
     Paymment_status=models.BooleanField(default=False)
     Paymment_amount=models.DecimalField(max_digits=10,decimal_places=2,null=True)
 
+from fluxadmin.models import coupon
 class orders(models.Model):
     status = [
         ('Processing', 'processing'),
@@ -54,6 +55,8 @@ class orders(models.Model):
     payment_id = models.OneToOneField(Paymment, on_delete=models.CASCADE)
     order_status=models.CharField(max_length=20, choices=status, default='Processing')
     add_information=models.TextField(max_length=100,blank=True,null=True)
+    discount_amount=models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
+    offer_applied=models.ForeignKey(coupon,on_delete=models.CASCADE,related_name='offer_applied_orders',null=True)
 
 
 from fluxadmin.models import product,verients

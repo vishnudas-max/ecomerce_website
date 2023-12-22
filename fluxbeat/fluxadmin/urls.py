@@ -39,7 +39,8 @@ urlpatterns = [
             path('user_management',views.user_management,name='user_management'),
             path('user_block/<int:user_id>',views.user_block,name='user_block'),
             path('order_management',views.order_management,name='order_management'),
-            path('order_detail/<int:order_id>',views.order_detail,name='order_detail')
+            path('order_detail/<int:order_id>',views.order_detail,name='order_detail'),
+            path('coupon_management',views.coupon_management,name='coupon_mangement')
         
             
     
