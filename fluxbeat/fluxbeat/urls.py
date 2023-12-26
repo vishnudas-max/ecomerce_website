@@ -22,7 +22,6 @@ from fluxadmin import views as a
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from payment import urls as payment_url
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.home,name='user_home'),
@@ -33,7 +32,6 @@ urlpatterns = [
     path('otp',views.send_otp,name='otp'),
     path('otp_varify',views.otp_varify),
     path('flux_admin/',include(urls)),
-    path('checkout/',include(payment_url)),
     path('admin_login',a.admin_login,name='admin_login'),
     path('product_detail/<int:product_id>',views.product_detail,name='product_detail'),
     path('varient_change/<int:product_id>/<int:varient_id>',views.varient_change,name='varient_change'),

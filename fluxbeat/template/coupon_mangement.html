@@ -16,12 +16,35 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3">
-                    <form action="{% url 'admin_product_category' %}" method="POST">
+                    {% for i in messages %}
+                    <div  class="text-danger">{{i}}</div>
+                    {% endfor %}
+                    <form method="post" id="couponForm">
                         {% csrf_token %}
-                  
-                        <div class="d-grid">
-                            <button class="btn btn-primary">Create category</button>
+                        <div class="alert alert-danger" style="display: none;" id="formErrors">
+                            {{ form.non_field_errors }}
                         </div>
+                        <div class="form-group">
+                            <label for="{{ form.coupon_name.id_for_label }}">Coupon Name:</label>
+                            <input type="text" class="form-control" name="{{ form.coupon_name.name }}"  value="{{ form_data.coupon_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.code.id_for_label }}">Code:</label>
+                            <input type="text" class="form-control" name="{{ form.code.name }}"  value="{{ form_data.code }}" maxlength="7" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.min_amount.id_for_label }}">Minimum Amount:</label>
+                            <input type="number" class="form-control" name="{{ form.min_amount.name }}"  value="{{ form_data.min_amount }}" maxlength="7" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.offer_per.id_for_label }}">Offer Percentage:</label>
+                            <input type="number" class="form-control" name="{{ form.offer_per.name }}"  value="{{ form_data.offer_per }}"  required>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.exp_date.id_for_label }}">Expiration Date:</label>
+                            <input type="date" class="form-control" name="{{ form.exp_date.name }}"  value="{{ form_data.exp_date }}"  required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
                 <div class="col-md-9">
@@ -31,37 +54,27 @@
                                 <tr>
 
                                     <th>ID</th>
-                                    <th>Category Name</th>
-                                    <th>Category Status</th>
-                                    <th>Actions</th>
+                                    <th>Coupon Name</th>
+                                    <th>Coupon CODE</th>
+                                    <td>Min Amount</td>
+                                    <td>Offer Percentage</td>
+                                    <th>Starting date</th>
+                                    <th>Expiary date</th>
 
                                 </tr>
                             </thead>
                             <tbody>
-                             
-                                <tr>
-
-                                    <td>u</td>
-
-                                    <td></td>
-                                    <td> <span
-                                            class="badge rounded-pill bg-success">Active</span>
-                                         <span class="badge rounded-pill bg-danger">Inactive</span>
-                                       
-                                    </td>
-                                    <td class="d-flex p-3 ">
-
-
-                                        <a class=" btn-sm btn-primary"
-                                            href=""></a>
-                                        <a class="btn-sm btn-primary ms-2"
-                                            href="">Edit </a>
-
-
-                    </div>
-
-                    </td>
-                    </tr>
+                             {% for i in coupon %}
+                             <tr>
+                                <td>{{i.id}}</td>
+                                <td>{{i.coupon_name}}</td>
+                                <td>{{i.code}}</td>
+                                <td>{{i.min_amount}}</td>
+                                <td>{{i.offer_per}}%</td>
+                                <td>{{i.starting_date}}</td>
+                                <td>{{i.exp_date}}</td>
+                             </tr>
+                             {% endfor %}
                   
                     </tbody>
                     </table>
@@ -86,6 +99,24 @@
     </div>
 </footer>
 </main>
+
+<script>
+    // jQuery script to display form errors on the client side
+    $(document).ready(function() {
+        // Show form errors if there are any
+        if ($("#formErrors").text().trim() !== "") {
+            $("#formErrors").show();
+        }
+
+        // Show form errors when the form is submitted
+        $("#couponForm").submit(function(event) {
+            if ($("#formErrors").text().trim() !== "") {
+                $("#formErrors").show();
+                event.preventDefault(); // Prevent form submission if there are errors
+            }
+        });
+    });
+</script>
 <script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'assets/js/vendors/select2.min.js' %}"></script>

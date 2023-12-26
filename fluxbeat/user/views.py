@@ -13,7 +13,7 @@ from datetime import timedelta
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from payment.views import *
+
 User=get_user_model()
 # Create your views here.
 def home(request):
@@ -480,14 +480,18 @@ def check_out(request):
 
         user_address=address.objects.filter(user_id=request.user.id)
         cart_items=cart.objects.filter(user_id=request.user.id).all()
+        or_id=orders.objects.all().order_by('-id').first()
+        or_idd=or_id.id + 1
         sum=0
         for i in cart_items:
             sum +=i.total_price
 
         if request.user.is_authenticated and not request.user.is_superuser:
                 if request.method == 'POST':
-                    # --------------------------- address settting part start --------------------
-
+                    print('dfsdkfljsdjfsldjflsldfkl')
+                    # ----------- ---------------- address settting part start --------------------
+                    print(request.POST.get('fname'))
+                   
                     if request.POST.get('address') =='add_address':
                         add=request.POST.get('address')
                         fname = request.POST.get('fname')
@@ -510,10 +514,10 @@ def check_out(request):
                            'add':add}
                         if not fname or not lname or not cname or not country or not addres or not address_2 or not city or not state or not zipcode or not address_type or not phone:
                             message='All field must be filled !'
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message})
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd})
                         if len(phone) !=10:
                             message='Phone Number is not Valid!'
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message})
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd})
                     
                         ADDRESS=address.objects.create(
                             user_id=request.user,
@@ -545,8 +549,7 @@ def check_out(request):
 
 
                     elif payment_type == 'paypal':
-                       print("thsin tis notn")
-                       return redirect(payment)
+                        order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=sum)
               
 
 
@@ -579,9 +582,12 @@ def check_out(request):
                         verients.objects.filter(id=i.varient_id.id).update(quantity=qun)
                         order_itemss.save()
                         cart_items.delete()
+                        a=order_idd.id
+                    if payment_type == 'paypal':
+                        return JsonResponse({'status': 'success', 'message': 'Payment confirmed','order_Id':a})
                     return redirect(reverse('success',args=[order_idd.id]))
 
-                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c})
+                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'or_id':or_idd})
         else:
             return render(user_signin)
     except Exception as e:

@@ -38,7 +38,7 @@
         <nav>
             <ul class="menu-aside">
                 <li class="menu-item active">
-                    <a class="menu-link" href=""> <i class="icon material-icons md-home"></i>
+                    <a class="menu-link" href="{% url 'admin_dashboard' %}"> <i class="icon material-icons md-home"></i>
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
@@ -54,7 +54,7 @@
                   </a>
               </li> -->
                 <li class="menu-item has-submenu">
-                    <a class="menu-link" href="{% url 'admin_add_product' %}"> <i
+                    <a class="menu-link" href="{% url 'admin_add_product' %}"> <i 
                             class="icon material-icons md-shopping_bag"></i>
                         <span class="text">Product Management</span>
                     </a>
@@ -89,8 +89,8 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="#"> <i class="icon material-icons md-person"></i>
-                        <span class="text">Account</span>
+                    <a class="menu-link" href="{% url 'coupon_mangement' %}"> <i class="icon material-icons md-person"></i>
+                        <span class="text">Coupon management</span>
                     </a>
                 </li>
                 <li class="menu-item">
@@ -116,8 +116,8 @@
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="page-blank.html"> <i class="icon material-icons md-local_offer"></i>
-                        <span class="text"> Starter page </span>
+                    <a class="menu-link" href="{% url 'admin_logout' %}"> <i class="icon material-icons md-local_offer"></i>
+                        <span class="text"> Log Out</span>
                     </a>
                 </li>
             </ul>

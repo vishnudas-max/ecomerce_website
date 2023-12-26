@@ -2,6 +2,7 @@
 {% block contend %}
 {% load static %}
 
+
 <link type="text/css" href="@@path/vendor/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet">
 <div class="mobile-header-active mobile-header-wrapper-style">
     <div class="mobile-header-wrapper-inner">
@@ -216,7 +217,7 @@
                     <div class="divider mt-50 mb-50"></div>
                 </div>
             </div>
-            <form method="post" action="{% url 'check_out' %}">
+            <form method="post" action="{% url 'check_out' %}" id="check_out_form">
                 {% csrf_token %}
                 <div class="row">
 
@@ -234,7 +235,7 @@
                                 <h5 class="mb-0">Address </h5>
                             </div>
                             <div class="card-body" style=" background: #06ce8e4d;">
-                                <input type="radio" name="address" value="{{i.id}}" style="width: 20px;" required>
+                                <input type="radio" name="address" value="{{i.id}}" style="width: 20px;" required class="select_address">
                                 <address>{{i.address}}</address>
                                 <p>{{i.state}}</p>
                                 <p>{{i.country}}</p>
@@ -247,7 +248,7 @@
                         <div class="mt-5 d-flex align-items-center ms-3" >
                        
                          <br>
-                            <input type="radio" name="address" value="add_address" style="width: 20px;"
+                            <input type="radio" name="address" value="add_address" style="width: 20px;" class="add_adderess select_address"
                                 onclick="toggleShipperDetails()" required  id="adder" {% if l.add == 'add_address' %} checked {% endif %}>
                             &nbsp;
 
@@ -266,17 +267,17 @@
                                     {% endfor %}
                                 </div>
                                 <div class="form-group">
-                                    <input type="text"  name="fname" placeholder="First name *" value="{{l.fname}}">
+                                    <input type="text"  name="fname" placeholder="First name *" value="{{l.fname}}" id="k" > 
                                 </div>
                                 <div class="form-group">
-                                    <input type="text"  name="lname" placeholder="Last name *" value="{{l.lname}}">
+                                    <input type="text"  name="lname" placeholder="Last name *" value="{{l.lname}}"  id="k"  >
                                 </div>
-                                <div class="form-group">
-                                    <input  type="text" name="cname" placeholder="Company Name/house Name" value="{{l.cname}}">
+                                <div class="form-group"> 
+                                    <input  type="text" name="cname" placeholder="Company Name/house Name" value="{{l.cname}}"   id="k" >
                                 </div>
                                 <div class="form-group">
                                     <div class="custom_select">
-                                        <select class="form-control select-active" name="country" >
+                                        <select class="form-control select-active" name="country"  id="k" >
                                             <option  selected >Select Your Country</option>
                                             <option value="Aland Islands">Aland Islands</option>
                                             <option value="Afghanistan">Afghanistan</option>
@@ -370,31 +371,31 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" name="shipping_address"  placeholder="Address *" value="{{l.add1}}">
+                                    <input type="text" name="shipping_address"  placeholder="Address *" value="{{l.add1}}"  id="k" >
                                 </div>
                                 <div class="form-group">
                                     <input type="text" name="shipping_address_2" 
-                                        placeholder="Address line2" value="{{l.add2}}">
+                                        placeholder="Address line2" value="{{l.add2}}"  id="k" >
                                 </div>
                                 <div class="form-group">
-                                    <input  type="text" name="city" placeholder="City*" value="{{l.city}}">
+                                    <input  type="text" name="city" placeholder="City*" value="{{l.city}}"  id="k" >
                                 </div>
                                 <div class="form-group">
-                                    <input  type="text" name="state" placeholder="State*" value="{{l.state}}">
+                                    <input  type="text" name="state" placeholder="State*" value="{{l.state}}"  id="k" >
                                 </div>
                                 <div class="form-group">
-                                    <input  type="text" name="zipcode" placeholder="Postcode*" value="{{l.pin}}">
+                                    <input  type="text" name="zipcode" placeholder="Postcode*" value="{{l.pin}}" id="k"  >
                                 </div>
                                 <div class="form-group">
                                     <div class="custom_select">
-                                        <select class="form-control select-active" name="address_type">
+                                        <select class="form-control select-active" name="address_type" id="k"  >
                                             <option value="home">Home Address</option>
                                             <option value="work">Work Address</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" name="phone"  placeholder="Phoen Number *" value="{{l.phone}}">
+                                    <input type="text" name="phone"  placeholder="Phoen Number *" value="{{l.phone}}"  id="k" class="phonee">
                                 </div>
                               
                             </div>
@@ -452,30 +453,30 @@
                     </table>
                 </div>
                 <div class="bt-1 border-color-1 mt-30 mb-30"></div>
-                <div class="payment_method">
-                    <div class="mb-25">
-                        <h5>Payment</h5>
-                    </div>
+                <div class="container">
                     <div class="payment_option">
                         <div class="custome-radio">
-                            <input class="form-check-input" type="radio" name="payment_option"
-                                id="exampleRadios3"  value='cash on delivery' required>
-                            <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse"
-                                data-target="#bankTranfer" aria-controls="bankTranfer">Cash on delivery</label>
-                           
+                            <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios3" value='cash on delivery' required checked>
+                            <label class="form-check-label" for="exampleRadios3">Cash on delivery</label>
                         </div>
                         <div class="custome-radio">
-                            <input class="form-check-input" type="radio" name="payment_option"
-                                id="exampleRadios4" value="paypal" required>
-                            <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse"
-                                data-target="#checkPayment" aria-controls="checkPayment">Paypal</label>
-                          
+                            <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios4" value="paypal" required>
+                            <label class="form-check-label" for="exampleRadios4">Paypal</label>
                         </div>
-                        
                     </div>
+                
+                    <div id="bankTransferContent" style="display: none;">
+                        <!-- Content for Cash on Delivery -->
+                        <button type="submit" id="placeOrderButton" class="btn btn-primary">Place Order</button>
+                    </div>
+                
+                    <div id="paypalContent" style="display: none;">
+                        <!-- Content for Paypal -->
+                        <button  id="rzp-button1" class="btn btn-primary">Pay Now</button>
+                    </div>
+
                 </div>
-                <button type="submit" id="rzp-button1" class="btn btn-primary">Place Order</button>
-                <button type="submit"  class="btn btn-primary">Pay Now</button>
+                
                 </form>
             </div>
         </div>
@@ -622,39 +623,199 @@
 </html>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
+    // JavaScript script to toggle button visibility based on radio selection
+    document.addEventListener('DOMContentLoaded', function () {
+        var cashOnDeliveryRadio = document.getElementById('exampleRadios3');
+        var paypalRadio = document.getElementById('exampleRadios4');
+        var bankTransferContent = document.getElementById('bankTransferContent');
+        var paypalContent = document.getElementById('paypalContent');
+
+        // Set the initial state
+        cashOnDeliveryRadio.checked = true;
+        bankTransferContent.style.display = 'block';
+
+        // Trigger the 'change' event to show the initial content
+        var changeEvent = new Event('change');
+        cashOnDeliveryRadio.dispatchEvent(changeEvent);
+
+        // Add event listeners
+        cashOnDeliveryRadio.addEventListener('change', function () {
+            if (cashOnDeliveryRadio.checked) {
+                bankTransferContent.style.display = 'block';
+                paypalContent.style.display = 'none';
+            }
+        });
+
+        paypalRadio.addEventListener('change', function () {
+            if (paypalRadio.checked) {
+                bankTransferContent.style.display = 'none';
+                paypalContent.style.display = 'block';
+            }
+        });
+    });
+</script>
+
+
+<script>
+    var orderAmountInPaise = {{sum}} * 100;  // Multiply by 100 instead of 10
+    var roundedAmount = Math.round(orderAmountInPaise);
     var options = {
-        "key": "rzp_test_RYGKB5eIB5WyOL", // Enter the Key ID generated from the Dashboard
-        "amount": "50000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "key": "rzp_test_zzvnNnxalKyZJn",
+        "amount": roundedAmount,
         "currency": "INR",
-        "name": "visnu",
-        "description": "Purchasing usign razorpay",
+        "name": "headset",
+        "description": "Purchase",
         "image": "https://example.com/your_logo",
-        "order_id": "order_1", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        "handler": function (response){
-            alert(response.razorpay_payment_id);
-            alert(response.razorpay_order_id);
-            alert(response.razorpay_signature)
+        "order_id": "{{or_idd}}",
+        "handler": function (response) {
+            // Check if the payment was successful
+            if (response.razorpay_payment_id) {
+                var orderid = "{{ order.id }}";
+
+// Create a FormData object with the necessary data
+                var form = document.getElementById('check_out_form');
+                var formData = new FormData(form);
+                formData.append('razorpay_payment_id', response.razorpay_payment_id);
+                formData.append('order_id', orderid);
+
+                // Get the CSRF token from the cookie
+                var csrftoken = getCookie('csrftoken');
+
+                // Make a POST request to the Django view with the CSRF token
+                fetch('{% url "check_out" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: formData
+                })
+                .then(response => response.json())  // Assuming the response is JSON
+                .then(data => {
+                    // Handle the response data as needed
+                    console.log(data);
+                    // Redirect to a confirmation page or perform further actions
+                    window.location.href = `/success/${data.order_Id}`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle errors as needed
+                });
+          
+            } else {
+                // Handle payment failure or cancellation
+                alert("Payment failed or canceled!");
+            }
         },
-        
         "theme": {
             "color": "#3399cc"
         }
     };
+    
     var rzp1 = new Razorpay(options);
-    rzp1.on('payment.failed', function (response){
-            alert(response.error.code);
-            alert(response.error.description);
-            alert(response.error.source);
-            alert(response.error.step);
-            alert(response.error.reason);
-            alert(response.error.metadata.order_id);
-            alert(response.error.metadata.payment_id);
-    });
-    document.getElementById('rzp-button1').onclick = function(e){
-        rzp1.open();
-        e.preventDefault();
+    
+    // -----------------the first one to execute when pressing pay ubtton --------------------------------
+    document.getElementById('rzp-button1').addEventListener('click', function (e) {
+    var adderRadio = document.querySelector('.add_adderess');
+    var address=document.querySelectorAll('.select_address')
+    var bb=1
+    for (var i = 0; i < address.length; i++) {
+        if ( address[i].checked)
+        {
+            bb=0
+            break
+        }
     }
+    if (bb == 1){
+            Swal.fire({
+                       icon: 'error',
+                       title: 'Select Address !',
+                       showConfirmButton: false,
+                       timer: 2000  // Automatically close after 2 seconds
+                   });
+        }
+      else{ 
+     if (adderRadio.checked) {
+               if (validateFormFields() == 'granded') {
+                   // Open the Razorpay payment form
+                   rzp1.open();
+               }
+               else if(validateFormFields() == 'invalid')
+               {
+                   Swal.fire({
+                       icon: 'error',
+                       title: 'Enter a valid phone numer !',
+                       showConfirmButton: false,
+                       timer: 2000  // Automatically close after 2 seconds
+                   });
+               }
+               else if (validateFormFields() == 'empty') {
+                   // Display an error message or take appropriate action
+                   Swal.fire({
+                       icon: 'error',
+                       title: 'All fields must be filled',
+                       showConfirmButton: false,
+                       timer: 2000  // Automatically close after 2 seconds
+                   });
+               }
+        }
+        else{
+              rzp1.open();
+        }
+    }
+      
+
+    // Prevent the default form submission
+    e.preventDefault();
+
+    });
+
+
+    function validateFormFields() {
+    // Add your logic to validate form fields
+    var formFields = document.querySelectorAll('#k');
+    var phoneNumberField = document.querySelector('.phonee');
+    for (var i = 0; i < formFields.length; i++) {
+        if (!formFields[i].value.trim()) {
+            // Field is empty
+           
+            return "empty"
+        }
+        
+    }
+  
+
+    if (phoneNumberField.value.trim().length !== 10 ) {
+            // Field is empty
+            console.log(phoneNumberField.value)
+            return 'invalid'
+        }
+
+    // All fields are filled
+    return 'granded'
+    }
+
+
+
+    function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Check if the cookie name matches the expected format
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
     </script>
+
+
+
+
 
 <script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>

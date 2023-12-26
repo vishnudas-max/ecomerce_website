@@ -563,8 +563,23 @@ def order_detail(request,order_id):
      
 
 # -------------------------------COUPON MANAGEMENT -------------------------
+from .forms import couponform
 def coupon_management(request):
     try:
-        return render(request,'coupon_mangement.html')
+        coupones=coupon.objects.all()
+        if request.method == 'POST':
+            form =couponform(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect(coupon_management)
+            else:
+            # Form is not valid, add error messages to the messages framework
+                form_data = request.POST
+                for errors in form.errors.items():
+                    for error in errors:
+                        messages.info(request,error)
+                    return render(request,'coupon_mangement.html',{"form":form,'coupon':coupones,'form_data': form_data})
+        form = couponform()
+        return render(request,'coupon_mangement.html',{"form":form,'coupon':coupones})
     except Exception as e:
         return HttpResponse(e)
