@@ -471,13 +471,61 @@ def edit_address(request,address_id):
     
 
 
+
+
+
+
 from .models import *
+
+# ---------------------------------------APPLY COUPON0------------------------------
+
+def apply_coupon(request):
+    try:
+        if request.method == 'POST':
+            couponcode=request.POST.get('couponcode')
+            try:
+                coupon_data=coupon.objects.get(code=couponcode)
+            except:
+                messages.info(request,'Invalid coupon code!')
+                return redirect(check_out)
+            cart_items=cart.objects.filter(user_id=request.user.id).all()
+            sum=0
+            for i in cart_items:
+              sum +=i.total_price  
+            if int(sum) < coupon_data.min_amount:
+                messages.info(request,'This order is not eligible for this offer!')
+                return redirect(check_out)
+            user_orders=orders.objects.filter(user_id=request.user.id).all()
+            for i in user_orders:
+                if i.offer_applied_id == coupon_data.id:
+                    messages.info(request,'You have already used this coupon ,sorry !')
+                    return redirect(check_out)
+            
+            discount = int(sum * (coupon_data.offer_per / 100))
+            t_price=sum-discount
+            request.session['dis_amount']=str(discount)
+            request.session['t_price']=str(t_price)
+            request.session['couponcode']=couponcode
+
+            return redirect(check_out)
+            
+    
+    except Exception as e:
+        return HttpResponse(e)
+
+# -------------------------------------------REMOVE COUPON -------------------------
+@login_required(login_url='user_signin')
+def remove_coupon(request):
+    request.session.pop('dis_amount')
+    request.session.pop('t_price')
+    request.session.pop('couponcode')
+    return redirect(check_out)
 # -----------------   CHEKCK OUT -------------------------------------------
 @login_required(login_url='user_signin')
 def check_out(request):
-    try:
+   
         c=1
-
+        cuponess=coupon.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
         cart_items=cart.objects.filter(user_id=request.user.id).all()
         or_id=orders.objects.all().order_by('-id').first()
@@ -512,13 +560,32 @@ def check_out(request):
                            'phone':phone,
                            'address_type':address_type,
                            'add':add}
+                        
                         if not fname or not lname or not cname or not country or not addres or not address_2 or not city or not state or not zipcode or not address_type or not phone:
                             message='All field must be filled !'
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd})
+
+                            if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                                        cc=coupon.objects.get(code=request.session['couponcode'])
+                                        offer_percentage=cc.offer_per
+                                        return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
+                                                                'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message})                            
+                          
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
+                        
+
                         if len(phone) !=10:
                             message='Phone Number is not Valid!'
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd})
+                            if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                                        cc=coupon.objects.get(code=request.session['couponcode'])
+                                        offer_percentage=cc.offer_per
+                                        return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
+                                                                'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message})
+                            
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,})
                     
+
                         ADDRESS=address.objects.create(
                             user_id=request.user,
                             first_name=fname,
@@ -561,13 +628,23 @@ def check_out(request):
 
                     # -------------------------order settin part start here---------------
                     add_inform=request.POST.get('add_inform')
-     
-                 
-                    order_idd=orders.objects.create(user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=0,payment_id=order_payment,add_information=add_inform)
+                    if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                        # -------order creting if the coupon is applied---------------------
+                        sum_total=request.session['t_price']
+                        couponcode=request.session['couponcode']
+                        offer_id=coupon.objects.get(code=couponcode)
+                        discount_amount=request.session['dis_amount']
+                        order_idd=orders.objects.create(offer_applied_id=offer_id.id,discount_amount=discount_amount,user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=sum_total,payment_id=order_payment,add_information=add_inform)
+                    else:
+                        # ---------------if coupon is not applied--------------------------------
+                        order_idd=orders.objects.create(user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=sum,payment_id=order_payment,add_information=add_inform)
+
 
 
                     # ------------------------------------------order setting part end here ------------------------------
-
+                    request.session.pop('t_price')
+                    request.session.pop('couponcode')
+                    request.session.pop('dis_amount')
                     
                     for i in cart_items:
                         order_itemss=order_items(
@@ -586,15 +663,23 @@ def check_out(request):
                     if payment_type == 'paypal':
                         return JsonResponse({'status': 'success', 'message': 'Payment confirmed','order_Id':a})
                     return redirect(reverse('success',args=[order_idd.id]))
-
-                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'or_id':or_idd})
+                
+                # ------------if coupon is applied --------------------------
+                if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                    cc=coupon.objects.get(code=request.session['couponcode'])
+                    offer_percentage=cc.offer_per
+                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
+                                                                'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
+                                                                't_price':sum,'offer_per':offer_percentage})
+                # ------------------if coupon is not applied-----------------
+                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'or_id':or_idd,'coupon':cuponess})
         else:
             return render(user_signin)
-    except Exception as e:
-        return HttpResponse(e)
+
     
      
-# -=---------------------------------SUCCES PAGE------------------ 
+# -=---------------------------------SUCCES PAGE------------------
+@login_required(login_url='user_signin') 
 def success(request,order_id):
     try:
         order_idd=orders.objects.get(id=order_id)
@@ -602,6 +687,20 @@ def success(request,order_id):
             return render(request,'succes.html',{'order':order_idd,'login_status':1})
     except Exception as e:
         return HttpResponse(e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ----------------------------------------CANCEL ORDER-------------------------------------
 def cancel_order(request,order_id,order_type):

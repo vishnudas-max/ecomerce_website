@@ -51,7 +51,10 @@ urlpatterns = [
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    path('success/<int:order_id>',views.success,name='success')
+    path('success/<int:order_id>',views.success,name='success'),
+    path('apply_coupon',views.apply_coupon,name='apply_coupon'),
+    path('remove_coupon',views.remove_coupon,name='remove_coupon')
+    
 
 
   

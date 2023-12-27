@@ -70,7 +70,7 @@ class coupon(models.Model):
     coupon_name=models.CharField(max_length=50,null=False,unique=True)
     code=models.CharField(max_length=50,null=False,unique=True)
     min_amount=models.DecimalField(max_digits=10,decimal_places=2)
-    offer_per=models.DecimalField(max_digits=4,decimal_places=2)
+    offer_per=models.DecimalField(max_digits=2,decimal_places=0)
     starting_date=models.DateField(auto_now_add=True)
     exp_date=models.DateField(null=False)
 
