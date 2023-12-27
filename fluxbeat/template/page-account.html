@@ -219,8 +219,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab"
                                             href="#track-orders" role="tab" aria-controls="track-orders"
-                                            aria-selected="false"><i class="fi-rs-shopping-cart-check mr-10"></i>Track
-                                            Your Order</a>
+                                            aria-selected="false"><i class="fi-rs-shopping-cart-check mr-10"></i>Wallet</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address"
@@ -278,7 +277,7 @@
                                                             <td>{{i.id}}</td>
                                                             <td>{{i.order_date}}</td>
                                                             <td>{{i.order_status}}</td>
-                                                            <td>{{i.sub_total}}</td>
+                                                            <td>{{i.offer_price}}</td>
                                                             <td></td>
                                                             {% if i.order_status == 'Processing' or i.order_status == 'shipped'  %}
                                                             <td><a href="{% url 'cancel_order'  i.id 'all' %}" class="btn-sm btn-warning">cancel all</a></td>
@@ -327,37 +326,40 @@
                                 </div>
                                 <div class="tab-pane fade" id="track-orders" role="tabpanel"
                                     aria-labelledby="track-orders-tab">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">Orders tracking</h5>
-                                        </div>
-                                        <div class="card-body contact-from-area">
-                                            <p>To track your order please enter your OrderID in the box below and press
-                                                "Track" button. This was given to you on your receipt and in the
-                                                confirmation email you should have received.</p>
-                                            <div class="row">
-                                                <div class="col-lg-8">
-                                                    <form class="contact-form-style mt-30 mb-50" action="#"
-                                                        method="post">
-                                                        <div class="input-style mb-20">
-                                                            <label>Order ID</label>
-                                                            <input name="order-id"
-                                                                placeholder="Found in your order confirmation email"
-                                                                type="text" class="square">
-                                                        </div>
-                                                        <div class="input-style mb-20">
-                                                            <label>Billing email</label>
-                                                            <input name="billing-email"
-                                                                placeholder="Email you used during checkout"
-                                                                type="email" class="square">
-                                                        </div>
-                                                        <button class="submit submit-auto-width"
-                                                            type="submit">Track</button>
-                                                    </form>
+                                    <div class="row">
+                                        <div class="col-12" style="display: flex; justify-content: center; align-items: center; padding-top: 5px">
+                                            <div class="card-5" style="    width: 280px; background: #0c706557; border-radius: 10px;">
+                                                <div class="card-header" style="background-color: #089078;">
+                                                    <h5 class="mb-0 text-center">Wallet</h5>
+                                                </div>
+                                                <div class="card-body contact-from-area">
+                                                    
+                                                   <div class="row">
+                                                    <div class="col-7">
+                                                        <span style="    font-weight: 900;font-size: 16px;font-family: 'Spartan';">User</span>
+                                                        <div style="    font-family: sans-serif;font-size: medium;font-weight: 600;">
+                                                            {{wallet.user_id.first_name}}{{wallet.user_id.last_name}}</div>
+                                                       
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <div style="    font-size: larger;
+                                                        font-family: 'Lato';
+                                                        font-weight: 900;
+                                                        ">Balance(₹) </div>
+                                                        <div style="    font-family: 'Spartan';
+                                                        font-weight: 600;
+                                                        margin-top: 10px;">{{wallet.wallet_amount}}</div>
+                                                    </div>
+                                                   </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        <div style="display: flex; justify-content: center;padding-top: 10px;" > 
+                                            <a href="{% url 'user_home' %} "  style= "color:white;background-color:  #007a80;font-size: 18px;font-family: monospace;font-weight: 600;
+                                            border-radius: 10px; padding: 4px 12px;">Shop</a></div>
+                                        
                                     </div>
+                                    
                                 </div>
                                 <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                                     <div class="row">

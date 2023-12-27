@@ -232,6 +232,7 @@ def varient_change(request,product_id,varient_id):
 @login_required(login_url='user_signin')
 def user_account(request):
     try:
+        wallets=wallet.objects.get(user_id=request.user.id)
         user_order=orders.objects.filter(user_id=request.user).all().order_by('-id')
         order_itemss=order_items.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
@@ -244,7 +245,7 @@ def user_account(request):
             user=User.objects.get(id=user.id)
         except:
             print("Something went wrong")
-        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss})
+        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss,'wallet':wallets})
     except Exception as e:
         return HttpResponse(e)
     
@@ -635,16 +636,18 @@ def check_out(request):
                         offer_id=coupon.objects.get(code=couponcode)
                         discount_amount=request.session['dis_amount']
                         order_idd=orders.objects.create(offer_applied_id=offer_id.id,discount_amount=discount_amount,user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=sum_total,payment_id=order_payment,add_information=add_inform)
+                        
                     else:
                         # ---------------if coupon is not applied--------------------------------
                         order_idd=orders.objects.create(user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=sum,payment_id=order_payment,add_information=add_inform)
 
-
-
+    # -------------------------------deleting the coupon sessionn---------------------- 
+                    if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                        request.session.pop('t_price')
+                        request.session.pop('couponcode')
+                        request.session.pop('dis_amount')
                     # ------------------------------------------order setting part end here ------------------------------
-                    request.session.pop('t_price')
-                    request.session.pop('couponcode')
-                    request.session.pop('dis_amount')
+
                     
                     for i in cart_items:
                         order_itemss=order_items(
@@ -714,9 +717,34 @@ def cancel_order(request,order_id,order_type):
                  order.varient_id.quantity += order.proudct_quantity
                  order.varient_id.save()
                  order.save()
-                 p=order.order_id.sub_total - order.total_price
-                 orders.objects.filter(id=order.order_id.id).update(sub_total=p)
-                 print(order.order_id)
+                #  ----------------------------------if the offer is applied --------------
+                 if order.order_id.offer_applied:
+                    p=order.order_id.sub_total - order.total_price
+                    per=order.order_id.offer_applied.offer_per
+                    discount = int(p * (per / 100))
+                    t_price=p-discount
+                    order.order_id.sub_total=p
+                    order.order_id.offer_price=t_price
+                    order.order_id.save()
+
+                #   -----------------------------------if the order has no coupon applied----------  
+                 else:
+
+                     order.order_id.sub_total -= order.total_price
+                     order.order_id.offer_price -=order.total_price
+                     order.order_id.save()
+                     
+                 
+
+                #  adding money to wallet when order is cancelled0-----------
+                 if order.order_id.payment_id.Paymment_status == True:
+                    current_wallet=wallet.objects.get(user_id=request.user.id)
+                    current_wallet.wallet_amount +=order.total_price
+                    current_wallet.save()
+
+
+
+
                  k=order.order_id.order_itemss.all()
                  b=0
                  for i in k:
@@ -733,12 +761,25 @@ def cancel_order(request,order_id,order_type):
              if order_type == 'all':
                  order=orders.objects.get(id=order_id)
                  order.order_status = 'canceld'
+
+                #  adding money to wallet when order is cancelled0-----------
+                 if order.payment_id.Paymment_status == True:
+                    current_wallet=wallet.objects.get(user_id=request.user.id)
+                    current_wallet.wallet_amount += order.offer_price
+                    current_wallet.save()   
+
+                 order.offer_price = 0
                  order.sub_total = 0
                  order.save()
+
                  b=order.order_itemss.all()
+                #  --------setting product quantity and product status---------------
                  for i in b:
-                     i.order_status = 'canceld'
-                     i.save()
+                     if not i.order_status == 'canceld':
+                        i.order_status = 'canceld'
+                        i.varient_id.quantity += i.proudct_quantity
+                        i.varient_id.save()
+                        i.save()
                  return redirect(user_account)
          else:
              return redirect(user_signin)
