@@ -260,29 +260,41 @@
                                             <h5 class="mb-0">Your Orders</h5>
                                         </div>
                                         <div class="card-body">
-                                            <div class="table-responsive">
+                                    
                                                 {% for i in user_order %}
-                                                <table class="table custom-table">
+                                                <div class="table-responsive" ">
+                                                <table style="background-color: rgba(11, 216, 165, 0.107);" >
                                                     <thead>
-                                                        <tr>
+                                                        <tr style="background-color: rgba(11, 216, 165, 0.3);">
                                                             <th>Order id</th>
                                                             <th>Date</th>
                                                             <th>Status</th>
                                                             <th>Total</th>
+                                                            <th>Discount</th>
+                                                            <th>Sub total</th>
+                                                            <th>Payment Status</th>
+                                                            <th></th>
                                                           
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-                                                        <tr>
+                                                    <tbody >
+                                                        <tr style="background-color: rgba(11, 216, 165, 0.3);">
                                                             <td>{{i.id}}</td>
                                                             <td>{{i.order_date}}</td>
                                                             <td>{{i.order_status}}</td>
+                                                            <td>{{i.sub_total}}</td>
+                                                            <td>{{i.offer_applied.offer_per}}%</td>
                                                             <td>{{i.offer_price}}</td>
-                                                            <td></td>
+                                                            <td>{% if i.payment_id.Paymment_status == True %} <span class="badge badge-success" style="background-color: rgb(20, 253, 24);">Paid</span>
+                                                            {% else %}
+                                                            <span class="badge badge-warning" style="background-color: rgb(184, 184, 3);">Pending</span>
+                                                            {% endif %}
+                                                            </td>
+
                                                             {% if i.order_status == 'Processing' or i.order_status == 'shipped'  %}
-                                                            <td><a href="{% url 'cancel_order'  i.id 'all' %}" class="btn-sm btn-warning">cancel all</a></td>
+                                                            <td><a href="{% url 'cancel_order'  i.id 'all' %}" class="badge badge-danger" style=" background: #ff1e1e;">cancel all</a></td>
                                                             {% elif i.order_status == 'delivered' %}
-                                                            <td><a  class="btn-sm btn-success">Deliverd</a></td>
+                                                            <td><a  class="badge badge-danger" style=" background: #06dd54;">Deliverd</a></td>
                                                             {% endif %}
                                                             {% if i.order_status == 'canceld' %}
                                                             <td class="text-danger">Canceld!</td>
@@ -305,7 +317,7 @@
                                                             <td>{{j.proudct_status}}</td>
                                                             {% if i.order_status != 'canceld' %}
                                                                  {% if j.order_status == 'Processing' or j.order_status == 'shipped' %}
-                                                                 <td><a href="{% url 'cancel_order'  j.id 'order' %}" class="btn-sm btn-warning">cancel order</a></td>
+                                                                 <td><a href="{% url 'cancel_order'  j.id 'order' %}" class="badge badge-danger" style=" background: #ff1e1e;">cancel order</a></td>
                                                                  {% endif %}
                                                                  {% if j.order_status == 'canceld' %}
                                                                  <td  class="text-danger">Canceled</td>
@@ -317,10 +329,11 @@
                                                         {% endfor %}
                                                     </tbody>
                                                 </table>
+                                            </div>
                                                 {% endfor %}
 
 
-                                            </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -583,13 +596,34 @@
     </div>
 </div>
 <!-- Vendor JS-->
-
+{% for i in messages %}
+<span id="eror">{{i}}</span>
+{% endfor %}
 </body>
 
 
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/page-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:11:15 GMT -->
 
 </html>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Retrieve the content of the hidden paragraph
+        var errorMessage = document.getElementById('eror').innerText.trim();
+
+        // Check if the errorMessage has content
+        if (errorMessage == 'Order concelled succesfully !') {
+            Swal.fire({
+                          title: "Order concelled succesfully !",
+                          text: "Amount succesfully credited to the wallet!",
+                          icon: "success"
+                        });
+             }
+    });
+
+</script>
+
+
+
 <script src="{% static 'userassets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
 <script src="{% static 'userassets/js/vendor/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'userassets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
@@ -613,4 +647,8 @@
 <!-- Template{% static '  JS -->
 <script src="{% static 'userassets/js/maind134.js' %}"></script>
 <script src="{% static 'userassets/js/shopd134.js' %}"></script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}

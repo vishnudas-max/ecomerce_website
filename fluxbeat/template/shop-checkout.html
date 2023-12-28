@@ -547,16 +547,25 @@
                             <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios4" value="paypal" required>
                             <label class="form-check-label" for="exampleRadios4">Paypal</label>
                         </div>
+                        <div class="custome-radio">
+                            <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios5" value='wallet_pay' required>
+                            <label class="form-check-label" for="exampleRadios5">Wallet Pay</label>
+                        </div>
                     </div>
-                
+                    
                     <div id="bankTransferContent" style="display: none;">
                         <!-- Content for Cash on Delivery -->
                         <button type="submit" id="placeOrderButton" class="btn btn-primary">Place Order</button>
                     </div>
-                
+                    
                     <div id="paypalContent" style="display: none;">
                         <!-- Content for Paypal -->
-                        <button  id="rzp-button1" class="btn btn-primary">Pay Now</button>
+                        <button id="rzp-button1" class="btn btn-primary">Pay Now</button>
+                    </div>
+                    
+                    <div id="walletContent" style="display: none;">
+                        <!-- Content for Wallet Pay -->
+                        <button id="walletPayButton" class="btn btn-primary">Pay Using Wallet</button>
                     </div>
 
                 </div>
@@ -707,12 +716,13 @@
 </html>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-    // JavaScript script to toggle button visibility based on radio selection
     document.addEventListener('DOMContentLoaded', function () {
         var cashOnDeliveryRadio = document.getElementById('exampleRadios3');
         var paypalRadio = document.getElementById('exampleRadios4');
+        var walletRadio = document.getElementById('exampleRadios5');
         var bankTransferContent = document.getElementById('bankTransferContent');
         var paypalContent = document.getElementById('paypalContent');
+        var walletContent = document.getElementById('walletContent');
 
         // Set the initial state
         cashOnDeliveryRadio.checked = true;
@@ -727,6 +737,7 @@
             if (cashOnDeliveryRadio.checked) {
                 bankTransferContent.style.display = 'block';
                 paypalContent.style.display = 'none';
+                walletContent.style.display = 'none';
             }
         });
 
@@ -734,6 +745,15 @@
             if (paypalRadio.checked) {
                 bankTransferContent.style.display = 'none';
                 paypalContent.style.display = 'block';
+                walletContent.style.display = 'none';
+            }
+        });
+
+        walletRadio.addEventListener('change', function () {
+            if (walletRadio.checked) {
+                bankTransferContent.style.display = 'none';
+                paypalContent.style.display = 'none';
+                walletContent.style.display = 'block';
             }
         });
     });
@@ -961,6 +981,15 @@
             Swal.fire({
                 icon: 'error',
                 title: 'This order is not eligible for this offer!',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 3000  // Automatically close after 2 seconds
+            });
+        }
+        if (errorMessage == 'Insufficient wallet balance !') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Insufficient wallet balance !',
                 text: errorMessage,
                 showConfirmButton: false,
                 timer: 3000  // Automatically close after 2 seconds

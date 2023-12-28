@@ -9,10 +9,11 @@ from django.contrib.auth.hashers import make_password
 import time
 from django.db.models import *
 from fluxadmin.models import *
-from datetime import timedelta
+from datetime import date, timedelta
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from decimal import Decimal
 
 User=get_user_model()
 # Create your views here.
@@ -524,9 +525,10 @@ def remove_coupon(request):
 # -----------------   CHEKCK OUT -------------------------------------------
 @login_required(login_url='user_signin')
 def check_out(request):
-   
+        
         c=1
-        cuponess=coupon.objects.all()
+        current_date = date.today()
+        cuponess=coupon.objects.filter(exp_date__gte=current_date)
         user_address=address.objects.filter(user_id=request.user.id)
         cart_items=cart.objects.filter(user_id=request.user.id).all()
         or_id=orders.objects.all().order_by('-id').first()
@@ -568,6 +570,7 @@ def check_out(request):
                             if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
                                         cc=coupon.objects.get(code=request.session['couponcode'])
                                         offer_percentage=cc.offer_per
+
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
                                                                 't_price':sum,'offer_per':offer_percentage,'message':message})                            
@@ -580,6 +583,7 @@ def check_out(request):
                             if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
                                         cc=coupon.objects.get(code=request.session['couponcode'])
                                         offer_percentage=cc.offer_per
+
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
                                                                 't_price':sum,'offer_per':offer_percentage,'message':message})
@@ -615,11 +619,40 @@ def check_out(request):
 
 
 
-
+                    # payment for paypal -------------
                     elif payment_type == 'paypal':
-                        order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=sum)
+                        # --checking if the offer is applied if applied then paid amount is amount amount after dicounting offerprice--
+                        if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                            paidamount=request.session['t_price']
+                            order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=paidamount)
+                        else:
+                             order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=sum)
+
+            # ---------------payment for wallet -------------
+                    elif payment_type =='wallet_pay':
+                        wallet_amountt=wallet.objects.get(user_id=request.user.id)
+                        if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                            paidamount=Decimal(request.session['t_price'])
+                            if wallet_amountt.wallet_amount < int(paidamount):
+                                messages.info(request,'Insufficient wallet balance !')
+                                ADDRESS.delete()
+                                return redirect(check_out)
+                            
+                            order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=paidamount)
+                            wallet_amountt.wallet_amount -= int(paidamount)
+                            wallet_amountt.save()
+                        else:
+                            if wallet_amountt.wallet_amount < sum:
+                                messages.info(request,'Insufficient wallet balance !')
+                                ADDRESS.delete()
+                                return redirect(check_out)
+                            order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=sum)
+                            wallet_amountt.wallet_amount -= sum
+                            wallet_amountt.save()
               
 
+                       
+                            
 
 
 
@@ -665,6 +698,7 @@ def check_out(request):
                         a=order_idd.id
                     if payment_type == 'paypal':
                         return JsonResponse({'status': 'success', 'message': 'Payment confirmed','order_Id':a})
+                 
                     return redirect(reverse('success',args=[order_idd.id]))
                 
                 # ------------if coupon is applied --------------------------
@@ -741,6 +775,7 @@ def cancel_order(request,order_id,order_type):
                     current_wallet=wallet.objects.get(user_id=request.user.id)
                     current_wallet.wallet_amount +=order.total_price
                     current_wallet.save()
+                    messages.info(request,'Order concelled succesfully !')
 
 
 
@@ -766,7 +801,8 @@ def cancel_order(request,order_id,order_type):
                  if order.payment_id.Paymment_status == True:
                     current_wallet=wallet.objects.get(user_id=request.user.id)
                     current_wallet.wallet_amount += order.offer_price
-                    current_wallet.save()   
+                    current_wallet.save()
+                    messages.info(request,'Order concelled succesfully !')   
 
                  order.offer_price = 0
                  order.sub_total = 0
