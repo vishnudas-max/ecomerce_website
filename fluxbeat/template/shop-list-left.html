@@ -1,6 +1,16 @@
 ﻿{% extends 'nav.html' %}
 {% block contend %}
 {% load static %}
+
+<style>
+    .limited-height{
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: 3;
+    }
+</style>
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
             <div class="mobile-header-top">
@@ -256,7 +266,7 @@
                                                 <span>₹{{i.product_price}} </span>
                                                 <span class="old-price">₹{{i.sale_prce}}</span>
                                             </div>
-                                            <p class="mt-15" >{{i.description}}</p>
+                                            <p class="mt-15 limited-height" >{{i.description}}</p>
                                             <div class="product-action-1 show">
                                                 <a aria-label="Buy now" class="action-btn" href="{% url 'add_to_cart' product_id=i.id varient_id=0 %}"><i class="fi-rs-shopping-bag-add"></i>Add to Cart</a>
                                                 <div class="rating-result" title="90%">

@@ -21,6 +21,7 @@ from  .import views
 urlpatterns = [
     
             path('admin_dashboard',views.dashboard,name='admin_dashboard'),
+            path('order_view/<int:order_id>',views.order_view,name='order_view'),
             path('admin_product_page_list',views.product_list,name='product_page_list'),
             path('admin_brand_page',views.brands,name='admin_brand_page'),
             path('admin_add_product',views.add_product,name='admin_add_product'),

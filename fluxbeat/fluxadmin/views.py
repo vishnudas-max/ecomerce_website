@@ -1,3 +1,4 @@
+from datetime import date
 from django.shortcuts import render,HttpResponse,redirect
 from fluxadmin.models import *
 from django.contrib.auth import login,logout,authenticate
@@ -6,14 +7,77 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import *
 import time
 from user.models import customeUser,order_items,orders
+from django.db.models import Count
 
 # Create your views here.
 @login_required(login_url='admin_login')
 def dashboard(request):
     if request.user.is_authenticated and request.user.is_superuser:
-      return render(request,'admindashboard.html',)
+      memcount=0
+      members=customeUser.objects.filter(is_superuser = False).all()
+      for i in members:
+          memcount +=1
+      total_orders = order_items.objects.count()
+      total_products = product.objects.count()
+      total_earning = orders.objects.filter(Q(order_status = 'delivered') & Q(payment_id__Paymment_status = True)).aggregate(total_earning=Sum('offer_price'))['total_earning']
+      total_earning = total_earning or 0
+      pending = order_items.objects.filter(Q(order_status='processing') | Q(order_status='shipped')).count()
+      deliverd =order_items.objects.filter(order_status = 'delivered').count()
+      canceld =order_items.objects.filter(order_status ='canceld').count()
+      today_orderss = orders.objects.all()
+      context={
+          'total_orders':total_orders,
+          'total_products':total_products,
+          'total_earning':total_earning,
+          'pending':pending,
+          'deliverd':deliverd,
+          'canceld':canceld,
+          'user_count':memcount,
+          'users':members,
+          'orders':today_orderss
+
+
+      }
+     
+      if request.method == 'POST':
+          opt=request.POST.get('opt')
+          if opt == 'today':
+            today_orderss = orders.objects.filter(Q(order_date=date.today()))
+            context['orders']=today_orderss
+            return render(request,'admindashboard.html',context)
+          
+          if opt == 'week':
+            today_orderss =orders.objects.filter(Q(order_date__week=date.today().isocalendar()[1]))
+            context['orders']=today_orderss
+            return render(request,'admindashboard.html',context)
+          
+          if opt == 'month':
+            today_orderss = orders.objects.filter(Q(order_date__month=date.today().month))
+            context['orders']=today_orderss
+            return render(request,'admindashboard.html',context)
+          
+          if opt == 'year':
+            today_orderss = orders.objects.filter(Q(order_date__year=date.today().year))
+            context['orders']=today_orderss
+            return render(request,'admindashboard.html',context)
+            
+      return render(request,'admindashboard.html',context)
     else:
       return redirect(admin_login)
+
+
+#   -------------------order_detailed view-------------  
+@login_required(login_url='admin_login')
+def order_view(request,order_id):
+    try:
+        if request.user.is_authenticated and request.user.is_superuser:
+            order=orders.objects.get(id=order_id)
+            products=order.order_itemss.all()
+            return render(request,'dashboard_order_view.html',{'order':order,'items':products})
+    except Exception as e:
+        return HttpResponse(e)
+
+
 # ----------------------------------ADDING PRODUCT -----------------------------------------
 @login_required(login_url='admin_login')
 def add_product(request):

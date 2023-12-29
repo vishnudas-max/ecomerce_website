@@ -23,11 +23,27 @@ def home(request):
                 c=1
             else:
                 c=0
-      
+            top_sell=order_items.objects.values('proudct_id').annotate(item_count=Count('proudct_id')).order_by('-item_count')[:4]
+            top_sell_data = []
+            for i in top_sell:
+              product_id = i.get('proudct_id')
+              order_count = i.get('item_count')
+              print(product_id)
+              product_instance =product.objects.get(id=product_id)
+              top_sell_data.append({
+                  'product_instanc': product_instance,
+                  'order_count': order_count,
+              })
+
+              for j in top_sell_data:
+                  print(j['product_instanc'].product_name)
+
+             
+                
             products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
             arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
             brands=brand.objects.all()
-            return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c})
+            return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'top_selling':top_sell_data})
         
     except Exception as e:
         return HttpResponse(e)
@@ -523,6 +539,9 @@ def remove_coupon(request):
     request.session.pop('couponcode')
     return redirect(check_out)
 # -----------------   CHEKCK OUT -------------------------------------------
+
+
+
 @login_required(login_url='user_signin')
 def check_out(request):
         
@@ -573,7 +592,7 @@ def check_out(request):
 
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage,'message':message})                            
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})                            
                           
                             return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
                         
@@ -586,9 +605,9 @@ def check_out(request):
 
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage,'message':message})
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})
                             
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,})
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
                     
 
                         ADDRESS=address.objects.create(
@@ -628,24 +647,52 @@ def check_out(request):
                         else:
                              order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=sum)
 
+
             # ---------------payment for wallet -------------
                     elif payment_type =='wallet_pay':
                         wallet_amountt=wallet.objects.get(user_id=request.user.id)
                         if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
                             paidamount=Decimal(request.session['t_price'])
                             if wallet_amountt.wallet_amount < int(paidamount):
-                                messages.info(request,'Insufficient wallet balance !')
                                 ADDRESS.delete()
-                                return redirect(check_out)
-                            
+                                # eroor message -----------------
+                                if request.POST.get('address') =='add_address':
+                                    message='Insufficient wallet balance !'
+                                    if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                                            cc=coupon.objects.get(code=request.session['couponcode'])
+                                            offer_percentage=cc.offer_per
+
+                                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
+                                                                    'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
+                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})
+
+                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
+                                else:
+                                        messages.info(request,'Insufficient wallet balance !')
+                                        return redirect(check_out)
+                            # ---erro message end here--------
+
                             order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=paidamount)
                             wallet_amountt.wallet_amount -= int(paidamount)
                             wallet_amountt.save()
                         else:
                             if wallet_amountt.wallet_amount < sum:
-                                messages.info(request,'Insufficient wallet balance !')
                                 ADDRESS.delete()
-                                return redirect(check_out)
+                                # eroor message -----------------
+                                if request.POST.get('address') =='add_address':
+                                    message='Insufficient wallet balance !'
+                                    if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
+                                            cc=coupon.objects.get(code=request.session['couponcode'])
+                                            offer_percentage=cc.offer_per
+
+                                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
+                                                                    'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
+                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})
+
+                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
+                                else:
+                                        messages.info(request,'Insufficient wallet balance !')
+                                        return redirect(check_out)
                             order_payment=Paymment.objects.create(Paymment_type=payment_type,Paymment_status=True,Paymment_amount=sum)
                             wallet_amountt.wallet_amount -= sum
                             wallet_amountt.save()
@@ -740,6 +787,7 @@ def success(request,order_id):
 
 
 # ----------------------------------------CANCEL ORDER-------------------------------------
+@login_required(login_url='user_signin')
 def cancel_order(request,order_id,order_type):
     try:
          if request.user.is_authenticated and not request.user.is_superuser:
