@@ -86,3 +86,9 @@ class wallet(models.Model):
     def __str__(self):
         return f"{self.user_id.first_name} wallet"
 
+class wishlist(models.Model):
+    user_id=models.ForeignKey(customeUser,on_delete=models.CASCADE,related_name='wishlist_items',null=False)
+    proudct_id=models.ForeignKey(product,on_delete=models.CASCADE,related_name='list_of_wishlist',null=False)
+    varient_id=models.ForeignKey(verients,on_delete=models.CASCADE,null=False)
+    added_date=models.DateField(auto_now_add=True)
+    price=models.DecimalField(max_digits=10, decimal_places=2,blank=True)

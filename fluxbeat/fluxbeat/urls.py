@@ -53,7 +53,10 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('success/<int:order_id>',views.success,name='success'),
     path('apply_coupon',views.apply_coupon,name='apply_coupon'),
-    path('remove_coupon',views.remove_coupon,name='remove_coupon')
+    path('remove_coupon',views.remove_coupon,name='remove_coupon'),
+    path('view_wishlist',views.view_wishlist,name='view_wishlist'),
+    path('add_wishlist/<int:product_id>/<int:varient_id>',views.add_wishlist,name='add_wishlist'),
+    path('remove_wishlist/<int:wishlist_id>',views.remove_wishlist,name='remove_wishlist')
     
 
 

@@ -14,13 +14,15 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from decimal import Decimal
-
+from user.models import wishlist
 User=get_user_model()
 # Create your views here.
 def home(request):
     try:
             if request.user.is_authenticated and not request.user.is_superuser:
                 c=1
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
             else:
                 c=0
             top_sell=order_items.objects.values('proudct_id').annotate(item_count=Count('proudct_id')).order_by('-item_count')[:4]
@@ -43,7 +45,7 @@ def home(request):
             products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
             arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
             brands=brand.objects.all()
-            return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'top_selling':top_sell_data})
+            return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'top_selling':top_sell_data,'w':wishlist_count,'c':cart_count})
         
     except Exception as e:
         return HttpResponse(e)
@@ -52,6 +54,8 @@ def home(request):
 def shop_product_list(request):
   try:
             if request.user.is_authenticated and not request.user.is_superuser:
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
             else:
                 c=0
@@ -60,7 +64,7 @@ def shop_product_list(request):
             arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
             brands=brand.objects.all()
             categorie=category.objects.all()
-            return render(request,'shop-list-left.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie})
+            return render(request,'shop-list-left.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
         
   except Exception as e:
         return HttpResponse(e)
@@ -213,6 +217,8 @@ def otp_varify(request):
 def product_detail(request,product_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
         else:
                 c=0
@@ -221,7 +227,7 @@ def product_detail(request,product_id):
         current=productt.product_varients.all().first()
         varientss=productt.product_varients.all()
         imagess=current.image_field.all().order_by('-id')
-        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c})
+        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)
     
@@ -231,6 +237,8 @@ def product_detail(request,product_id):
 def varient_change(request,product_id,varient_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
         else:
                 c=0
@@ -239,7 +247,7 @@ def varient_change(request,product_id,varient_id):
         current=verients.objects.get(id=varient_id)
         varientss=productt.product_varients.all()
         imagess=current.image_field.all().order_by('-id')
-        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c})
+        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)
     
@@ -254,6 +262,8 @@ def user_account(request):
         order_itemss=order_items.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
         if request.user.is_authenticated and not request.user.is_superuser:
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
         else:
                 c=0
@@ -262,7 +272,7 @@ def user_account(request):
             user=User.objects.get(id=user.id)
         except:
             print("Something went wrong")
-        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss,'wallet':wallets})
+        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss,'wallet':wallets,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)
     
@@ -312,6 +322,8 @@ def user_update(request,user_id):
 def add_to_cart(request,product_id,varient_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
             products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
             arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
             brands=brand.objects.all()
@@ -323,16 +335,16 @@ def add_to_cart(request,product_id,varient_id):
             userr=User.objects.get(id=request.user.id)
             if cart.objects.filter(Q(user_id=userr) & Q(proudct_id=productt) & Q(varient_id=current_varient)).exists():
                     already = "All ready in cart !"
-                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already})
+                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already,'w':wishlist_count,'c':cart_count})
             if current_varient.quantity  == 0:
 
 
                 # ----------------sweet alert for items
                 stock_over = "Out of stock !"
-                return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':stock_over})
+                return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':stock_over,'w':wishlist_count,'c':cart_count})
             
             cart.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient)
-            return redirect(view_cart)
+            return redirect(home)
         else:
             return redirect(user_signin)
     except Exception as e:
@@ -346,12 +358,14 @@ def add_to_cart(request,product_id,varient_id):
 def view_cart(request):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
             c=1
             cart_items=cart.objects.filter(user_id=request.user.id).all()
             sum=0
             for i in cart_items:
                 sum +=i.total_price
-            return render(request,'shop-cart.html',{'login_status':c,'cart_itmes':cart_items,'grand_total':sum})
+            return render(request,'shop-cart.html',{'login_status':c,'cart_itmes':cart_items,'grand_total':sum,'w':wishlist_count,'c':cart_count})
         else:
             return redirect(user_signin)
     except Exception as e:
@@ -391,6 +405,8 @@ from .models import address
 def add_address(request):
     try:
             if request.user.is_authenticated and not request.user.is_superuser:
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
                
                 if request.method == 'POST':
@@ -425,7 +441,7 @@ def add_address(request):
                     )
                     return redirect('user_account')
 
-                return render(request, 'add_address.html',{'login_status':c})
+                return render(request, 'add_address.html',{'login_status':c,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)
     
@@ -449,6 +465,8 @@ def delete_address(request,address_id):
 def edit_address(request,address_id):
     try:
         if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
             current_address=address.objects.get(id=address_id)
             if request.method == 'POST':
                     
@@ -481,7 +499,7 @@ def edit_address(request,address_id):
                         address_type=address_type
                     )
                     return redirect(user_account)
-            return render(request,'edit_address.html',{'login_status':1,'address':current_address})
+            return render(request,'edit_address.html',{'login_status':1,'address':current_address,'w':wishlist_count,'c':cart_count})
         else:
             return render(user_signin)
     except Exception as e:
@@ -544,7 +562,7 @@ def remove_coupon(request):
 
 @login_required(login_url='user_signin')
 def check_out(request):
-        
+
         c=1
         current_date = date.today()
         cuponess=coupon.objects.filter(exp_date__gte=current_date)
@@ -557,6 +575,8 @@ def check_out(request):
             sum +=i.total_price
 
         if request.user.is_authenticated and not request.user.is_superuser:
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
                 if request.method == 'POST':
                     print('dfsdkfljsdjfsldjflsldfkl')
                     # ----------- ---------------- address settting part start --------------------
@@ -592,9 +612,9 @@ def check_out(request):
 
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})                            
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})                            
                           
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
                         
 
                         if len(phone) !=10:
@@ -605,9 +625,9 @@ def check_out(request):
 
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})
                             
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
                     
 
                         ADDRESS=address.objects.create(
@@ -664,9 +684,9 @@ def check_out(request):
 
                                             return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                     'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})
+                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})
 
-                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
+                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
                                 else:
                                         messages.info(request,'Insufficient wallet balance !')
                                         return redirect(check_out)
@@ -687,9 +707,9 @@ def check_out(request):
 
                                             return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                     'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b})
+                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})
 
-                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess})
+                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
                                 else:
                                         messages.info(request,'Insufficient wallet balance !')
                                         return redirect(check_out)
@@ -754,9 +774,9 @@ def check_out(request):
                     offer_percentage=cc.offer_per
                     return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage})
+                                                                't_price':sum,'offer_per':offer_percentage,'w':wishlist_count,'c':cart_count})
                 # ------------------if coupon is not applied-----------------
-                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'or_id':or_idd,'coupon':cuponess})
+                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
         else:
             return render(user_signin)
 
@@ -768,7 +788,9 @@ def success(request,order_id):
     try:
         order_idd=orders.objects.get(id=order_id)
         if request.user.is_authenticated and not request.user.is_superuser:
-            return render(request,'succes.html',{'order':order_idd,'login_status':1})
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            return render(request,'succes.html',{'order':order_idd,'login_status':1,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)
 
@@ -873,9 +895,11 @@ def cancel_order(request,order_id,order_type):
 
 def order_detailes(request,order_id):
      if request.user.is_authenticated and not request.user.is_superuser:
+        wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+        cart_count=cart.objects.filter(user_id=request.user.id).count()
         c=1
         order=order_items.objects.get(id=order_id)
-        return render(request,'view_order.html',{'login_status':1,'order':order})
+        return render(request,'view_order.html',{'login_status':1,'order':order,'w':wishlist_count,'c':cart_count})
      else:
          return redirect(user_signin)
 
@@ -922,4 +946,57 @@ def update_cart_quantity(request, cart_item_id, operation):
             return JsonResponse(data)
      else:
          return redirect(user_signin)
+     
 
+
+# --------------VIEW WISHLIST-------------------
+@login_required(login_url='user_signin')
+def view_wishlist(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            wishlists=wishlist.objects.filter(user_id=request.user.id)
+            return render(request,'wishlist.html',{'wishlist':wishlists,'w':wishlist_count,'c':cart_count})
+        else:
+            return redirect('user_signin')
+    except Exception as e:
+        return HttpResponse(e)
+
+
+# -------------------------ADD TO WISHLIST------------------------
+@login_required(login_url='user_signin')
+def add_wishlist(request,product_id,varient_id):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+            brands=brand.objects.all()
+            productt=product.objects.get(id=product_id)
+            price=productt.sale_prce
+            if varient_id == 0:
+                current_varient=productt.product_varients.all().first()
+            else:
+                current_varient=verients.objects.get(id=varient_id)
+            userr=User.objects.get(id=request.user.id)
+            if wishlist.objects.filter(Q(user_id=userr) & Q(proudct_id=productt) & Q(varient_id=current_varient)).exists():
+                    already_wish = "All ready in wishlist !"
+                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already_wish,'w':wishlist_count,'c':cart_count})
+
+            wishlist.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient,price=price)
+            return redirect(home)
+    except Exception as e:
+        return HttpResponse(e)
+    
+# ---------------------REMOVEV FROM WISHLIST---------------/
+def remove_wishlist(request,wishlist_id):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist.objects.get(id=wishlist_id).delete()
+            return redirect(view_wishlist)
+        else:
+            return redirect('user_signin')
+    except Exception as e:
+        return HttpResponse(e)

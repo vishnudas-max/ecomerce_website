@@ -333,7 +333,7 @@
                                         <div class="product-action-1">
                                      
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                href="{% url 'add_wishlist' product_id=i.id varient_id=0 %}"><i class="fi-rs-heart"></i></a>
                                             <a aria-label="Compare" class="action-btn hover-up"
                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
                                         </div>
@@ -386,7 +386,7 @@
                                 <div class="product-cart-wrap mb-30">
                                     <div class="product-img-action-wrap">
                                         <div class="product-img product-img-zoom">
-                                            <a href="shop-product-right.html">
+                                            <a href="{% url 'product_detail' i.id%}">
                                                 <img class="default-img" src="{{i.product_image.url}}" alt=""style="width:230px; height: 250px;">
                                                 <img class="hover-img" src="{{i.product_image.url}}" alt=""style="width:230px; height: 250px;">
                                             </a>
@@ -444,7 +444,7 @@
                                 <div class="product-cart-wrap mb-30">
                                     <div class="product-img-action-wrap">
                                         <div class="product-img product-img-zoom">
-                                            <a href="shop-product-right.html">
+                                            <a href="{% url 'product_detail' i.id%}">
                                                 <img class="default-img" src="{{i.product_image.url}}" alt=""style="width:230px; height: 250px;">
                                                 <img class="hover-img" src="{{i.product_image.url}}"
                                                     alt="" style="width:230px; height: 250px;">
@@ -456,8 +456,7 @@
                                                     class="fi-rs-eye"></i></a>
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up"
                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn hover-up"
-                                                href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                           
                                         </div>
                                         <div class="product-badges product-badges-position product-badges-mrg">
                                             <span class="hot">Hot</span>
@@ -567,7 +566,7 @@
                         <div class="product-cart-wrap small hover-up">
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
-                                    <a href="shop-product-right.html">
+                                    <a href="{% url 'product_detail' i.id%}">
                                         <img class="default-img" src="{{i.product_image.url}}" alt="">
                                         <img class="hover-img" src="{{i.product_image.url}}" alt="">
                                     </a>
@@ -769,7 +768,7 @@
                                         <div class="product-cart-wrap">
                                             <div class="product-img-action-wrap">
                                                 <div class="product-img product-img-zoom">
-                                                    <a href="shop-product-right.html">
+                                                    <a href="{% url 'product_detail' i.product_instanc.id%}">
                                                         <img class="default-img"
                                                             src="{{i.product_instanc.product_image.url}}" alt="">
                                                         <img class="hover-img"
@@ -985,6 +984,16 @@
                  Swal.fire({
                      icon: 'error',
                      title: 'Already in cart!',
+                     text: '{{ success_message }}',  // Display your success message here
+                     showConfirmButton: false,
+                     timer: 2000  // Automatically close after 1.5 seconds
+                 });
+             });
+    {% elif success_message == 'All ready in wishlist !' %}
+         document.addEventListener('DOMContentLoaded', function() {
+                 Swal.fire({
+                     icon: 'error',
+                     title: 'Already in wishlist!',
                      text: '{{ success_message }}',  // Display your success message here
                      showConfirmButton: false,
                      timer: 2000  // Automatically close after 1.5 seconds
