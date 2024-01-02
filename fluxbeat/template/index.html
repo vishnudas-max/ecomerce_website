@@ -1,7 +1,13 @@
 ﻿{% extends 'nav.html' %}
 {% block contend %}
 {% load static %}
-
+<style>
+    .one-line-paragraph {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Optional: Add ellipsis (...) if content overflows */
+}
+</style>
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
             <div class="mobile-header-top">
@@ -346,7 +352,7 @@
                                         <div class="product-category">
                                             <a href="shop-grid-right.html">{{i.category_id.category_name}}</a>
                                         </div>
-                                        <h2><a href="shop-product-right.html">{{i.product_name}}</a></h2>
+                                        <h2 class="one-line-paragraph"><a href="shop-product-right.html">{{i.product_name}}</a></h2>
                                         <div class="rating-result" title="90%">
                                             <span>
                                                 <span>{{i.offer}}</span>
@@ -464,17 +470,17 @@
                                     </div>
                                     <div class="product-content-wrap">
                                         <div class="product-category">
-                                            <a href="shop-grid-right.html">Music</a>
+                                            <a href="shop-grid-right.html">{{i.brand_id.brand_name}}</a>
                                         </div>
-                                        <h2><a href="shop-product-right.html">Donec ut nisl rutrum</a></h2>
+                                        <h2 class="one-line-paragraph"><a href="shop-product-right.html">{{i.product_name}}</a></h2>
                                         <div class="rating-result" title="90%">
                                             <span>
                                                 <span>90%</span>
                                             </span>
                                         </div>
                                         <div class="product-price">
-                                            <span>$238.85 </span>
-                                            <span class="old-price">$245.8</span>
+                                            <span>₹{{i.product_price}} </span>
+                                            <span class="old-price">₹{{i.sale_prce}}</span>
                                         </div>
                                         <div class="product-action-1 show">
                                             <a aria-label="Add To Cart" class="action-btn hover-up"

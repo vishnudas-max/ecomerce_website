@@ -1,4 +1,8 @@
 from datetime import date
+import datetime
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from PIL import Image
 from django.shortcuts import render,HttpResponse,redirect
 from fluxadmin.models import *
 from django.contrib.auth import login,logout,authenticate
@@ -82,50 +86,89 @@ def order_view(request,order_id):
 @login_required(login_url='admin_login')
 def add_product(request):
     try:
-       if request.user.is_authenticated and request.user.is_superuser:
-            choices=product.HEADPHONE_TYPES
-            category_choice=category.objects.all()
-            brand_choice=brand.objects.all()
-            if request.method ==  'POST':
-                product_image=request.FILES.get('product_image')
-                product_id=request.POST['product_id']
-                product_name=request.POST['product_name']
-                product_des=request.POST['product_description']
-                product_price=request.POST['product_price']
-                product_sale=request.POST['sale_price']
-                product_type=request.POST['headphone_type']
-                product_cat=request.POST['headphone_cate']
-                cate_id=category.objects.get(id=product_cat)
-                product_brand=request.POST['headphone_brand']
-                brand_id=brand.objects.get(id=product_brand)
+        if request.user.is_authenticated and request.user.is_superuser:
+            choices = product.HEADPHONE_TYPES
+            category_choice = category.objects.all()
+            brand_choice = brand.objects.all()
+
+            if request.method == 'POST':
+                product_image = request.FILES.get('product_image')
+                product_id = request.POST['product_id']
+                product_name = request.POST['product_name']
+                product_des = request.POST['product_description']
+                product_price = request.POST['product_price']
+                product_sale = request.POST['sale_price']
+                product_type = request.POST['headphone_type']
+                product_cat = request.POST['headphone_cate']
+                cate_id = category.objects.get(id=product_cat)
+                product_brand = request.POST['headphone_brand']
+                brand_id = brand.objects.get(id=product_brand)
+
+                try:
+                    int(product_price)
+                except ValueError:
+                    messages.info(request, "Price should be a number!")
+                    return redirect(add_product)
+
+                try:
+                    int(product_sale)
+                except ValueError:
+                    messages.info(request, "Sale price should be a number!")
+                    return redirect(add_product)
 
                 if int(product_price) < int(product_sale):
-                    messages.info(request,'Sale price must be lower than product price !')
+                    messages.info(request, 'Sale price must be lower than product price!')
                     return redirect(add_product)
-                if int(product_price) <=0 and int(product_sale) <=0:
-                    messages.info(login_required,'Price should Greater than 0 !')
+
+                if int(product_price) <= 0 and int(product_sale) <= 0:
+                    messages.info(request, 'Price should be greater than 0!')
                     return redirect(add_product)
 
                 if product.objects.filter(Q(pr_id=product_id) | Q(product_name=product_name)).exists():
-                    messages.info(request,'Product Already Exists !')
+                    messages.info(request, 'Product already exists!')
                     return redirect(add_product)
+
+
                 try:
                     with Image.open(product_image) as img:
+                        # Crop the center of the image to a fixed size (adjust width and height as needed)
                         width, height = img.size
+                        left = (width - min(width, height)) / 2
+                        top = (height - min(width, height)) / 2
+                        right = (width + min(width, height)) / 2
+                        bottom = (height + min(width, height)) / 2
+
+                        cropped_img = img.crop((left, top, right, bottom))
+
+                        # Save the cropped image to a BytesIO buffer
+                        buffer = BytesIO()
+                        cropped_img.save(buffer, format='JPEG')
+                        product_image = InMemoryUploadedFile(buffer, None, f'{product_id}.jpg', 'image/jpeg',
+                                                             buffer.tell(), None)
                 except Exception as e:
-                    messages.info(request,"File type does not match.try to upload image only!")
+                    messages.info(request, "File type does not match. Try to upload an image only!")
                     return redirect(add_product)
-                product_obj=product.objects.create(pr_id=product_id,product_image=product_image,product_name=product_name,description=product_des,product_price=product_price,sale_prce=product_sale,headphone_type=product_type,category_id=cate_id,brand_id=brand_id,total_quantity=0)
+
+                product_obj = product.objects.create(pr_id=product_id, product_image=product_image,
+                                                     product_name=product_name, description=product_des,
+                                                     product_price=product_price, sale_prce=product_sale,
+                                                     headphone_type=product_type, category_id=cate_id,
+                                                     brand_id=brand_id, total_quantity=0)
                 product_obj.save()
-                success_message = "Product addes succesfully!"
-                return render(request,'page-form-product-1.html',{'choice':choices,'category_choice':category_choice,'brand_choice':brand_choice,'success_message': success_message})
-            success_message=False
-            return render(request,'page-form-product-1.html',{'choice':choices,'category_choice':category_choice,'brand_choice':brand_choice,'success_message': success_message})
-       else:
-           return redirect(admin_login)
+
+                success_message = "Product added successfully!"
+                return render(request, 'page-form-product-1.html',
+                              {'choice': choices, 'category_choice': category_choice, 'brand_choice': brand_choice,
+                               'success_message': success_message})
+
+            success_message = False
+            return render(request, 'page-form-product-1.html',
+                          {'choice': choices, 'category_choice': category_choice, 'brand_choice': brand_choice,
+                           'success_message': success_message})
+        else:
+            return redirect(admin_login)
     except Exception as e:
         return HttpResponse(e)
-  
 
 # -----------------------------------------------------EDIT PRODUCT---------------------------------------------
 @login_required(login_url='admin_login')
@@ -163,18 +206,29 @@ def edit_product(request,product_id):
                         return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates})
 
                     print(product_image,product_name,product_des,prodct_price,sale_price,prodcut_type,h_category,h_brand)
-                    p=product.objects.get(id=product_id)
-                    p.product_name=product_name
-                    p.description=product_des
-                    p.product_price=prodct_price
-                    p.sale_prce=sale_price
-                    p.headphone_type=prodcut_type
-                    p.category_id=h_cate
-                    p.brand_id=h_bran
-                    if p.product_image:
-                        p.product_image.delete()
-                    p.product_image=product_image
-                    p.save()
+                    if request.FILES.get('product_image'):
+                        p=product.objects.get(id=product_id)
+                        p.product_name=product_name
+                        p.description=product_des
+                        p.product_price=prodct_price
+                        p.sale_prce=sale_price
+                        p.headphone_type=prodcut_type
+                        p.category_id=h_cate
+                        p.brand_id=h_bran
+                        if p.product_image:
+                            p.product_image.delete()
+                        p.product_image=product_image
+                        p.save()
+                    else:
+                        p=product.objects.get(id=product_id)
+                        p.product_name=product_name
+                        p.description=product_des
+                        p.product_price=prodct_price
+                        p.sale_prce=sale_price
+                        p.headphone_type=prodcut_type
+                        p.category_id=h_cate
+                        p.brand_id=h_bran
+                        p.save()                        
                     success_message = "Product Updation succes"
                     return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates,'success_message': success_message})
                 else:
@@ -212,7 +266,7 @@ def product_list(request):
     try:
         if request.user.is_authenticated and request.user.is_superuser:
             verient=verients.objects.all().order_by('id')
-            products = product.objects.select_related('category_id', 'brand_id').all()
+            products = product.objects.select_related('category_id', 'brand_id').all().order_by('-pr_id')
             return render(request,'page-products-list.html',{'products':products,"verient":verient})
         else:
             return redirect(admin_login)
@@ -225,7 +279,7 @@ def product_list(request):
 def varient(request):
     try:
         if request.user.is_authenticated and request.user.is_superuser:
-                product_data=product.objects.all()
+                product_data=product.objects.all().order_by('-id')
                 imgag_data=images.objects.all().order_by('-id')
                 if request.method == 'POST' and request.FILES.get('varient_color'):
                     varient_id=request.POST['varient_id']
@@ -279,25 +333,27 @@ def update_varient(request,varient_id):
                 if request.method == 'POST':
 
                     varient_color=request.POST['varient_color']
+            
                     var_color= f"{varient.product_id.pr_id}-{varient_color}"
 
                     varient_color_img=request.FILES.get('varient_color_img')
                     varient_quantity=request.POST['varient_quantity']
                     varient_images=request.POST.getlist('varient_images')
-
+                    
                     varient.varient_id=var_color
-
-                    if varient.varient_color:
-                        varient.varient_color.delete()
-                    varient.varient_color=varient_color_img
+                    
+                    if request.FILES.get('varient_color_img'):
+                        if varient.varient_color:
+                            varient.varient_color.delete()
+                        varient.varient_color=varient_color_img
 
                     qun=varient.product_id.total_quantity-varient.quantity
                     varient.quantity=varient_quantity
 
+                    if request.POST.getlist('varient_images'):
+                        new_images=images.objects.filter(id__in=varient_images)
 
-                    new_images=images.objects.filter(id__in=varient_images)
-
-                    varient.image_field.set(new_images)
+                        varient.image_field.set(new_images)
 
                     varient.save()
 
@@ -630,20 +686,61 @@ def order_detail(request,order_id):
 from .forms import couponform
 def coupon_management(request):
     try:
-        coupones=coupon.objects.all()
-        if request.method == 'POST':
-            form =couponform(request.POST)
-            if form.is_valid():
-                form.save()
-                return redirect(coupon_management)
-            else:
-            # Form is not valid, add error messages to the messages framework
-                form_data = request.POST
-                for errors in form.errors.items():
-                    for error in errors:
-                        messages.info(request,error)
-                    return render(request,'coupon_mangement.html',{"form":form,'coupon':coupones,'form_data': form_data})
-        form = couponform()
-        return render(request,'coupon_mangement.html',{"form":form,'coupon':coupones})
+        if request.user.is_authenticated and request.user.is_superuser:
+                coupones=coupon.objects.all().order_by('id')
+                if request.method == 'POST':
+                    form =couponform(request.POST)
+                    if form.is_valid():
+                        form.save()
+                        return redirect(coupon_management)
+                    else:
+                    # Form is not valid, add error messages to the messages framework
+                        form_data = request.POST
+                        for errors in form.errors.items():
+                            for error in errors:
+                                messages.info(request,error)
+                            return render(request,'coupon_mangement.html',{"form":form,'coupon':coupones,'form_data': form_data})
+                form = couponform()
+                return render(request,'coupon_mangement.html',{"form":form,'coupon':coupones})
+        else:
+            return redirect(admin_login)
     except Exception as e:
         return HttpResponse(e)
+    
+def edit_coupon(request,coupon_id):
+     try:
+          if request.user.is_authenticated and request.user.is_superuser:
+              if request.method == 'POST':
+                coupon_name=request.POST.get('coupon_name')
+                code=request.POST.get('code')
+                min_amount=request.POST.get('min_amount')
+                offer_per=request.POST.get('offer_per')
+                expiary_date = request.POST.get('expiary_date')
+
+                data=coupon.objects.get(id=coupon_id)
+
+                data.coupon_name=coupon_name
+                data.code=code
+                data.min_amount=min_amount
+                data.offer_per=offer_per
+                data.exp_date=expiary_date
+                data.save()
+                return redirect(coupon_management)
+              else:
+                  co_data=coupon.objects.get(id=coupon_id)
+                  return render(request,'edit_coupon',{'data':co_data})
+          else:
+              return redirect(admin_login)
+     except Exception as e:
+         return HttpResponse(e)
+     
+def delete_coupon(request,coupon_id):
+     try:
+          if request.user.is_authenticated and request.user.is_superuser:
+              coupon.objects.get(id=coupon_id).delete()
+              return redirect(coupon_management)
+          else:
+              return redirect(admin_login)
+     except Exception as e:
+         return HttpResponse(e)
+

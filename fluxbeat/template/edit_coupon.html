@@ -1,0 +1,109 @@
+{% extends 'admin_sidebar.html' %}
+{% block sidebar%}
+{% load static %}
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Coupon</h2>
+            <p>Add, edit or delete a category</p>
+        </div>
+        <div>
+            <input type="text" placeholder="Search Categories" class="form-control bg-white">
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    {% for i in messages %}
+                    <div  class="text-danger">{{i}}</div>
+                    {% endfor %}
+                    <form method="post"  action="{% url 'edit_coupon' data.id %}">
+                        {% csrf_token %}
+                        <div class="alert alert-danger" style="display: none;" id="formErrors">
+                          
+                        </div>
+                        <div class="form-group">
+                            <label for="">Coupon Name:</label>
+                            <input type="text" class="form-control" name="coupon_name"  value="{{data.coupon_name}}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Code:</label>
+                            <input type="text" class="form-control" name="code"  value="{{data.code}}" maxlength="7" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Minimum Amount:</label>
+                            <input type="number" class="form-control" name="min_amount"  value="{{data.min_amount}}" maxlength="7" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Offer Percentage:</label>
+                            <input type="number" class="form-control" name="offer_per"  value="{{data.offer_per}}"  required>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Expiration Date:</label>
+                            <input type="date" id="expiry_date" name="expiary_date" min="{{ data.exp_date }}" required class="form-control" value="{{data.exp_date}}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+                 <!-- .col// -->
+        </div> <!-- .row // -->
+    </div> <!-- card body .// -->
+    </div> <!-- card .// -->
+</section> <!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear())
+            </script> ©, Evara - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">
+                All rights reserved
+            </div>
+        </div>
+    </div>
+</footer>
+</main>
+
+<script>
+    // jQuery script to display form errors on the client side
+    $(document).ready(function() {
+        // Show form errors if there are any
+        if ($("#formErrors").text().trim() !== "") {
+            $("#formErrors").show();
+        }
+
+        // Show form errors when the form is submitted
+        $("#couponForm").submit(function(event) {
+            if ($("#formErrors").text().trim() !== "") {
+                $("#formErrors").show();
+                event.preventDefault(); // Prevent form submission if there are errors
+            }
+        });
+    });
+</script>
+<script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/vendors/jquery.fullscreen.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/chart.js' %}"></script>
+<!-- Main Scr{% static 'ipt -->
+<script src="{% static 'assets/js/main.js" type="text/javascript' %}"></script>
+<script src="{% static 'assets/js/custom-chart.js" type="text/javascript' %}"></script>
+</body>
+<script>
+    // Get the current date in the format 'YYYY-MM-DD'
+    var today = new Date().toISOString().split('T')[0];
+
+    // Set the "min" attribute of the date input
+    document.getElementById('expiry_date').min = today;
+  </script>
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-categories.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:21 GMT -->
+
+</html>
+{% endblock sidebar %}

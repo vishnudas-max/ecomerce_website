@@ -27,7 +27,7 @@ class product(models.Model):
         ('in the Ear', 'In the Ear'),
         ]
     pr_id=models.CharField(max_length=50,null=False,unique=True)
-    product_name=models.CharField(max_length=100)
+    product_name=models.CharField(max_length=300)
     description=models.TextField(max_length=500)
     product_price=models.IntegerField()
     sale_prce=models.IntegerField()

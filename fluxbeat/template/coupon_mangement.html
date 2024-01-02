@@ -60,6 +60,8 @@
                                     <td>Offer Percentage</td>
                                     <th>Starting date</th>
                                     <th>Expiary date</th>
+                                    <th></th>
+                                    <th></th>
 
                                 </tr>
                             </thead>
@@ -73,6 +75,8 @@
                                 <td>{{i.offer_per}}%</td>
                                 <td>{{i.starting_date}}</td>
                                 <td>{{i.exp_date}}</td>
+                                <td><a class="btn-small btn-warning" href="{% url 'edit_coupon' i.id %}" style="padding: 4px 7px;">edit</a></td>
+                                <td><a href="{% url 'delete_coupon' i.id %}">delete</a></td>
                              </tr>
                              {% endfor %}
                   

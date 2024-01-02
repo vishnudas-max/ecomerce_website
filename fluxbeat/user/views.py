@@ -24,6 +24,8 @@ def home(request):
                 wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
                 cart_count=cart.objects.filter(user_id=request.user.id).count()
             else:
+                wishlist_count=0
+                cart_count=0
                 c=0
             top_sell=order_items.objects.values('proudct_id').annotate(item_count=Count('proudct_id')).order_by('-item_count')[:4]
             top_sell_data = []
@@ -58,6 +60,8 @@ def shop_product_list(request):
                 cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
             else:
+                wishlist_count=0
+                cart_count=0
                 c=0
       
             products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
@@ -74,56 +78,59 @@ def shop_product_list(request):
 import re
 def user_reg(request):
     try:
-         if request.method=='POST':
-             first_name=request.POST['firstname']
-             last_name=request.POST['lastname']
-             email=request.POST['email']
-             phoneno=request.POST['phoneno']
-             password=request.POST['password']
-             cpassword=request.POST['cpassword']
-             b={'fname':first_name,'lname':last_name,'email':email,'phone':phoneno}
-             request.session['first_name']=first_name
-             request.session['last_name']=last_name
-             request.session['email']=email
-             request.session['phoneno']=phoneno
-             request.session['password']=password
-             password_pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
-             if password != cpassword:
-                messages.info(request,'password does not match !')
-                return render(request,'user_reg.html',b)
-             
-             elif not re.match(password_pattern,password):
-                 messages.info(request,'Password is not Strong!')
-                 return render(request,'user_reg.html',b)
-             
-             elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
-                 messages.info(request,'Enter a valid first name !')
-                 return render(request,'user_reg.html',b)
-             
-             elif len(phoneno) !=  10:
-                 messages.info(request,'Enter a valid Phone number !')
-                 return render(request,'user_reg.html',b)
-             
-             if User.objects.filter(email=email).exists():
-                messages.info(request,'Email already exist !')
-                return render(request,'user_reg.html',b)
-             
-             try:
-               email_validator = EmailValidator(message="Enter a valid email address.")
-               email_validator(email)
-            # email validation--------------------------------
-             except ValidationError as e:
-                 error_message = e.message
-                 messages.info(request,error_message)
-                 return render(request,'user_reg.html',b)
-             if not first_name or not last_name or not email or not phoneno or not password or not cpassword:
-                 messages.info(request,'All feilds must be filled !')
-                 return render(request,'user_reg.html',b)
-             
-             return redirect(send_otp)
-                
-         else: 
-            return render(request,'user_reg.html')
+          if request.user.is_authenticated and not request.user.is_superuser:
+             return redirect(home)
+          else:
+             if request.method=='POST':
+                 first_name=request.POST['firstname']
+                 last_name=request.POST['lastname']
+                 email=request.POST['email']
+                 phoneno=request.POST['phoneno']
+                 password=request.POST['password']
+                 cpassword=request.POST['cpassword']
+                 b={'fname':first_name,'lname':last_name,'email':email,'phone':phoneno}
+                 request.session['first_name']=first_name
+                 request.session['last_name']=last_name
+                 request.session['email']=email
+                 request.session['phoneno']=phoneno
+                 request.session['password']=password
+                 password_pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
+                 if password != cpassword:
+                    messages.info(request,'password does not match !')
+                    return render(request,'user_reg.html',b)
+                 
+                 elif not re.match(password_pattern,password):
+                     messages.info(request,'Password is not Strong!')
+                     return render(request,'user_reg.html',b)
+                 
+                 elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
+                     messages.info(request,'Enter a valid first name !')
+                     return render(request,'user_reg.html',b)
+                 
+                 elif len(phoneno) !=  10:
+                     messages.info(request,'Enter a valid Phone number !')
+                     return render(request,'user_reg.html',b)
+                 
+                 if User.objects.filter(email=email).exists():
+                    messages.info(request,'Email already exist !')
+                    return render(request,'user_reg.html',b)
+                 
+                 try:
+                   email_validator = EmailValidator(message="Enter a valid email address.")
+                   email_validator(email)
+                # email validation--------------------------------
+                 except ValidationError as e:
+                     error_message = e.message
+                     messages.info(request,error_message)
+                     return render(request,'user_reg.html',b)
+                 if not first_name or not last_name or not email or not phoneno or not password or not cpassword:
+                     messages.info(request,'All feilds must be filled !')
+                     return render(request,'user_reg.html',b)
+                 
+                 return redirect(send_otp)
+                    
+             else: 
+                return render(request,'user_reg.html')
     except  Exception as e:
         return HttpResponse(e)
 
@@ -150,7 +157,9 @@ def  send_otp(request):
 # ----------------------------------USER LOGIN ----------------------------
 def user_signin(request):
     try:
-         
+          if request.user.is_authenticated and not request.user.is_superuser:
+             return redirect(home)
+          else:
              if request.method=='POST':
                  email=request.POST['email']
                  password=request.POST['password']
@@ -199,6 +208,7 @@ def otp_varify(request):
               if request.session['otp']==otp_:
                   user=User.objects.create_user(first_name=request.session['first_name'],last_name=request.session['last_name'],email=request.session['email'],phone_number=request.session['phoneno'],password=request.session['password'])
                   user.save()
+                  wallet.objects.create(user_id=user,wallet_amount=0)
                   request.session.clear()
                   return redirect(user_signin)
               else:
@@ -221,6 +231,8 @@ def product_detail(request,product_id):
                 cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
         else:
+                wishlist_count=0
+                cart_count=0
                 c=0
         productt=product.objects.get(id=product_id)
         offer=productt.product_price - productt.sale_prce
@@ -241,6 +253,8 @@ def varient_change(request,product_id,varient_id):
                 cart_count=cart.objects.filter(user_id=request.user.id).count()
                 c=1
         else:
+                wishlist_count=0
+                cart_count=0
                 c=0
         productt=product.objects.get(id=product_id)
         offer=productt.product_price - productt.sale_prce
@@ -257,7 +271,11 @@ def varient_change(request,product_id,varient_id):
 @login_required(login_url='user_signin')
 def user_account(request):
     try:
-        wallets=wallet.objects.get(user_id=request.user.id)
+        try:
+            wallets=wallet.objects.get(user_id=request.user.id)
+        except:
+            usr=customeUser.objects.get(id=request.user.id)
+            wallets=wallet.objects.create(user_id=usr,wallet_amount=0)
         user_order=orders.objects.filter(user_id=request.user).all().order_by('-id')
         order_itemss=order_items.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
@@ -957,7 +975,7 @@ def view_wishlist(request):
             wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
             cart_count=cart.objects.filter(user_id=request.user.id).count()
             wishlists=wishlist.objects.filter(user_id=request.user.id)
-            return render(request,'wishlist.html',{'wishlist':wishlists,'w':wishlist_count,'c':cart_count})
+            return render(request,'wishlist.html',{'wishlist':wishlists,'w':wishlist_count,'c':cart_count,'login_status':1})
         else:
             return redirect('user_signin')
     except Exception as e:

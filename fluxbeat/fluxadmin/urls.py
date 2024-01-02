@@ -41,7 +41,9 @@ urlpatterns = [
             path('user_block/<int:user_id>',views.user_block,name='user_block'),
             path('order_management',views.order_management,name='order_management'),
             path('order_detail/<int:order_id>',views.order_detail,name='order_detail'),
-            path('coupon_management',views.coupon_management,name='coupon_mangement')
+            path('coupon_management',views.coupon_management,name='coupon_mangement'),
+            path('edit_coupon/<int:coupon_id>',views.edit_coupon,name='edit_coupon'),
+            path('delete_coupon/<int:coupon_id>'    ,views.delete_coupon,name='delete_coupon')
         
             
     
