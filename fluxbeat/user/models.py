@@ -48,7 +48,6 @@ class orders(models.Model):
         ('canceld','canceld')
         ]
     user_id=models.ForeignKey(customeUser,on_delete=models.CASCADE,related_name='user_orders')
-    address_id=models.ForeignKey(address,on_delete=models.CASCADE)
     sub_total=models.DecimalField(max_digits=10, decimal_places=2)
     offer_price=models.DecimalField(max_digits=10,decimal_places=2)
     order_date=models.DateField(auto_now_add=True)
@@ -57,6 +56,7 @@ class orders(models.Model):
     add_information=models.TextField(max_length=100,blank=True,null=True)
     discount_amount=models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
     offer_applied=models.ForeignKey(coupon,on_delete=models.CASCADE,related_name='offer_applied_orders',null=True)
+    address=models.TextField(max_length=100)
 
 
 from fluxadmin.models import product,verients
@@ -66,7 +66,9 @@ class order_items(models.Model):
         ('Processing', 'processing'),
         ('shipped', 'shipped'),
         ('delivered', 'delivered'),
-        ('canceld','canceld')
+        ('canceld','canceld'),
+        ('return_initiated','return_initiated'),
+        ('returned',('returned'))
         ]
     order_id=models.ForeignKey(orders,on_delete=models.CASCADE,related_name='order_itemss')
     order_status=models.CharField(max_length=20, choices=status, default='Processing')
@@ -77,6 +79,7 @@ class order_items(models.Model):
         help_text='Enter a positive integer for product quantity',default=1)
     added_date=models.DateField(auto_now_add=True)
     total_price=models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    return_reason=models.TextField(null=True)
     
 
 class wallet(models.Model):

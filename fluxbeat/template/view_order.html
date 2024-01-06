@@ -1,6 +1,19 @@
 {% extends 'nav.html' %}
 {% block contend %}
 {% load static %}
+<style>
+    .return_button{
+        background: #1d5eff;
+    /* width: 100px; */
+    /* size: 20px; */
+    font-size: 15px;
+    width: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 31px;
+    }
+</style>
 <div class="mobile-header-active mobile-header-wrapper-style">
     <div class="mobile-header-wrapper-inner">
         <div class="mobile-header-top">
@@ -198,16 +211,21 @@
                               <div class="mt-2">₹{{order.proudct_id.sale_prce}}</div>
                             </div>
                             <div class="col-6 col-lg-3">
-                               
+                              
                                 <h4>Address</h4>
-                                <address>{{order.order_id.address_id.address}}</address>
-                                <address>{{order.order_id.address_id.state}}</address>
-                                <address>{{order.order_id.address_id.country}}</address>
-                                <address>{{order.order_id.address_id.pin}}</address>
-                                <address>{{order.order_id.address_id.first_name}}</address>
-                                <address>{{order.order_id.address_id.last_name}}</address>
-                                <address>{{order.order_id.address_id.phone}}</address>
-                                <address>{{order.order_id.address_id.first_name}}</address>
+                             <div style="padding-right: 20px; word-wrap: break-word;">
+
+                                <address>{{address.address}}</address>
+                                <address>{{address.pin}}</address>
+                                <address>{{address.company_name}}</address>
+                                <address>{{address.first_name}}{{address.last_name}}</address>
+                                <address>{{address.country}}</address>
+                                <address>{{address.state}}</address>
+                                <address>{{address.city}}</address>
+                                <address>{{address.phone}}</address>
+ 
+                             </div>
+                  
                                 
                             </div>
                             <div class="col-6 col-lg-3">
@@ -220,12 +238,32 @@
                             </div>
                             <div class="col-12">
                                 <h4>Order status</h4>
-                                {% if order.order_status != 'canceld'%}
-                                <span style="background-color: rgba(8, 193, 8, 0.852); border: none; border-radius: 20px; padding: 4px 10px; color: rgba(0, 0, 0, 0.858); font-weight: 600; margin-top: 5px;">{{order.order_status}}</span>
-                                {% else %}
-                                <span style="background-color: rgba(213, 13, 13, 0.852); border: none; border-radius: 20px; padding: 4px 10px; color: rgba(0, 0, 0, 0.858); font-weight: 600; margin-top: 5px;">{{order.order_status}}</span>
-                                {% endif %}
+                               {% if order.order_status == 'return_initiated' %}
+                                    <span style="background-color: rgba(193, 230, 11, 0.852); border: none; border-radius: 20px; padding: 4px 10px; color: rgba(0, 0, 0, 0.858); font-weight: 600; margin-top: 5px;">Requested for return</span>
+                               {% else %}
+                                    {% if order.order_status != 'canceld' %}
+
+                                        <span style="background-color: rgba(8, 193, 8, 0.852); border: none; border-radius: 20px; padding: 4px 10px; color: rgba(0, 0, 0, 0.858); font-weight: 600; margin-top: 5px;">{{order.order_status}}</span>
+                                    {% else %}
+                                        <span style="background-color: rgba(213, 13, 13, 0.852); border: none; border-radius: 20px; padding: 4px 10px; color: rgba(0, 0, 0, 0.858); font-weight: 600; margin-top: 5px;">{{order.order_status}}</span>
+                                    {% endif %}
+                               {% endif %}
                             </div>
+                            {% if order.order_status == 'delivered' %}
+                            <div class="col-12 col-lg-6 mt-4">
+                                <form action="{% url 'req_return' %}" method="post" >
+                                    {% csrf_token %}
+                                <input type="number" value="{{order.id}}" hidden name="order_id">
+                               <textarea name="reason" id="reason" cols="30" rows="10" placeholder="Enter the reason for return"></textarea>
+                               <button  type="submit" class="return_button" >Return</button>
+                            </form>
+                            </div> 
+                            {% endif %}
+                            {% for i in messages%}
+                            <p id="error_message" style="display: none;">
+                               {{i}}
+                            </p>
+                            {% endfor %}
                                 </div>
                               
                         </div>
@@ -372,6 +410,24 @@
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/shop-cart.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:10:07 GMT -->
 
 </html>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+            var error = document.getElementById('error_message').innerText.trim();
+
+            if (error == 'Reason should be specified !') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Sorry somethng went wrong...',
+                    text: 'Specify the reason for return !',
+
+                });
+                return false;
+            }
+
+            return true;
+        });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {% endblock contend %}
 

@@ -1,3 +1,5 @@
+import datetime
+import json
 from django.shortcuts import render,HttpResponse,redirect,reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -323,9 +325,6 @@ def user_update(request,user_id):
                           messages.info(request,'Enter a valid first name !')
                           return redirect(user_account)
                      b=User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number,password=make_password(npassword))
-                     user=authenticate(request,email=email,password=cpassword)
-                     if user is not None:
-                         login(request,user)
                      return redirect(user_account)
         else:
             return redirect(user_signin)
@@ -662,10 +661,34 @@ def check_out(request):
                             address_type=address_type,
                             phone=phone
                         )
+                        details = {
+                                        'first_name':ADDRESS.first_name,
+                                        'last_name': ADDRESS.last_name,
+                                        'company_name': ADDRESS.company_name,
+                                        'country': ADDRESS.country,
+                                        'address': ADDRESS.address,
+                                        'city': ADDRESS.city,
+                                        'state': ADDRESS.state,
+                                        'pin': ADDRESS.pin,
+                                        'phone': ADDRESS.phone,
+                                }
+                        details_json = json.dumps(details)
                         
                     else:
                         order_address_id=request.POST.get('address')
                         ADDRESS=address.objects.get(id=order_address_id)
+                        details = {
+                                        'first_name':ADDRESS.first_name,
+                                        'last_name': ADDRESS.last_name,
+                                        'company_name': ADDRESS.company_name,
+                                        'country': ADDRESS.country,
+                                        'address': ADDRESS.address,
+                                        'city': ADDRESS.city,
+                                        'state': ADDRESS.state,
+                                        'pin': ADDRESS.pin,
+                                        'phone': ADDRESS.phone,
+                                }
+                        details_json = json.dumps(details)
                     # -----------------------address setting part end ---------------------------------------
                     
                     # -----------------------------Paymment setting part start here-------------------
@@ -753,11 +776,11 @@ def check_out(request):
                         couponcode=request.session['couponcode']
                         offer_id=coupon.objects.get(code=couponcode)
                         discount_amount=request.session['dis_amount']
-                        order_idd=orders.objects.create(offer_applied_id=offer_id.id,discount_amount=discount_amount,user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=sum_total,payment_id=order_payment,add_information=add_inform)
+                        order_idd=orders.objects.create(offer_applied_id=offer_id.id,discount_amount=discount_amount,user_id=request.user,address=details_json,sub_total=sum,offer_price=sum_total,payment_id=order_payment,add_information=add_inform)
                         
                     else:
                         # ---------------if coupon is not applied--------------------------------
-                        order_idd=orders.objects.create(user_id=request.user,address_id=ADDRESS,sub_total=sum,offer_price=sum,payment_id=order_payment,add_information=add_inform)
+                        order_idd=orders.objects.create(user_id=request.user,address=details_json,sub_total=sum,offer_price=sum,payment_id=order_payment,add_information=add_inform)
 
     # -------------------------------deleting the coupon sessionn---------------------- 
                     if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
@@ -841,12 +864,14 @@ def cancel_order(request,order_id,order_type):
                  order.save()
                 #  ----------------------------------if the offer is applied --------------
                  if order.order_id.offer_applied:
+                    gg=order.order_id.offer_price
                     p=order.order_id.sub_total - order.total_price
                     per=order.order_id.offer_applied.offer_per
                     discount = int(p * (per / 100))
                     t_price=p-discount
                     order.order_id.sub_total=p
                     order.order_id.offer_price=t_price
+                    amount_to_be_added=gg-t_price
                     order.order_id.save()
 
                 #   -----------------------------------if the order has no coupon applied----------  
@@ -855,13 +880,14 @@ def cancel_order(request,order_id,order_type):
                      order.order_id.sub_total -= order.total_price
                      order.order_id.offer_price -=order.total_price
                      order.order_id.save()
+                     amount_to_be_added= order.total_price
                      
                  
 
                 #  adding money to wallet when order is cancelled0-----------
                  if order.order_id.payment_id.Paymment_status == True:
                     current_wallet=wallet.objects.get(user_id=request.user.id)
-                    current_wallet.wallet_amount +=order.total_price
+                    current_wallet.wallet_amount +=amount_to_be_added
                     current_wallet.save()
                     messages.info(request,'Order concelled succesfully !')
 
@@ -910,16 +936,34 @@ def cancel_order(request,order_id,order_type):
     except Exception as e:
         return HttpResponse(e)
     
-
+@login_required(login_url='user_signin')
 def order_detailes(request,order_id):
-     if request.user.is_authenticated and not request.user.is_superuser:
-        wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
-        cart_count=cart.objects.filter(user_id=request.user.id).count()
-        c=1
-        order=order_items.objects.get(id=order_id)
-        return render(request,'view_order.html',{'login_status':1,'order':order,'w':wishlist_count,'c':cart_count})
-     else:
-         return redirect(user_signin)
+     try:
+            if request.user.is_authenticated and not request.user.is_superuser:
+               wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+               cart_count=cart.objects.filter(user_id=request.user.id).count()
+               c=1
+               order=order_items.objects.get(id=order_id)
+               if order.order_id.address:
+                   address_detail=json.loads(order.order_id.address)
+               else:
+                   address_detail={}
+
+
+
+     
+
+               return render(request,'view_order.html',{'login_status':1,'order':order,'w':wishlist_count,'c':cart_count,'address':address_detail})
+            else:
+                return redirect(user_signin)
+     except Exception as e:
+         return HttpResponse(e)
+         
+    
+
+
+
+         
 
 
 
@@ -1016,5 +1060,29 @@ def remove_wishlist(request,wishlist_id):
             return redirect(view_wishlist)
         else:
             return redirect('user_signin')
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+
+# ---------------------------------------------RETURN PRODUCT---------------------
+@login_required(login_url='user_signin')
+@require_POST
+def req_return(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            if request.method == 'POST':
+                order_id=request.POST.get('order_id')
+                reason=request.POST.get('reason')
+                if not request.POST.get('reason'):
+                    messages.info(request,'Reason should be specified !')
+                    return redirect(reverse('order_detailes',args=[order_id]))
+                current_order=order_items.objects.get(id=order_id)
+                current_order.order_status='return_initiated'
+                current_order.return_reason=reason
+                current_order.save()
+            return redirect(reverse('order_detailes',args=[order_id]))
+        else:
+            return redirect(user_signin)
     except Exception as e:
         return HttpResponse(e)
