@@ -715,7 +715,8 @@ def check_out(request):
                         if 'dis_amount' in request.session and 'couponcode' in request.session and 't_price' in request.session:
                             paidamount=Decimal(request.session['t_price'])
                             if wallet_amountt.wallet_amount < int(paidamount):
-                                ADDRESS.delete()
+                                if request.POST.get('address') =='add_address':
+                                    ADDRESS.delete()
                                 # eroor message -----------------
                                 if request.POST.get('address') =='add_address':
                                     message='Insufficient wallet balance !'
@@ -738,7 +739,8 @@ def check_out(request):
                             wallet_amountt.save()
                         else:
                             if wallet_amountt.wallet_amount < sum:
-                                ADDRESS.delete()
+                                if request.POST.get('address') =='add_address':
+                                    ADDRESS.delete()
                                 # eroor message -----------------
                                 if request.POST.get('address') =='add_address':
                                     message='Insufficient wallet balance !'

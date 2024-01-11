@@ -322,6 +322,9 @@
                                                                  {% if j.order_status == 'canceld' %}
                                                                  <td  class="text-danger">Canceled</td>
                                                                  {% endif %}
+                                                                 {% if j.order_status == 'returned' %}
+                                                                 <td  class="text-danger">Returend</td>
+                                                                 {% endif %}
                                                             {% endif %}
                                                             <td><a href="{% url 'order_detailes'  j.id %}" class="">view </a></td>
                                                         </tr>

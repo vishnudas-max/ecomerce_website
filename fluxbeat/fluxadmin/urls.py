@@ -44,7 +44,7 @@ urlpatterns = [
             path('coupon_management',views.coupon_management,name='coupon_mangement'),
             path('edit_coupon/<int:coupon_id>',views.edit_coupon,name='edit_coupon'),
             path('delete_coupon/<int:coupon_id>',views.delete_coupon,name='delete_coupon'),
-            
+             path('complete_return/<int:order_id>',views.complete_return,name='complete_return')
         
             
     

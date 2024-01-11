@@ -82,7 +82,8 @@
                             
                             <th>Customer :{{i.user_id.first_name}} {{i.user_id.last_name}}</th>
                             <th>order date:{{i.order_date}}</th>
-                            <th>Subtotal:₹{{i.sub_total}}</th>
+                            <th>Grand total:{{i.sub_total}}</th>
+                            <th>Subtotal:₹{{i.offer_price}}</th>
                             <th>Payment :{{i.payment_id.Paymment_type}}</th>
                             {% if i.payment_id.Paymment_status == True %}
                              <th>Paid</th>

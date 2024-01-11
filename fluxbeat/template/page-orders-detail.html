@@ -1,7 +1,12 @@
 {% extends 'admin_sidebar.html' %}
 {% block sidebar%}
 {% load static %}
-
+<style>
+    .current_status{
+    padding: 4px 8px;
+    border-radius: 16px;
+    }
+</style>
         <section class="content-main">
             <div class="content-header">
                 <div>
@@ -19,16 +24,47 @@
                             <small class="text-muted">Order ID: {{order.order_id.id}}</small>
                         </div>
                         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                            <form action="{% url 'order_detail' order.id %}" method="post">
-                                {% csrf_token  %}
-                            <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200" name="order_stauts">
-                                {% for value,label in choice %}
-                                <option value="{{value}}">{{label}}</option>
-                                {% endfor %}
+                            <div class="row">
+                                <div class="col-6">
+                                    <div>
+                                        <span>Current status :</span>
+                                        {% if order.order_status  == 'canceld'%}
+                                        <span class="current_status" style="background-color: red;">{{order.order_status}}</span>
+                                        {% else %}
+                                        <span class="current_status" style="background-color: rgb(13, 228, 13);">{{order.order_status}}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    {% if  order.order_status == 'return_initiated' %}
+
+                                        <a href="{% url 'complete_return' order.id %}">Complete Return</a>
+
+                                   {% else %}
+                                   {% if not order.order_status == 'returned' %}
+                                    <form action="{% url 'order_detail' order.id %}" method="post">
+                                        {% csrf_token  %}
+
+                                    <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200" name="order_stauts">
+                                        {% for value,label in choice %}
+
+                                        {% if not label == 'return_initiated' %}
+                                        {% if not label == 'returned' %}
+                                        <option value="{{value}}">{{label}}</option>
+                                        {% endif %}
+                                        {% endif %}
+
+
+                                        {% endfor %}
+                                    
+                                   
+                                    </select>  
+                                    <button class="btn btn-primary" type="submit">Update</button>
+                                </form>{% endif %}
+                                {% endif %}
+                                </div>
+                            </div>
                            
-                            </select>  
-                            <button class="btn btn-primary" type="submit">Update</button>
-                        </form>
                           
                         </div>
                     </div>
@@ -70,7 +106,14 @@
                                 <div class="text">
                                     <h6 class="mb-1">Deliver to</h6>
                                     <p class="mb-1">
-                                        City: {{order.order_id.address_id.city}} <br>{{order.order_id.address_id.address}}  <br> Po Box {{order.order_id.address_id.pin}}
+                                        <address>{{address.address}}</address>
+                                        <address>{{address.pin}}</address>
+                                        <address>{{address.company_name}}</address>
+                                        <address>{{address.first_name}}{{address.last_name}}</address>
+                                        <address>{{address.country}}</address>
+                                        <address>{{address.state}}</address>
+                                        <address>{{address.city}}</address>
+                                        <address>{{address.phone}}</address>
                                     </p>
                                 
                                 </div>

@@ -1,6 +1,7 @@
 from datetime import date
 import datetime
 from io import BytesIO
+import json
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from PIL import Image
 from django.shortcuts import render,HttpResponse,redirect
@@ -10,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import *
 import time
-from user.models import customeUser,order_items,orders
+from user.models import customeUser,order_items,orders, wallet
 from django.db.models import Count
 
 # Create your views here.
@@ -637,49 +638,67 @@ def order_management(request):
 
 @login_required(login_url='admin_login')
 def order_detail(request,order_id):
-     if request.user.is_authenticated and request.user.is_superuser:
-         choices=order_items.status
-         order=order_items.objects.get(id=order_id)
-         if request.method == 'POST':
-             order_status=request.POST.get('order_stauts')
-             if order_status == 'canceld':
-                 order.order_id.sub_total -= order.total_price
-                 order.order_id.save()
-                 order.varient_id.quantity += order.proudct_quantity
-                 order.varient_id.save()
-             order.order_status=order_status
-             order.save()
-             k=order.order_id.order_itemss.all()
-             b=len(k)
-             print(b)
-             ss=0
-             sd=0
-             sc=0
-             for i in k:
-                 if i.order_status == 'shipped':
-                     ss +=1
-                 if i.order_status == 'delivered':
-                     sd +=1
-                 if i.order_status == 'canceld':
-                    sc +=1
-             if ss == b-sc:
-                 print('shipped')
-                 order.order_id.order_status = 'shipped'
-                 order.order_id.save()
-             if sd == b-sc:
-                 print('deliverd')
-                 order.order_id.order_status = 'delivered'
-                 order.order_id.save()
-             if sc == b:
-                 print('cancled')
-                 order.order_id.order_status = 'canceld'
-                 order.sub_total = 0
-                 order.order_id.save()
-                    
-             return redirect(order_management)
-         return render(request,'page-orders-detail.html',{'order':order,'choice':choices})
-     else:
-        return redirect(admin_login)
+     try:
+            if request.user.is_authenticated and request.user.is_superuser:
+                choices=order_items.status
+                order=order_items.objects.get(id=order_id)
+                if order.order_id.address:
+                       address_detail=json.loads(order.order_id.address)
+                else:
+                        address_detail={}
+                if request.method == 'POST':
+                    order_status=request.POST.get('order_stauts')
+                    if order_status == 'canceld':
+                        order.order_id.sub_total -= order.total_price
+                        order.order_id.save()
+                        order.varient_id.quantity += order.proudct_quantity
+                        order.varient_id.save()
+                    order.order_status=order_status
+                    order.save()
+                    k=order.order_id.order_itemss.all()
+
+                    # ----------changeing the payment status to true if all the order is deliveres---
+
+                    b=len(k)
+                    print(b)
+                    ss=0
+                    sd=0
+                    sc=0
+                    for i in k:
+                        if i.order_status == 'shipped':
+                            ss +=1
+                        if i.order_status == 'delivered':
+                            sd +=1
+                        if i.order_status == 'canceld':
+                           sc +=1
+                    if ss == b-sc:
+                        print('shipped')
+                        order.order_id.order_status = 'shipped'
+                        order.order_id.save()
+                    if sd == b-sc:
+                        print('deliverd')
+                        order.order_id.order_status = 'delivered'
+                        order.order_id.save()
+                    if sc == b:
+                        print('cancled')
+                        order.order_id.order_status = 'canceld'
+                        order.sub_total = 0
+                        order.order_id.save()
+
+                    # --------------setting payment of cod to true if all items are deliveres ---------------------
+                    if order.order_id.order_status == 'delivered':
+                        paid_amount=order.order_id.offer_price
+                        order.order_id.payment_id.Paymment_status =  True
+                        order.order_id.payment_id.Paymment_amount = paid_amount
+                        order.order_id.payment_id.save()
+
+                    return redirect(order_management)
+                return render(request,'page-orders-detail.html',{'order':order,'choice':choices,'address':address_detail})
+            else:
+               return redirect(admin_login)
+     except Exception as e:
+         return HttpResponse(e)
+         
      
 
 # -------------------------------COUPON MANAGEMENT -------------------------
@@ -743,4 +762,47 @@ def delete_coupon(request,coupon_id):
               return redirect(admin_login)
      except Exception as e:
          return HttpResponse(e)
+     
+    # ------------------------------------COMPLETING RETURN --------------------    
+@(login_required)
+def complete_return(request,order_id):
+    try:
+        if request.user.is_authenticated and request.user.is_superuser:
+            item=order_items.objects.get(id=order_id)
+            item.order_status='returned'
+            item.save()
+            product_varient=verients.objects.get(id=item.varient_id.id)
+            product_varient.quantity += item.proudct_quantity
+            # after returnig money crediting to the wallet------------
+            user_wallet=wallet.objects.get(user_id=item.user_id)
+            
 
+            # ------------adding to wallet when coupon is applied in this order ------------------
+            if item.order_id.offer_applied:
+                next_subtotal=item.order_id.sub_total - item.total_price
+                per=item.order_id.offer_applied.offer_per
+                discount = int(next_subtotal * (per / 100))
+                previous_offer_price=item.order_id.offer_price
+                item.order_id.sub_total= next_subtotal
+                item.order_id.offer_price= next_subtotal - discount
+                item.order_id.save()
+            else:
+                # -----------adding to wallte when coupon is not applied----------------
+                next_subtotal=item.order_id.sub_total - item.total_price
+                previous_offer_price=item.order_id.offer_price
+                item.order_id.sub_total=next_subtotal
+                item.order_id.offer_price=next_subtotal
+                item.order_id.save()
+                print('offer ot paller')
+
+            # -----------adding to wallet----------------
+            price_of_returned_item=  previous_offer_price - item.order_id.offer_price 
+            user_wallet.wallet_amount += price_of_returned_item
+            user_wallet.save()
+
+            return redirect(order_management)
+
+        else:
+            return redirect(admin_login)
+    except Exception as e:
+        return HttpResponse(e)

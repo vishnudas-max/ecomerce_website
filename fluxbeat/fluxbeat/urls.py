@@ -57,7 +57,8 @@ urlpatterns = [
     path('view_wishlist',views.view_wishlist,name='view_wishlist'),
     path('add_wishlist/<int:product_id>/<int:varient_id>',views.add_wishlist,name='add_wishlist'),
     path('remove_wishlist/<int:wishlist_id>',views.remove_wishlist,name='remove_wishlist'),
-    path('req_return',views.req_return,name='req_return')
+    path('req_return',views.req_return,name='req_return'),
+   
     
 
 

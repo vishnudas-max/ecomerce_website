@@ -68,7 +68,7 @@ class order_items(models.Model):
         ('delivered', 'delivered'),
         ('canceld','canceld'),
         ('return_initiated','return_initiated'),
-        ('returned',('returned'))
+        ('returned','returned')
         ]
     order_id=models.ForeignKey(orders,on_delete=models.CASCADE,related_name='order_itemss')
     order_status=models.CharField(max_length=20, choices=status, default='Processing')
