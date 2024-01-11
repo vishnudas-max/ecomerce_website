@@ -1,5 +1,6 @@
 from datetime import date
 import datetime
+from decimal import Decimal
 from io import BytesIO
 import json
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -638,7 +639,7 @@ def order_management(request):
 
 @login_required(login_url='admin_login')
 def order_detail(request,order_id):
-     try:
+  
             if request.user.is_authenticated and request.user.is_superuser:
                 choices=order_items.status
                 order=order_items.objects.get(id=order_id)
@@ -649,8 +650,39 @@ def order_detail(request,order_id):
                 if request.method == 'POST':
                     order_status=request.POST.get('order_stauts')
                     if order_status == 'canceld':
-                        order.order_id.sub_total -= order.total_price
+
+                        next_sub_totol=order.order_id.sub_total - order.total_price
+                        user_idd=order.user_id
+                        main_order=orders.objects.get(id=order.order_id.id)
+                        wallet_instance=wallet.objects.get(user_id=user_idd)
+
+                        # --------if coupon is applied-------------------------
+                        if main_order.offer_applied:
+                            # calculating product amount and adding into the wallet----------------
+                            previous_offer_price=order.order_id.offer_price
+                            per=order.order_id.offer_applied.offer_per
+                            discount = int(next_sub_totol * (per / 100))
+                            next_offer_price=next_sub_totol - discount
+                            amount_to_be_added_to_wallet = previous_offer_price - next_offer_price
+                            # addin to money to the wallet end here--------------------/
+                        else:
+        
+                            previous_offer_price = main_order.offer_price
+                            next_offer_price= previous_offer_price - order.total_price
+                            amount_to_be_added_to_wallet= previous_offer_price - next_offer_price
+
+                        if main_order.payment_id.Paymment_status == True:
+                            wallet_instance.wallet_amount += Decimal(amount_to_be_added_to_wallet)
+                            wallet_instance.save()
+                            # adding money to the wallet if coupon is not applied end here ------------
+
+                        order.order_id.sub_total = next_sub_totol
+                        order.order_id.offer_price = next_offer_price
                         order.order_id.save()
+                        # changing order subtotal amount and offer_price amount ---------------
+                    
+
+
                         order.varient_id.quantity += order.proudct_quantity
                         order.varient_id.save()
                     order.order_status=order_status
@@ -696,13 +728,13 @@ def order_detail(request,order_id):
                 return render(request,'page-orders-detail.html',{'order':order,'choice':choices,'address':address_detail})
             else:
                return redirect(admin_login)
-     except Exception as e:
-         return HttpResponse(e)
+
          
      
 
 # -------------------------------COUPON MANAGEMENT -------------------------
 from .forms import couponform
+@login_required(login_url='admin_login')
 def coupon_management(request):
     try:
         if request.user.is_authenticated and request.user.is_superuser:
@@ -725,7 +757,7 @@ def coupon_management(request):
             return redirect(admin_login)
     except Exception as e:
         return HttpResponse(e)
-    
+@login_required(login_url='admin_login')    
 def edit_coupon(request,coupon_id):
      try:
           if request.user.is_authenticated and request.user.is_superuser:
@@ -752,7 +784,8 @@ def edit_coupon(request,coupon_id):
               return redirect(admin_login)
      except Exception as e:
          return HttpResponse(e)
-     
+
+@login_required(login_url='admin_login')    
 def delete_coupon(request,coupon_id):
      try:
           if request.user.is_authenticated and request.user.is_superuser:
@@ -764,7 +797,7 @@ def delete_coupon(request,coupon_id):
          return HttpResponse(e)
      
     # ------------------------------------COMPLETING RETURN --------------------    
-@(login_required)
+@login_required(login_url='admin_login')
 def complete_return(request,order_id):
     try:
         if request.user.is_authenticated and request.user.is_superuser:
