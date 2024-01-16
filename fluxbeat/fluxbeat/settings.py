@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',  
     'fluxadmin',
+    'pdfapp'
 
 
 
@@ -62,7 +63,7 @@ ROOT_URLCONF = 'fluxbeat.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['template'],
+        'DIRS': ['template','fluxadmin/template'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

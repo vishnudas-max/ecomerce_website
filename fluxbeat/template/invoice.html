@@ -1,0 +1,208 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>Hello, world!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+
+
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: inherit;
+            align-items: center;
+            padding: 20px 200px;
+        }
+
+        .row {
+            display: grid;
+            width: 100%;
+            grid-template-columns: 1fr 1fr;
+            margin: 20px 0;
+            width: 900px;
+            
+        }
+        .col
+        {
+            top: 2px;
+        }
+        /* th,td{
+            padding: 2px 5px;
+        } */
+
+
+
+        .text-right {
+            text-align: right;
+           
+        }
+
+        .invoice-title h2 {
+            margin-top: 0;
+        }
+
+        .invoice-title h3 {
+            margin: 0;
+        }
+
+        address {
+            margin: 0;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="invoice-title">
+                    <h2>Invoice</h2>
+                    <h3 class="pull-right">Order # {{order.id}}</h3>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col"   >
+                        <address>
+                            <strong>FLUXBEAT</strong><br>
+                            Moothakunnam, N.paravur<br>
+                            Ernakulam<br>
+                            Kerala, 683516<br>
+                            <a href="" style="text-decoration: none; color: black;">fluxbeat@gmail.com</a><br>
+                            <a href="tel:919207069066" style="text-decoration: none; color: black;">9207069066</a><br>
+                            <a href="www.fluxbeat.com" style="text-decoration: none; color: black;">www.fluxbeat.com</a>
+                        </address>
+                    </div>
+                    <div class="col text-right">
+                        <address>
+                            <strong>Shipped To:</strong><br>
+                            {{address.address}} <br>
+                            {{address.pin}}<br>
+                            {{address.company_name}}<br>
+                            {{address.first_name}}{{address.last_name}}<br>
+                            {{address.country}}<br>
+                            {{address.state}}<br>
+                            {{address.city}}<br>
+                            {{address.phone}}<br>
+                        </address>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <address>
+                            <strong>Payment Method:</strong><br>
+                            {% if order.payment_id.Paymment_type == 'cash on delivery' %}
+                                Cash on Delivery
+                            {% elif order.payment_id.Paymment_type == 'paypal' %}
+                                Paypal
+                            {% elif order.payment_id.Paymment_type == 'wallet_pay' %}
+                                Wallet Payment
+                            {% endif %} <br>
+                            {% if i.order.payment_id.Paymment_status == True %}
+                                Paid
+                            {% else %}
+                                Pending
+                            {% endif %}
+                        </address>
+                    </div>
+                    <div class="col text-right">
+                        <address>
+                            <strong>Order Date:</strong><br>
+                            {{order.order_date}}<br><br>
+                        </address>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>Order summary</strong></h3>
+                    </div>
+                    <div class="panel-body">
+                        <div>
+                            <table style="width: 900px;">
+                                <thead>
+                                    <tr>
+                                        <td><strong>Item</strong></td>
+                                        <td style="text-align: center;"><strong>Price</strong></td>
+                                        <td style="text-align: center;"><strong>Quantity</strong></td>
+                                        <td style="text-align: right;"><strong>Totals</strong></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in products %}
+                                    {% if i.order_status == 'canceld' %}
+                                        <tr class="cancled">
+                                            <td>{{i.proudct_id.product_name}}</td>
+                                            <td style="text-align: center;">₹{{i.proudct_id.sale_prce}}</td>
+                                            <td style="text-align: center;">canceld</td>
+                                            <td style="text-align: right;">₹{{i.total_price}}</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td>{{i.proudct_id.product_name}}</td>
+                                            <td style="text-align: center;">₹{{i.proudct_id.sale_prce}}</td>
+                                            <td style="text-align: center;">{{i.proudct_quantity}}</td>
+                                            <td style="text-align: right;">₹{{i.total_price}}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: center;"><strong>Subtotal</strong></td>
+                                        <td style="text-align: right;">₹{{order.sub_total}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: center;"><strong>Shipping</strong></td>
+                                        <td style="text-align: right;">Free</td>
+                                    </tr>
+                                    {% if order.offer_applied %}
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td style="text-align: center;"><strong>Offer</strong></td>
+                                            <td style="text-align: right;">{{order.offer_applied.offer_per}}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td style="text-align: center;"><strong>Discount</strong></td>
+                                            <td style="text-align: right;">-₹{{dicount}}</td>
+                                        </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: center;"><strong>Total</strong></td>
+                                        <td style="text-align: right;">₹{{order.offer_price}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </container>
+    </body>
+</html>
+

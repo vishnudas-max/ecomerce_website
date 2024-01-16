@@ -22,6 +22,7 @@ from fluxadmin import views as a
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from pdfapp import urls as pdfurls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.home,name='user_home'),
@@ -58,6 +59,7 @@ urlpatterns = [
     path('add_wishlist/<int:product_id>/<int:varient_id>',views.add_wishlist,name='add_wishlist'),
     path('remove_wishlist/<int:wishlist_id>',views.remove_wishlist,name='remove_wishlist'),
     path('req_return',views.req_return,name='req_return'),
+    path('',include(pdfurls))
    
     
 

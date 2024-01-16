@@ -12,6 +12,23 @@
     .custom-table {
       background-color: #f8f9f7; /* Add a hover effect for better visibility */
     }
+    .invoice
+    {
+        background: #06f8c49f;
+    /* border: 1px black; */
+    /* border: solid; */
+    /* border: 1px black; */
+    border: 1px rgba(0, 0, 0, 0.399) solid;
+    padding: 5px 14px;
+    height: 10px;
+    border-radius: 29px;
+    font-size: 10px;
+    }
+    .invoice:hover{
+        background-color: white;
+        border:1px solid #06f8c5;
+        color: black;
+    }
   </style>
 
 
@@ -262,6 +279,7 @@
                                         <div class="card-body">
                                     
                                                 {% for i in user_order %}
+                                                <a href="{% url 'create_pdf' i.id %}" class="invoice">Downlaod Invoice</a>
                                                 <div class="table-responsive" ">
                                                 <table style="background-color: rgba(11, 216, 165, 0.107);" >
                                                     <thead>
@@ -584,20 +602,7 @@
     </div>
 </footer>
 <!-- Preloader Start -->
-<div id="preloader-active">
-    <div class="preloader d-flex align-items-center justify-content-center">
-        <div class="preloader-inner position-relative">
-            <div class="text-center">
-                <h5 class="mb-5">Now Loading</h5>
-                <div class="loader">
-                    <div class="bar bar1"></div>
-                    <div class="bar bar2"></div>
-                    <div class="bar bar3"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 <!-- Vendor JS-->
 {% for i in messages %}
 <span id="eror">{{i}}</span>

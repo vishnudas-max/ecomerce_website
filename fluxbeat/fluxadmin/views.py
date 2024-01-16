@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 import datetime
 from decimal import Decimal
 from io import BytesIO
@@ -835,6 +835,104 @@ def complete_return(request,order_id):
 
             return redirect(order_management)
 
+        else:
+            return redirect(admin_login)
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+# -----------------------DIALY SALE REPORT -----------------
+@login_required(login_url='admin_login')
+def daily_sale(request):
+    try:
+        today=date.today()
+        total_order=order_items.objects.filter(added_date = today).count()
+        total_sales=orders.objects.filter(order_date = today).aggregate(sum=Sum('offer_price'))
+        avg_order_value=orders.objects.filter(order_date = today).aggregate(avg=Avg('offer_price'))
+        print(total_sales)
+        k=avg_order_value['avg']
+        avg_sale=round(k,2)
+        sold_products_today = order_items.objects.filter(added_date=today).values('proudct_id__product_name').annotate(total_quantity=Sum('proudct_quantity'))
+
+        today_orders=order_items.objects.filter(added_date = today).all()
+        context={
+            'total_order':total_order,
+            'total_sales':total_sales,
+            'avg_order_value':avg_sale,
+            'day_orders':today_orders,
+            'soled_proudcts':sold_products_today
+        }
+        if request.user.is_authenticated and request.user.is_superuser:
+            return render(request,'daily_sale.html',context)
+        else:
+            return redirect(admin_login)
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+# -----------------------WEEK SALE REPORT -----------------
+@login_required(login_url='admin_login')
+def week_sale(request):
+    try:
+        today=date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+        iso_year, iso_week, iso_weekday = today.isocalendar()
+
+        total_order=order_items.objects.filter(added_date__range=[start_of_week, end_of_week]).count()
+        total_sales=orders.objects.filter(order_date__range=[start_of_week, end_of_week]).aggregate(sum=Sum('offer_price'))
+        avg_order_value=orders.objects.filter(order_date__range=[start_of_week, end_of_week]).aggregate(avg=Avg('offer_price'))
+        print(total_sales)
+        k=avg_order_value['avg']
+        avg_sale=round(k,2)
+        sold_products_today = order_items.objects.filter(added_date__range=[start_of_week, end_of_week]).values('proudct_id__product_name').annotate(total_quantity=Sum('proudct_quantity'))
+
+        today_orders=order_items.objects.filter(added_date__range=[start_of_week, end_of_week]).all()
+        context={
+            'total_order':total_order,
+            'total_sales':total_sales,
+            'avg_order_value':avg_sale,
+            'day_orders':today_orders,
+            'soled_proudcts':sold_products_today,
+            'week':iso_week
+        }
+        if request.user.is_authenticated and request.user.is_superuser:
+            return render(request,'week_sale.html',context)
+        else:
+            return redirect(admin_login)
+    except Exception as e:
+        return HttpResponse(e)
+
+
+
+# -----------------------YEAR SALE REPORT -----------------
+@login_required(login_url='admin_login')
+def year_sale(request):
+    try:
+        today=date.today()
+        start_of_year = date(today.year, 1, 1)
+        end_of_year = date(today.year, 12, 31)
+        iso_year, iso_week, iso_weekday = today.isocalendar()
+
+        total_order=order_items.objects.filter(added_date__range=[start_of_year, end_of_year]).count()
+        total_sales=orders.objects.filter(order_date__range=[start_of_year, end_of_year]).aggregate(sum=Sum('offer_price'))
+        avg_order_value=orders.objects.filter(order_date__range=[start_of_year, end_of_year]).aggregate(avg=Avg('offer_price'))
+        print(total_sales)
+        k=avg_order_value['avg']
+        avg_sale=round(k,2)
+        sold_products_today = order_items.objects.filter(added_date__range=[start_of_year, end_of_year]).values('proudct_id__product_name').annotate(total_quantity=Sum('proudct_quantity'))
+
+        today_orders=order_items.objects.filter(added_date__range=[start_of_year, end_of_year]).all()
+        context={
+            'total_order':total_order,
+            'total_sales':total_sales,
+            'avg_order_value':avg_sale,
+            'day_orders':today_orders,
+            'soled_proudcts':sold_products_today,
+            'year':iso_year
+        }
+        if request.user.is_authenticated and request.user.is_superuser:
+            return render(request,'year_sale.html',context)
         else:
             return redirect(admin_login)
     except Exception as e:

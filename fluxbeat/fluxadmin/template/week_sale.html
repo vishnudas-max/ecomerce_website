@@ -1,0 +1,172 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+    <style>
+        .line::before{
+            content: '';
+            display: block;
+            width: 100%;
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.51);
+        }
+        .heading{
+            font-weight: 700;
+    color: #0000006c;
+        }
+        .data
+        {
+            font-weight: normal;
+       
+
+        }
+        .include{
+            font-size: 10px;
+            font-weight: lighter;
+        }
+
+    </style>
+  </head>
+  <body>
+    <div class="sales-container">
+        <div class="row p-4">
+          <div class="col text-center p-5">
+            <a href="{% url 'daily_sale' %}" class="btn  btn-outline-primary">day</a>
+            <a href="{% url 'week_sale' %}" class="btn  btn-outline-primary">week</a>
+            <a href="{% url 'year_sale' %}" class="btn  btn-outline-primary">year</a>
+          </div>
+         
+        </div>
+        <div class="container" style=" box-shadow: 0 4px 8px rgba(0.1, 0.1, 0.1, 0.1);">
+            <div class="row">
+                <div class="col text-center" ><h1 style="color: rgba(0, 0, 0, 0.575);">Sales Report week({{week}})</h1></div>
+            </div>
+            <span class="line mt-4 mb-4"></span>
+            <div class="row">
+                <div class="col p-3">
+                    <h3 style="color: rgba(0, 0, 0, 0.575);" >Sale Summary</h3>
+                    <p><span class="heading" >Total Orders :</span>{{total_order}}</p>
+                    
+                    <p><span class="heading" >Total Sales :</span>₹{{total_sales.sum}}</p>
+                    <p><span class="heading" >Avarage Order Value:</span>₹{{avg_order_value}}</p>
+                </div>
+            </div>
+
+            <span class="line mt-4 mb-4"></span>
+
+            <div class="row">
+                <div class="col mt-5">
+                    <h3 style="color: rgba(0, 0, 0, 0.575);" >Product Performance</h3>
+                    <table class="table mt-2">
+                        <thead>
+                          <tr>
+                            <th scope="col">product</th>
+                            <th scope="col">Quantity soled <span class="include">(include canceld)</span></th>
+                          
+                            
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for i in soled_proudcts %}
+                          <tr>
+                            <th class="data">{{i.proudct_id__product_name}}</th>
+                            <td class="data">{{i.total_quantity}}</td>
+                 
+                       
+                          </tr>
+                          {% endfor %}
+                         
+                        </tbody>
+                      </table>
+                </div>
+            </div> 
+
+            <span class="line mt-4 mb-4"></span>
+
+            <div class="row">
+               <div class="col mt-5">
+                <h3 style="color: rgba(0, 0, 0, 0.575);" >All orders in this week</h3>
+                <table class="table mt-2">
+                    <thead>
+                      <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">Product</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Payment</th>
+                        <th scope="col">Payment Status</th>
+                        <th scope="col">Order status</th>
+                        
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for i in day_orders %}
+                      <tr>
+                        <th class="data" >{{i.id}}</th>
+                        <th class="data" >{{i.proudct_id.product_name}}</th>
+                        <th class="data" >{{i.user_id.first_name}}{{i.user_id.last_name}}</th>
+                        <th class="data" >{{i.total_quantity}}</th>
+                        <th class="data" >{{i.order_id.payment_id.Paymment_type}}</th>
+                        <th class="data" >{% if i.order_id.payment_id.Paymment_status == True %}<span class="badge rounded-pill text-bg-info" style="background-color:rgb(8, 243, 4); width: 70px;">Paid</span> {% else %} <span class="badge rounded-pill text-bg-info" style="background-color:yellow; width: 70px;">Peding</span> {% endif %}</th>
+                        <th class="data" > <span class="badge rounded-pill text-bg-info" style="background-color: aqua; width: 70px;">{{i.order_status}}</span></th>
+                   
+                      </tr>
+                      {% endfor %}
+                     
+                    </tbody>
+                  </table>
+               </div>
+            </div>
+            
+
+           
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+            <span class="line mt-4 mb-4"></span>
+            <div class="col mt-5 mb-5">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary">back to dashboard</a>
+                <button id="pdfButton" class="btn btn-outline-warning">download pdf</button>
+                <button id="excelButton"  class="btn btn-outline-success">download excel</button>
+            </div>
+        </div>
+      </div>
+
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+<script>
+    document.getElementById("pdfButton").addEventListener("click", function () {
+        const salesContainer = document.querySelector(".sales-container");
+        const pdfOptions = {
+            filename: 'TodaysSalesReport.pdf',
+            image: { type: 'jpeg', quality: 1.0 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(salesContainer).set(pdfOptions).save();
+    });
+    document.getElementById("excelButton").addEventListener("click", function () {
+        const table = document.querySelector(".table");
+        const ws = XLSX.utils.table_to_sheet(table);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'TodaysSalesReport.xlsx');
+    });
+</script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  </body>
+</html>
