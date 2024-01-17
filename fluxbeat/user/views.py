@@ -938,6 +938,7 @@ def cancel_order(request,order_id,order_type):
     except Exception as e:
         return HttpResponse(e)
     
+# -------------------------------ORDER DETAILES--------------------------
 @login_required(login_url='user_signin')
 def order_detailes(request,order_id):
      try:
@@ -974,6 +975,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from fluxadmin.models import cart
 
+# --------------------------UPDATE CART QUANTITY------------------
 def update_cart_quantity(request, cart_item_id, operation):
      if request.user.is_authenticated and not request.user.is_superuser:
             cart_item = get_object_or_404(cart, id=cart_item_id)
@@ -1000,11 +1002,11 @@ def update_cart_quantity(request, cart_item_id, operation):
 
             # Save the changes
             cart_item.save()
-
+            total=cart_item.total_price
             # Prepare data for the JSON response
             data = {
                 'quantity': cart_item.proudct_quantity,
-                'total_price': float(cart_item.total_price),
+                'total_price': total,
             }
 
             return JsonResponse(data)

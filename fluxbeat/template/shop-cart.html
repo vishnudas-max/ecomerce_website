@@ -1,6 +1,55 @@
 ﻿{% extends 'nav.html' %}
 {% block contend %}
 {% load static %}
+<style>
+    .total-pricee
+    {
+    outline: none;
+    border: none;
+    width: 100px;
+    background-color: white;
+    }
+    .qun
+    {
+
+    background-color: gray;
+    width: 20px;
+    border-radius: 3px;
+    color: white;
+
+    }
+    .qun:hover
+    {
+        background-color: white;
+        color: black;
+    }
+    .containerforquantity
+    {
+        display: flex;
+        
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+    }
+    .containerforquantity input
+    {
+        width: 30px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        padding: 0;
+        height: 30px;
+        border: none;
+
+
+    }
+    .outer{
+        display: flex;
+    justify-content: center;
+    height: 100px;
+        
+    }
+</style>
 <div class="mobile-header-active mobile-header-wrapper-style">
     <div class="mobile-header-wrapper-inner">
         <div class="mobile-header-top">
@@ -224,22 +273,22 @@
                                     </td>
                                     <td class="price" data-title="Price"><span>₹{{i.proudct_id.sale_prce}}</span></td>
                                   
-                                        <td class="text-center" data-title="Stock">
-                                            <div class="border radius m-auto" style="width: 100px;">
-                                                <a href="#" class="qty-down" data-operation="decrease">-</a>
+                                        <td class="text-center outer" data-title="Stock">
+                                            <div class="containerforquantity" style="width: 100px;">
+                                                <a href="#" class="qty-down qun" data-operation="decrease">-</a>
                                                 <input type="number" class="qty-val" 
                                                        value="{{ i.proudct_quantity }}" 
                                                        min="1" 
                                                        max="{{ i.varient_id.quantity }}" 
                                                        data-cart-item-id="{{ i.id }}" 
                                                        readonly 
-                                                       name="quantity">
-                                                <a href="#" class="qty-up" data-operation="increase">+</a>
+                                                       name="quantity" >
+                                                <a href="#" class="qty-up qun" data-operation="increase">+</a>
                                                
                                             </div>
                                         </td>
                                         <td class="text-right" data-title="Cart">
-                                            <span class="total-price">₹{{ i.total_price }}</span>
+                                           <input type="text" data-cart-item-id="{{ i.id }}"  value="₹{{ i.total_price }}" class="total-pricee" disabled>
                                         </td>
                             
                                     <td class="action" data-title="Remove"><a href="{% url 'delete_cart' cart_id=i.id %}" class="text-muted"><i
@@ -269,7 +318,7 @@
                                             <tr>
                                                 <td class="cart_total_label">Cart Subtotal</td>
                                                 <td class="cart_total_amount"><span
-                                                        class="font-lg fw-900 text-brand total-price">₹{{grand_total}}</span></td>
+                                                        class="font-lg fw-900 text-brand grand_total">₹{{grand_total}}</span></td>
                                             </tr>
                                             <tr>
                                                 <td class="cart_total_label">Shipping</td>
@@ -279,7 +328,7 @@
                                             <tr>
                                                 <td class="cart_total_label">Total</td>
                                                 <td class="cart_total_amount"><strong><span
-                                                            class="font-xl fw-900 text-brand"><span id="total" class="total-price">₹{{grand_total}}</span></span></strong>
+                                                            class="font-xl fw-900 text-brand grand_total"><span id="total" class="total-price">₹{{grand_total}}</span></span></strong>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -435,18 +484,21 @@ $(document).ready(function () {
                 if (data.error) {
                     alert(data.error);
                 } else {
-                    // Update the input field and total price
+                    // Update the input field
                     $('[data-cart-item-id="' + cartItemId + '"].qty-val').val(data.quantity);
-                    var spanElements = document.querySelectorAll('.total-price');
-                      spanElements.forEach(function(spanElement) {
-                          spanElement.textContent = '₹' + data.total_price;
-                      });
 
-                  
                     // Update the total price
-
+                    
+                    $('[data-cart-item-id="' + cartItemId + '"].total-pricee').val('₹' + data.total_price);
 
                     // You can update other elements with the total price if needed
+                    var grandTotal = 0;
+
+                    $('.total-pricee').each(function() {
+                        var totalPriceValue = parseFloat($(this).val().replace('₹', '').trim());
+                        grandTotal += totalPriceValue;
+                    });
+                    $('.grand_total').text('₹' + grandTotal.toFixed(2));
                 }
             },
             error: function (error) {
@@ -455,6 +507,8 @@ $(document).ready(function () {
         });
     });
 });
+
+
 
 
 </script>
