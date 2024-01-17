@@ -18,11 +18,30 @@
                     <h2 class="content-title card-title">Dashboard </h2>
                     <p>Whole data about your business here</p>
                 </div>
+                
                 <div>
-                    <a href="#" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Create report</a>
+                    <a href="{% url 'daily_sale' %}" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Sales Report</a>
                 </div>
             </div>
             <div class="row">
+                <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                    <div class="custom_select">
+                        <form action="{% url 'admin_dashboard' %}" method="post" style="display: flex; column-gap: 10px;">
+                            {% csrf_token %}
+                            <select class="form-select select-nice" name="opt">
+                              <option value="all"><a href="">All</a></option>
+                              <option value="today"><a href="">Today</a></option>
+                              <option value="week"><a href="">Week</a></option>
+                              <option value="month"><a href="">Month</a></option>
+                              <option value="year"><a href="">Year</a></option>
+                              
+                            </select>
+                            <button type="submit" class="bt">Filter</button>
+                          </form>
+                    </div>
+            </div>
+            <div class="row">
+                
                 <div class="col-lg-3">
                     <div class="card card-body mb-4">
                         <article class="icontext">
@@ -134,7 +153,11 @@
                     <div class="card mb-4">
                         <article class="card-body">
                             <h5 class="card-title">Sale statistics</h5>
-                            <canvas id="myChart" height="120px"></canvas>
+
+                            <div>
+                                <canvas id="piechart"></canvas>
+                              </div>
+
                         </article>
                     </div>
                 
@@ -170,22 +193,9 @@
             <div class="card mb-4">
                 <header class="card-header">
                     <h4 class="card-title">Latest orders</h4>
+
                     <div class="row align-items-center">
-                        <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                            <div class="custom_select">
-                                <form action="{% url 'admin_dashboard' %}" method="post" style="display: flex; column-gap: 10px;">
-                                    {% csrf_token %}
-                                    <select class="form-select select-nice" name="opt">
-                                      <option value="all"><a href="">All</a></option>
-                                      <option value="today"><a href="">Today</a></option>
-                                      <option value="week"><a href="">Week</a></option>
-                                      <option value="month"><a href="">Month</a></option>
-                                      <option value="year"><a href="">Year</a></option>
-                                      
-                                    </select>
-                                    <button type="submit" class="bt">Filter</button>
-                                  </form>
-                            </div>
+                       
                         </div>
                         <!-- <div class="col-md-2 col-6">
                             <input type="date" value="02.05.2021" class="form-control">
@@ -262,5 +272,31 @@
         </section>
 </html>
 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const ctx = document.getElementById('piechart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{label|safe}},
+      datasets: [{
+        label:"orders",
+        data: {{data|safe}},
+        backgroundColor:['green','red','yellow'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
   
 {% endblock  %}

@@ -19,6 +19,10 @@ from django.db.models import Count
 @login_required(login_url='admin_login')
 def dashboard(request):
     if request.user.is_authenticated and request.user.is_superuser:
+      label=[]
+      data=[]
+
+
       memcount=0
       members=customeUser.objects.filter(is_superuser = False).all()
       for i in members:
@@ -48,28 +52,91 @@ def dashboard(request):
       if request.method == 'POST':
           opt=request.POST.get('opt')
           if opt == 'today':
+
+            sucess_order=order_items.objects.filter(Q(order_status='delivered') & Q(added_date=date.today())).count()
+            canceld_order=order_items.objects.filter(Q(order_status='canceld') & Q(added_date=date.today())).count()
+            returned_order=order_items.objects.filter(Q(order_status='returned') & Q(added_date=date.today())).count()
+            label.append('succes')
+            data.append(sucess_order)
+            label.append('canceld')
+            data.append(canceld_order)
+            label.append('returned')
+            data.append(returned_order)
+            context['label']=label
+            context['data']=data
             today_orderss = orders.objects.filter(Q(order_date=date.today()))
             context['orders']=today_orderss
             return render(request,'admindashboard.html',context)
           
           if opt == 'week':
+
+            sucess_order=order_items.objects.filter(Q(order_status='delivered') & Q(added_date__week=date.today().isocalendar()[1])).count()
+            canceld_order=order_items.objects.filter(Q(order_status='canceld') & Q(added_date__week=date.today().isocalendar()[1])).count()
+            returned_order=order_items.objects.filter(Q(order_status='returned') & Q(added_date__week=date.today().isocalendar()[1])).count()
+            print(sucess_order)
+            label.append('succes')
+            data.append(sucess_order)
+            label.append('canceld')
+            data.append(canceld_order)
+            label.append('returned')
+            data.append(returned_order)
+            context['label']=label
+            context['data']=data
             today_orderss =orders.objects.filter(Q(order_date__week=date.today().isocalendar()[1]))
             context['orders']=today_orderss
             return render(request,'admindashboard.html',context)
           
           if opt == 'month':
+            sucess_order=order_items.objects.filter(Q(order_status='delivered') & Q(added_date__month=date.today().month)).count()
+            canceld_order=order_items.objects.filter(Q(order_status='canceld') & Q(added_date__month=date.today().month)).count()
+            returned_order=order_items.objects.filter(Q(order_status='returned') & Q(added_date__month=date.today().month)).count()
+            print(sucess_order)
+            label.append('succes')
+            data.append(sucess_order)
+            label.append('canceld')
+            data.append(canceld_order)
+            label.append('returned')
+            data.append(returned_order)
+            context['label']=label
+            context['data']=data
             today_orderss = orders.objects.filter(Q(order_date__month=date.today().month))
             context['orders']=today_orderss
             return render(request,'admindashboard.html',context)
           
           if opt == 'year':
+            sucess_order=order_items.objects.filter(Q(order_status='delivered') & Q(added_date__year=date.today().year)).count()
+            canceld_order=order_items.objects.filter(Q(order_status='canceld') & Q(added_date__year=date.today().year)).count()
+            returned_order=order_items.objects.filter(Q(order_status='returned') & Q(added_date__year=date.today().year)).count()
+            print(sucess_order)
+            label.append('succes')
+            data.append(sucess_order)
+            label.append('canceld')
+            data.append(canceld_order)
+            label.append('returned')
+            data.append(returned_order)
+            context['label']=label
+            context['data']=data
             today_orderss = orders.objects.filter(Q(order_date__year=date.today().year))
             context['orders']=today_orderss
             return render(request,'admindashboard.html',context)
-            
+          
+      sucess_order=order_items.objects.filter(order_status='delivered').count()
+      canceld_order=order_items.objects.filter(order_status='canceld').count()
+      returned_order=order_items.objects.filter(order_status='returned').count()
+      label.append('succes')
+      data.append(sucess_order)
+      label.append('canceld')
+      data.append(canceld_order)
+      label.append('returned')
+      data.append(returned_order)
+      context['label']=label
+      context['data']=data
       return render(request,'admindashboard.html',context)
     else:
       return redirect(admin_login)
+
+
+
 
 
 #   -------------------order_detailed view-------------  
@@ -849,9 +916,13 @@ def daily_sale(request):
         total_order=order_items.objects.filter(added_date = today).count()
         total_sales=orders.objects.filter(order_date = today).aggregate(sum=Sum('offer_price'))
         avg_order_value=orders.objects.filter(order_date = today).aggregate(avg=Avg('offer_price'))
-        print(total_sales)
         k=avg_order_value['avg']
-        avg_sale=round(k,2)
+        if k:
+            avg_sale=round(k,2)
+        else:
+            avg_sale=0
+        if total_sales['sum'] == None:
+            total_sales['sum'] = 0
         sold_products_today = order_items.objects.filter(added_date=today).values('proudct_id__product_name').annotate(total_quantity=Sum('proudct_quantity'))
 
         today_orders=order_items.objects.filter(added_date = today).all()
@@ -884,7 +955,12 @@ def week_sale(request):
         avg_order_value=orders.objects.filter(order_date__range=[start_of_week, end_of_week]).aggregate(avg=Avg('offer_price'))
         print(total_sales)
         k=avg_order_value['avg']
-        avg_sale=round(k,2)
+        if k:
+            avg_sale=round(k,2)
+        else:
+            avg_sale=0
+        if total_sales['sum'] == None:
+            total_sales['sum'] = 0
         sold_products_today = order_items.objects.filter(added_date__range=[start_of_week, end_of_week]).values('proudct_id__product_name').annotate(total_quantity=Sum('proudct_quantity'))
 
         today_orders=order_items.objects.filter(added_date__range=[start_of_week, end_of_week]).all()
@@ -919,7 +995,12 @@ def year_sale(request):
         avg_order_value=orders.objects.filter(order_date__range=[start_of_year, end_of_year]).aggregate(avg=Avg('offer_price'))
         print(total_sales)
         k=avg_order_value['avg']
-        avg_sale=round(k,2)
+        if k:
+            avg_sale=round(k,2)
+        else:
+            avg_sale=0
+        if total_sales['sum'] == None:
+            total_sales['sum'] = 0
         sold_products_today = order_items.objects.filter(added_date__range=[start_of_year, end_of_year]).values('proudct_id__product_name').annotate(total_quantity=Sum('proudct_quantity'))
 
         today_orders=order_items.objects.filter(added_date__range=[start_of_year, end_of_year]).all()
