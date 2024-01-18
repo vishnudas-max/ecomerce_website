@@ -150,16 +150,16 @@
                                     {% if i.order_status == 'canceld' %}
                                         <tr class="cancled">
                                             <td>{{i.proudct_id.product_name}}</td>
-                                            <td style="text-align: center;">₹{{i.proudct_id.sale_prce}}</td>
+                                            <td style="text-align: center;">Rs.{{i.proudct_id.sale_prce}}</td>
                                             <td style="text-align: center;">canceld</td>
-                                            <td style="text-align: right;">₹{{i.total_price}}</td>
+                                            <td style="text-align: right;">Rs.{{i.total_price}}</td>
                                         </tr>
                                         {% else %}
                                         <tr>
                                             <td>{{i.proudct_id.product_name}}</td>
-                                            <td style="text-align: center;">₹{{i.proudct_id.sale_prce}}</td>
+                                            <td style="text-align: center;">Rs.{{i.proudct_id.sale_prce}}</td>
                                             <td style="text-align: center;">{{i.proudct_quantity}}</td>
-                                            <td style="text-align: right;">₹{{i.total_price}}</td>
+                                            <td style="text-align: right;">Rs/{{i.total_price}}</td>
                                         </tr>
                                         {% endif %}
                                     {% endfor %}
@@ -168,7 +168,7 @@
                                         <td></td>
                                         <td></td>
                                         <td style="text-align: center;"><strong>Subtotal</strong></td>
-                                        <td style="text-align: right;">₹{{order.sub_total}}</td>
+                                        <td style="text-align: right;">Rs.{{order.sub_total}}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
@@ -187,14 +187,14 @@
                                             <td></td>
                                             <td></td>
                                             <td style="text-align: center;"><strong>Discount</strong></td>
-                                            <td style="text-align: right;">-₹{{dicount}}</td>
+                                            <td style="text-align: right;">-RS.{{dicount}}</td>
                                         </tr>
                                     {% endif %}
                                     <tr>
                                         <td></td>
                                         <td></td>
                                         <td style="text-align: center;"><strong>Total</strong></td>
-                                        <td style="text-align: right;">₹{{order.offer_price}}</td>
+                                        <td style="text-align: right;">Rs.{{order.offer_price}}</td>
                                     </tr>
                                 </tbody>
                             </table>

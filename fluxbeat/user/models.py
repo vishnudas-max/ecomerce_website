@@ -1,3 +1,4 @@
+import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from .manager import userManager
@@ -85,9 +86,23 @@ class order_items(models.Model):
 class wallet(models.Model):
     user_id=models.ForeignKey(customeUser,on_delete=models.CASCADE,related_name='user_wallet',unique=True)
     wallet_amount=models.DecimalField(max_digits=15,decimal_places=2,)
+    history = models.TextField(null=True,default=json.dumps([]))
+
+    def set_string_list(self, value):
+        self.history = json.dumps(value)
+
+    def get_string_list(self):
+        return json.loads(self.history)
+    
+    def append_to_string_list(self, new_value):
+        current_list = self.get_string_list()
+        current_list.append(new_value)
+        self.set_string_list(current_list)
 
     def __str__(self):
         return f"{self.user_id.first_name} wallet"
+
+
 
 class wishlist(models.Model):
     user_id=models.ForeignKey(customeUser,on_delete=models.CASCADE,related_name='wishlist_items',null=False)

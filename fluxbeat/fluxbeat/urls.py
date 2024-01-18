@@ -59,7 +59,8 @@ urlpatterns = [
     path('add_wishlist/<int:product_id>/<int:varient_id>',views.add_wishlist,name='add_wishlist'),
     path('remove_wishlist/<int:wishlist_id>',views.remove_wishlist,name='remove_wishlist'),
     path('req_return',views.req_return,name='req_return'),
-    path('',include(pdfurls))
+    path('',include(pdfurls)),
+    path('search_product',views.search_product,name='search_product')
    
     
 

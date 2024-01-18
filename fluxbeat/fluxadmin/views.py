@@ -739,7 +739,10 @@ def order_detail(request,order_id):
                             amount_to_be_added_to_wallet= previous_offer_price - next_offer_price
 
                         if main_order.payment_id.Paymment_status == True:
+                            debit_histo= Decimal(amount_to_be_added_to_wallet)
                             wallet_instance.wallet_amount += Decimal(amount_to_be_added_to_wallet)
+                            historyy=f"order :{order.id} canceld-amount Rs. {debit_histo} is credited to the wallet"
+                            wallet_instance.append_to_string_list(historyy)
                             wallet_instance.save()
                             # adding money to the wallet if coupon is not applied end here ------------
 
@@ -824,6 +827,8 @@ def coupon_management(request):
             return redirect(admin_login)
     except Exception as e:
         return HttpResponse(e)
+    
+    # ------------------------------EDIT COUPON-----------------
 @login_required(login_url='admin_login')    
 def edit_coupon(request,coupon_id):
      try:
@@ -898,6 +903,8 @@ def complete_return(request,order_id):
             # -----------adding to wallet----------------
             price_of_returned_item=  previous_offer_price - item.order_id.offer_price 
             user_wallet.wallet_amount += price_of_returned_item
+            historyy=f"order :{item.order_id} canceld-amount Rs. {price_of_returned_item} is credited to the wallet"
+            user_wallet.append_to_string_list(historyy)
             user_wallet.save()
 
             return redirect(order_management)

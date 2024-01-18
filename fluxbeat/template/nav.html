@@ -119,10 +119,11 @@
                     </div>
                     <div class="header-right">
 
-                            <form action="#">
+                            <form action="{% url 'search_product' %}" method="post">
+                                {% csrf_token %}
                                 <div class="searchbox">
-                                    <input type="text" placeholder="Search for items..." class="field">
-                                   <input type="button" value="Search" class="clicker">
+                                    <input type="text" placeholder="Search for items..." class="field" name="search_code">
+                                   <input type="submit" value="Search" class="clicker">
                                 </div>
                                 
                             </form>
@@ -208,7 +209,7 @@
                                         <a href="page-about.html">About</a>
                                     </li>
                                     <li>
-                                        <a href="page-about.html">Shop</a>
+                                        <a href="{% url 'shop_product_list' %}">Shop</a>
                                     </li>
      
                                     

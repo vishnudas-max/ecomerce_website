@@ -44,8 +44,9 @@ def home(request):
               for j in top_sell_data:
                   print(j['product_instanc'].product_name)
 
-             
-                
+       
+
+
             products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
             arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
             brands=brand.objects.all()
@@ -53,6 +54,31 @@ def home(request):
         
     except Exception as e:
         return HttpResponse(e)
+    
+
+
+
+# -------------------------SEARCHING PRODUCT----------------
+def search_product(request):
+    if request.method == 'POST':
+                if request.user.is_authenticated and not request.user.is_superuser:
+                    c=1
+                    wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                    cart_count=cart.objects.filter(user_id=request.user.id).count()
+                else:
+                    wishlist_count=0
+                    cart_count=0
+                    c=0
+                brands=brand.objects.all()
+                arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+
+                search_data=request.POST.get('search_code')
+               
+                matching_products = product.objects.filter(product_name__icontains=search_data)
+                categorie=category.objects.all()
+                return render(request,'shop-list-left.html',{"products":matching_products,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+   
+
 
 # -------------------------SHOP PRODUCT LIST---------------------------------------------------------------------------
 def shop_product_list(request):
@@ -278,6 +304,9 @@ def user_account(request):
         except:
             usr=customeUser.objects.get(id=request.user.id)
             wallets=wallet.objects.create(user_id=usr,wallet_amount=0)
+        wallet_history=wallets.get_string_list()
+        reversed_wallet_history = list(reversed(wallet_history))
+        print(wallet_history)
         user_order=orders.objects.filter(user_id=request.user).all().order_by('-id')
         order_itemss=order_items.objects.all()
         user_address=address.objects.filter(user_id=request.user.id)
@@ -292,7 +321,7 @@ def user_account(request):
             user=User.objects.get(id=user.id)
         except:
             print("Something went wrong")
-        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss,'wallet':wallets,'w':wishlist_count,'c':cart_count})
+        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss,'wallet':wallets,'w':wishlist_count,'c':cart_count,"history":reversed_wallet_history})
     except Exception as e:
         return HttpResponse(e)
     
@@ -808,7 +837,16 @@ def check_out(request):
                         a=order_idd.id
                     if payment_type == 'paypal':
                         return JsonResponse({'status': 'success', 'message': 'Payment confirmed','order_Id':a})
-                 
+                    
+                    # ----------------adding wallet hisoty--------
+                    if payment_type =='wallet_pay':
+                            
+                            wallet_amountt=wallet.objects.get(user_id=request.user.id)
+                            historyy=f"order id:{order_idd.id} order placed using wallet pay-amount Rs. {order_idd.offer_price} is debited from the wallet"
+                            print(historyy)
+                            wallet_amountt.append_to_string_list(historyy)
+                            wallet_amountt.save()
+
                     return redirect(reverse('success',args=[order_idd.id]))
                 
                 # ------------if coupon is applied --------------------------
@@ -889,6 +927,8 @@ def cancel_order(request,order_id,order_type):
                 #  adding money to wallet when order is cancelled0-----------
                  if order.order_id.payment_id.Paymment_status == True:
                     current_wallet=wallet.objects.get(user_id=request.user.id)
+                    historyy=f"order :{order.id} canceld-amount Rs. {amount_to_be_added} is credited to the wallet"
+                    current_wallet.append_to_string_list(historyy)
                     current_wallet.wallet_amount +=amount_to_be_added
                     current_wallet.save()
                     messages.info(request,'Order concelled succesfully !')
@@ -916,6 +956,8 @@ def cancel_order(request,order_id,order_type):
                 #  adding money to wallet when order is cancelled0-----------
                  if order.payment_id.Paymment_status == True:
                     current_wallet=wallet.objects.get(user_id=request.user.id)
+                    historyy=f"mulitple product order id:{order.id} canceld-amount Rs. {order.offer_price} is credited to the wallet"
+                    current_wallet.append_to_string_list(historyy)
                     current_wallet.wallet_amount += order.offer_price
                     current_wallet.save()
                     messages.info(request,'Order concelled succesfully !')   
@@ -1093,5 +1135,6 @@ def req_return(request):
     
 
 
+# ------------------ABOUT PAGE----------------------------
 
 
