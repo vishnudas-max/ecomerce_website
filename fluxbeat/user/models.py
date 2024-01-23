@@ -84,7 +84,7 @@ class order_items(models.Model):
     
 
 class wallet(models.Model):
-    user_id=models.ForeignKey(customeUser,on_delete=models.CASCADE,related_name='user_wallet',unique=True)
+    user_id=models.OneToOneField(customeUser,on_delete=models.CASCADE,related_name='user_wallet',unique=True)
     wallet_amount=models.DecimalField(max_digits=15,decimal_places=2,)
     history = models.TextField(null=True,default=json.dumps([]))
 
@@ -110,3 +110,25 @@ class wishlist(models.Model):
     varient_id=models.ForeignKey(verients,on_delete=models.CASCADE,null=False)
     added_date=models.DateField(auto_now_add=True)
     price=models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+
+import random
+import string
+class referal(models.Model):
+    user_id = models.OneToOneField(customeUser, on_delete=models.CASCADE)
+    code = models.CharField(max_length=7, null=False, unique=True)
+
+    @staticmethod
+    def referal_code_generator(length):
+        characters = string.ascii_letters + string.digits
+        random_string = ''.join(random.sample(characters, length))
+        return random_string
+
+    def save(self, *args, **kwargs):
+        # Generate a unique 7-character code
+        while True:
+            unique_code = referal.referal_code_generator(length=7)
+            if not referal.objects.filter(code=unique_code).exists():
+                break
+
+        self.code = unique_code
+        super().save(*args, **kwargs)

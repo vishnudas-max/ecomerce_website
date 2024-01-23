@@ -18,7 +18,7 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 from user.models import wishlist
 User=get_user_model()
-
+from user.models import referal
 from django.core.paginator import Paginator
 
 # Create your views here.
@@ -183,12 +183,25 @@ def user_reg(request):
                  phoneno=request.POST['phoneno']
                  password=request.POST['password']
                  cpassword=request.POST['cpassword']
+                 referal_code=request.POST['referal_code']
                  b={'fname':first_name,'lname':last_name,'email':email,'phone':phoneno}
                  request.session['first_name']=first_name
                  request.session['last_name']=last_name
                  request.session['email']=email
                  request.session['phoneno']=phoneno
                  request.session['password']=password
+
+                 if 'referal_code' in request.session:
+                            referal_code_value = request.session.pop('referal_code')
+
+                 if request.POST['referal_code']:
+                    if not referal.objects.filter(code=referal_code).exists():
+
+                        messages.info(request,'Referal Code invalid !')
+                        return render(request,'user_reg.html',b)
+                    
+                    request.session['referal_code']=referal_code
+
                  password_pattern = r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
                  if password != cpassword:
                     messages.info(request,'password does not match !')
@@ -303,7 +316,17 @@ def otp_varify(request):
               if request.session['otp']==otp_:
                   user=User.objects.create_user(first_name=request.session['first_name'],last_name=request.session['last_name'],email=request.session['email'],phone_number=request.session['phoneno'],password=request.session['password'])
                   user.save()
-                  wallet.objects.create(user_id=user,wallet_amount=0)
+
+                  referal.objects.create(user_id=user)
+
+                  current_wallet=wallet.objects.create(user_id=user,wallet_amount=0)
+
+                  if 'referal_code' in request.session:
+                       current_wallet.wallet_amount += 200
+                       historyy=f"₹200 credited to account as referal bonus !"
+                       current_wallet.append_to_string_list(historyy)
+                       current_wallet.save()
+
                   request.session.clear()
                   return redirect(user_signin)
               else:
@@ -363,6 +386,7 @@ def varient_change(request,product_id,varient_id):
 
 
 # -----------------------------------------------USER ACCOUNT ----------------------------------------
+
 @login_required(login_url='user_signin')
 def user_account(request):
     try:
@@ -371,6 +395,15 @@ def user_account(request):
         except:
             usr=customeUser.objects.get(id=request.user.id)
             wallets=wallet.objects.create(user_id=usr,wallet_amount=0)
+        try:
+            referal_instance =referal.objects.get(user_id=request.user.id)
+            referal_id=referal_instance.code
+        except:
+            usr=customeUser.objects.get(id=request.user.id)
+            referal_instance =referal.objects.create(user_id=usr)
+            referal_id=referal_instance.code
+
+
         wallet_history=wallets.get_string_list()
         reversed_wallet_history = list(reversed(wallet_history))
         print(wallet_history)
@@ -388,7 +421,7 @@ def user_account(request):
             user=User.objects.get(id=user.id)
         except:
             print("Something went wrong")
-        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss,'wallet':wallets,'w':wishlist_count,'c':cart_count,"history":reversed_wallet_history})
+        return render(request,'page-account.html',{'login_status':c,'user':user,'user_addresses':user_address,'user_order':user_order,'order_items':order_itemss,'wallet':wallets,'w':wishlist_count,'c':cart_count,"history":reversed_wallet_history,"referal_id":referal_id})
     except Exception as e:
         return HttpResponse(e)
     
@@ -1085,6 +1118,7 @@ from django.shortcuts import get_object_or_404
 from fluxadmin.models import cart
 
 # --------------------------UPDATE CART QUANTITY------------------
+@login_required(login_url='user_signin')
 def update_cart_quantity(request, cart_item_id, operation):
      if request.user.is_authenticated and not request.user.is_superuser:
             cart_item = get_object_or_404(cart, id=cart_item_id)
@@ -1218,3 +1252,4 @@ def about(request):
         return render(request,'about.html')
     except Exception as e:
         return HttpResponse(e)
+

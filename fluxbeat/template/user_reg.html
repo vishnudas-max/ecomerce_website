@@ -2,7 +2,19 @@
 {% block contend %}
 {% load static %}
 <!-- Begin Li's Breadcrumb Area -->
+<style>
 
+    .reg_button
+ {
+    background: #047c7c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 6px;
+ }
+
+
+</style>
 <!-- Material Design Iconic Font-V2.2.0 -->
 <link rel="stylesheet" href="{% static 'css/material-design-iconic-font.min.css' %}">
 <!-- Font Awesome -->
@@ -43,10 +55,16 @@
     <div class="container">
         <div class="row d-flex justify-content-center">
             <div class="col-sm-12 col-md-12 col-lg-6 col-xs-12">
+                {% for message in messages %}
+                <p class="text-danger error" style="float: right; margin-top: 25px; margin-right: 25px;">{{message}}</p>
+                {% endfor %}
                 <form action="user_registration" method="POST">
                     {% csrf_token %}
                     <div class="login-form">
                         <h4 class="login-title">Sign Up</h4>
+                        
+
+                
                         <div class="row">
                             <div class="col-md-6 col-12 mb-20">
                                 <label>First Name *</label>
@@ -77,15 +95,16 @@
                                 <input class="mb-0" type="password" placeholder="Confirm Your Password"
                                     name="cpassword">
                             </div>
-
-                            <div class="col-12 d-flex justify-content-center">
-                                {% for message in messages %}
-                                <p class="text-danger">{{message}}</p>
-                                {% endfor %}
+                            <div class="col-md-6 mb-20">
+                                <label>Referal Code </label>
+                                <input class="mb-0" type="text" placeholder="Enter referal code"
+                                    name="referal_code">
                             </div>
+
+                         
                             
                             <div class="col-12">
-                                <button class="register-button mt-0" type="submit">Sign Up</button>
+                                <button class="reg_button" type="submit">Sign Up</button>
                             </div>
                             
                         </div>

@@ -68,6 +68,23 @@
     border-radius: 100%;
     margin-right: 5px;
  }
+ .share_button
+ {
+    background: #047c7c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 6px;
+ }
+ .share_button:hover
+ {
+    background-color: white;
+    color: #047c7c;
+    border: 2px solid  #047c7c;
+    transition: all ease .3s;
+    padding: 5px 10px;
+
+ }
   </style>
 
 
@@ -135,6 +152,15 @@
                                                     href="#">recent orders</a>, manage your <a href="#">shipping and
                                                     billing addresses</a> and <a href="#">edit your password and account
                                                     details.</a></p>
+                                        </div>
+                                        <div>
+                                            <div>
+                                                <button onclick="sharePage()" class="share_button">Refer Friend</button>
+                                            </div>
+
+<!-- Include JavaScript to handle the Web Share API -->
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -536,4 +562,24 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function sharePage() {
+        if (navigator.share) {
+            const referalId = '{{ referal_id }}';
+            const referralText = `   USE  ${referalId} REFERAL CODE` +
+                                    '\nTO INSTANTLY GRAB ₹200 WALLET AMOUNT!' 
+            console.log(referralText)
+            navigator.share({
+                
+                title: document.title,
+                text: referralText,
+                url:window.location.href+referralText
+            })
+            .then(() => console.log('Shared successfully'))
+            .catch((error) => console.error('Error sharing:', error));
+        } else {
+            alert('Web Share API not supported in this browser.');
+        }
+    }
+</script>
 {% endblock %}
