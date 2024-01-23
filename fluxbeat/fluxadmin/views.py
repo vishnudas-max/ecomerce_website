@@ -1,11 +1,13 @@
+
 from datetime import date, timedelta
 import datetime
 from decimal import Decimal
+import decimal
 from io import BytesIO
 import json
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from PIL import Image
-from django.shortcuts import render,HttpResponse,redirect
+from django.shortcuts import render,HttpResponse,redirect,reverse
 from fluxadmin.models import *
 from django.contrib.auth import login,logout,authenticate
 from django.contrib import messages
@@ -242,8 +244,8 @@ def add_product(request):
 # -----------------------------------------------------EDIT PRODUCT---------------------------------------------
 @login_required(login_url='admin_login')
 def edit_product(request,product_id):
-
     try:
+
         if request.user.is_authenticated and request.user.is_superuser:
                 j=product.objects.get(id=product_id)
                 product_cates=j.product_varients.all()
@@ -280,7 +282,19 @@ def edit_product(request,product_id):
                         p.product_name=product_name
                         p.description=product_des
                         p.product_price=prodct_price
-                        p.sale_prce=sale_price
+
+                        # ---------------updating the sale_price---------
+                        if p.offer_applied:
+                            sale_price=int(sale_price)
+                            offer_per=int(p.offer_applied.offer_per)
+                            discount = int(sale_price * (offer_per / 100))
+                            p.offer_amount=discount
+                            sale_price -= discount
+                            p.sale_prce =sale_price
+                        else:
+                            sale_price=int(sale_price)
+                            p.sale_prce=sale_price
+
                         p.headphone_type=prodcut_type
                         p.category_id=h_cate
                         p.brand_id=h_bran
@@ -293,7 +307,19 @@ def edit_product(request,product_id):
                         p.product_name=product_name
                         p.description=product_des
                         p.product_price=prodct_price
-                        p.sale_prce=sale_price
+
+                        # ----------updating sale price if offer is applied---------
+                        if p.offer_applied:
+                            sale_price=int(sale_price)
+                            offer_per=int(p.offer_applied.offer_per)
+                            discount = int(sale_price * (offer_per / 100))
+                            p.offer_amount=discount
+                            sale_price -= discount
+                            p.sale_prce =sale_price
+                        else:
+                            sale_price=int(sale_price)
+                            p.sale_prce=sale_price
+
                         p.headphone_type=prodcut_type
                         p.category_id=h_cate
                         p.brand_id=h_bran
@@ -305,7 +331,6 @@ def edit_product(request,product_id):
                     return render(request,'product_edit.html',{"category_choice":categor,"brand_choice":bran,"pro":pro,"choice":choices,"product_cates":product_cates,'success_message': success_message})
         else:
             return redirect(admin_login)
-
     except Exception as e:
         return HttpResponse(e)
 
@@ -1025,3 +1050,253 @@ def year_sale(request):
             return redirect(admin_login)
     except Exception as e:
         return HttpResponse(e)
+    
+from fluxadmin.models import special_offer
+def special_offerr(request):
+    try:
+        categoryy=category.objects.all()
+        prodcutss=product.objects.all()
+        special_offers=special_offer.objects.all()
+        
+        context={
+            'category':categoryy,
+            'products':prodcutss,
+            'special_offer':special_offers
+        }
+        if request.method == 'POST':
+            offer_title=request.POST.get('offer_title')
+            banner_image=request.FILES.get('banner_image')
+            start_date=request.POST.get('start_date')
+            end_date=request.POST.get('end_date')
+            offer_per=request.POST.get('offer_per')
+            offer_applied_for=request.POST.get('opt')
+            if offer_applied_for == 'category':
+                opt_id=request.POST.get('cat_id')
+            else:
+                opt_id=request.POST.get('opt_name')
+                     
+
+   
+
+            banner_width = 800
+            banner_height = 200
+            try:
+                image = Image.open(banner_image)
+            except Exception:
+                messages.info(request,'upload image file')
+                return redirect(special_offerr)
+
+
+            # Calculate the coordinates for cropping the center part
+
+            if start_date > end_date:
+                    messages.info(request,'end date should be after start date')
+                    return redirect(special_offerr)
+            if special_offer.objects.filter(offer_title = offer_title).exists():
+                messages.info(request,'Offer already exists')
+                return redirect(special_offerr)
+            offer=special_offer.objects.create(appied_for=offer_applied_for,namee=opt_id,offer_title=offer_title,banner_image=banner_image,stat_date=start_date,end_date=end_date,offer_per=offer_per)
+            offer.save()
+
+
+        # ------croping the image-------------
+            try:
+                image = Image.open(banner_image)
+            except Exception:
+                messages.info(request, 'Upload image file')
+                return redirect(special_offerr)
+
+            # Resize and crop the image
+            resized_image = image.resize((banner_width, banner_height))
+            left = (resized_image.width - banner_width) // 2
+            top = (resized_image.height - banner_height) // 2
+            right = (resized_image.width + banner_width) // 2
+            bottom = (resized_image.height + banner_height) // 2
+
+            cropped_image = resized_image.crop((left, top, right, bottom))
+
+            # Save the cropped image to a BytesIO buffer
+            buffer = BytesIO()
+            cropped_image.save(buffer, format="JPEG")  # You can change the format as needed
+
+            # Create a new ImageField instance for the database model
+            offer.banner_image.save(banner_image.name, buffer)
+
+            # Save other details to the database
+            offer.save()
+
+            # ------------croping end here---------------
+
+
+            # -------applying special offer to products under category-------
+            if offer_applied_for == 'category':
+                category_instance=category.objects.get(id=opt_id)
+                product_under_category=category_instance.category_products.all()
+                print(category_instance)
+
+                # -------cheching if offer is already applied------------
+                for i in product_under_category:
+                    if i.offer_applied:
+                        if i.offer_applied.offer_per > int(offer.offer_per):
+                            continue
+                        else:
+                            discount=i.offer_amount
+                            i.sale_prce += discount
+                            i.save()
+
+                    product_price=i.sale_prce
+                    per=int(offer.offer_per)
+                    discount = int(product_price * (per / 100))
+                    i.offer_amount=discount
+                    i.sale_prce -= discount
+                    i.offer_applied=offer
+                    i.save()
+                return redirect(special_offerr)
+            
+            # -------------APPLYING OFFER TO PROUDCT---------
+            elif offer_applied_for == 'product':
+                product_instance=product.objects.get(id=opt_id)
+
+                # ----------checking if offer is already applied--------
+
+                if product_instance.offer_applied:
+                    if product_instance.offer_applied.offer_per > int(offer.offer_per):
+                        offer.delete()
+                        messages.info(request,'already an offer applied')
+                        return redirect(special_offerr)
+                    else:
+                        discount=product_instance.offer_amount
+                        product_instance.sale_prce += discount
+                        product_instance.save()
+
+                product_price = product_instance.sale_prce
+                per = Decimal(offer.offer_per)
+                discount = int(product_price * (per / 100))
+                product_instance.offer_amount=discount
+                product_instance.sale_prce -= discount
+                product_instance.offer_applied=offer
+                product_instance.save()
+
+            m=f"special offer created ,and applied to products"
+            messages.info(request,m)
+            return redirect(special_offerr)
+        return render(request,'special_offer.html',context)
+    except Exception as e:
+        return HttpResponse(e)
+    
+
+def special_offer_delete(request,offer_id):
+    try:
+        if request.user.is_authenticated and request.user.is_superuser:
+            special_offer_applied=special_offer.objects.get(id=offer_id)
+            if special_offer_applied.appied_for == 'category':
+                category_instance=category.objects.get(id=special_offer_applied.namee)
+                product_under_category=category_instance.category_products.all()
+                if product_under_category:
+                    for i in product_under_category:
+                        #  ---checking if offer is applied-
+                         if i.offer_applied:
+                            if i.offer_applied.id == special_offer_applied.id:
+                                discount=i.offer_amount
+                                i.sale_prce += discount
+                                i.offer_amount = None
+                                i.offer_applied = None
+                                i.save()
+                special_offer_applied.delete()
+                return redirect(special_offerr)
+            elif special_offer_applied.appied_for == 'product':
+        
+                     product_instance=product.objects.get(id=special_offer_applied.namee)
+                    #  ----------checking if offer is applied----
+                     if product_instance.offer_applied:
+                        if product_instance.offer_applied.id == special_offer_applied.id:
+                            discount=product_instance.offer_amount
+                            product_instance.sale_prce += discount
+                            product_instance.offer_amount = None
+                            product_instance.offer_applied = None
+                            product_instance.save()
+                     special_offer_applied.delete()
+
+                     return redirect(special_offerr)
+    except Exception as e:
+        return HttpResponse(e)
+
+def edit_special_offer(request,offer_id):
+
+        if request.user.is_authenticated and request.user.is_superuser:
+           categoryy=category.objects.all()
+           prodcutss=product.objects.all()
+           offer=special_offer.objects.get(id=offer_id)
+           if offer.appied_for == 'category':
+               a=category.objects.get(id=offer.namee)
+               applied_for_name=a.category_name
+
+           elif offer.appied_for == 'product':
+               a=product.objects.get(id=offer.namee)
+               applied_for_name=a.product_name
+           id=int(offer.id)
+        #    ---------UPDATION------------
+           if request.method == 'POST':
+                offer_title=request.POST.get('offer_title')
+                banner_image=request.FILES.get('banner_image')
+                start_date=request.POST.get('start_date')
+                end_date=request.POST.get('end_date')
+                offer_per=request.POST.get('offer_per')
+                offer_applied_for=request.POST.get('opt')
+                
+                if offer_applied_for == 'category':
+                    opt_id=request.POST.get('cate_id')
+                else:
+                    opt_id=request.POST.get('opt_name')
+               
+                offer_instance = special_offer.objects.get(id=offer_id)
+                if start_date > end_date:
+                    messages.info(request,'end date should be after start date')
+                    return redirect(reverse('edit_special_offer' ,args=[offer_id]))
+                
+                if special_offer.objects.filter(offer_title = offer_title).exclude(id=offer_id).exists():
+                    messages.info(request,'Offer with same offer title already exists!')
+                    return redirect(reverse('edit_special_offer' ,args=[offer_id]))
+                
+                if request.FILES.get('banner_image'):
+                    offer_instance.banner_image.delete()
+                    offer_instance.banner_image = banner_image
+                    offer_instance.save()
+
+                previous_offer_per=offer_instance.offer_per
+
+                offer=special_offer.objects.get(id=offer_id)
+                offer.offer_title=offer_title
+                offer.stat_date=start_date
+                offer.end_date=end_date
+                offer.offer_per=offer_per
+                offer.save()
+                # changing the product price if percentage is changed-------
+                if int(previous_offer_per) != int(offer.offer_per):
+                    print('not ')
+                    offer_per=int(offer.offer_per)
+                    if offer.appied_for == 'category':
+                        category_instance=category.objects.get(id=offer.namee)
+                        products_under_category=category_instance.category_products.all()
+                        if products_under_category:
+                            for i in products_under_category:
+                                product_sale_price= int(i.sale_prce + i.offer_amount)
+                                discount = int(product_sale_price * (offer_per / 100))
+                                i.sale_prce = product_sale_price - discount
+                                i.offer_amount=discount
+                                i.save()
+                    elif offer.appied_for == 'product':
+                        product_instance = product.objects.get(id=offer.namee)
+                        if product_instance.offer_applied:
+                            product_sale_price = int(product_instance.sale_prce + product_instance.offer_amount)
+                            discount = int(product_sale_price * (offer_per /100 ))
+                            product_instance.sale_prce = product_sale_price - discount
+                            product_instance.offer_amount = discount
+                            product_instance.save()
+
+                return redirect(special_offerr)
+                
+
+           return render(request,'special_offer_edit.html',{'offer':offer,'category':categoryy,'products':prodcutss,'id':id,'applied_for_name':applied_for_name})
+        else:
+            return redirect(admin_login)

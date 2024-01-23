@@ -63,7 +63,7 @@ ROOT_URLCONF = 'fluxbeat.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['template','fluxadmin/template'],
+        'DIRS': ['template','fluxadmin/template','user/template'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

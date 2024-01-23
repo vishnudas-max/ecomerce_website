@@ -47,7 +47,11 @@ urlpatterns = [
              path('complete_return/<int:order_id>',views.complete_return,name='complete_return'),
              path('daily_sale',views.daily_sale,name='daily_sale'),
              path('week_sale',views.week_sale,name='week_sale'),
-             path('year_sale',views.year_sale,name='year_sale')
+             path('year_sale',views.year_sale,name='year_sale'),
+             path('special_offer',views.special_offerr,name='special_offer'),
+             path('special_offer_delete/<int:offer_id>',views.special_offer_delete,name='special_offer_delete'),
+             path('edit_special_offer/<int:offer_id>',views.edit_special_offer,name='edit_special_offer')
+             
         
             
     

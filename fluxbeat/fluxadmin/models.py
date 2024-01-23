@@ -18,7 +18,17 @@ class category(models.Model):
     is_active=models.BooleanField(default=True,blank=True)
     cat_date=models.DateField(auto_now_add=True)
 
+class special_offer(models.Model):
+    offer_title=models.CharField(max_length=200,unique=True,null=False)
+    banner_image=models.ImageField(upload_to='images/')
+    stat_date=models.DateField()
+    end_date=models.DateField()
+    offer_per=models.IntegerField(null=False,)
+    appied_for=models.CharField(max_length=100)
+    namee=models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.offer_title
 
 class product(models.Model):
     HEADPHONE_TYPES = [
@@ -33,11 +43,13 @@ class product(models.Model):
     sale_prce=models.IntegerField()
     total_quantity=models.IntegerField()
     headphone_type = models.CharField(max_length=20, choices=HEADPHONE_TYPES)
-    category_id=models.ForeignKey(category,on_delete=models.CASCADE)
+    category_id=models.ForeignKey(category,on_delete=models.CASCADE,related_name='category_products')
     brand_id=models.ForeignKey(brand,on_delete=models.CASCADE)
     is_active=models.BooleanField(default=True)
     product_image=models.ImageField(upload_to='images/')
     product_date=models.DateField(auto_now_add=True)
+    offer_applied=models.ForeignKey(special_offer,on_delete=models.CASCADE,related_name='offer_applied_products',null=True)
+    offer_amount=models.DecimalField(max_digits=10,decimal_places=2,null=True)
    
 
 class images(models.Model):    
@@ -66,6 +78,7 @@ class cart(models.Model):
         # Calculate total_price before saving
         self.total_price = self.proudct_quantity * self.proudct_id.sale_prce
         super().save(*args, **kwargs)
+        
 class coupon(models.Model):
     coupon_name=models.CharField(max_length=50,null=False,unique=True)
     code=models.CharField(max_length=50,null=False,unique=True)
@@ -76,3 +89,5 @@ class coupon(models.Model):
 
     def __str__(self):
         return self.coupon_name
+
+

@@ -1,6 +1,6 @@
-
+{% extends 'nav.html' %}
+{% block contend %}
 {% load static %}
-{% block contends %}
 <!-- Begin Li's Breadcrumb Area -->
 
 <!-- Material Design Iconic Font-V2.2.0 -->
@@ -35,16 +35,7 @@
 <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
 <!-- Modernizr js -->
 <script src="{% static 'js/vendor/modernizr-2.8.3.min.js' %}"></script>
-<div class="breadcrumb-area">
-    <div class="container">
-        <div class="breadcrumb-content">
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li class="active">Sign Up</li>
-            </ul>
-        </div>
-    </div>
-</div>
+
 <!-- Li's Breadcrumb Area End Here -->
 <!-- Begin Login Content Area -->
 <!-- jersey man user registration -->
@@ -112,4 +103,4 @@
     }, 2500);
 </script>
 <!-- Login Content Area End Here -->
-{% endblock contends %}
+{% endblock contend %}

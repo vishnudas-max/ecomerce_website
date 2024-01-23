@@ -60,8 +60,8 @@ urlpatterns = [
     path('remove_wishlist/<int:wishlist_id>',views.remove_wishlist,name='remove_wishlist'),
     path('req_return',views.req_return,name='req_return'),
     path('',include(pdfurls)),
-    path('search_product',views.search_product,name='search_product')
-   
+    path('search_product',views.search_product,name='search_product'),
+    path('about',views.about,name='about')
     
 
 

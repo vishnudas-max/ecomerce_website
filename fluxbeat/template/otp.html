@@ -1,6 +1,6 @@
-
+{% extends 'nav.html' %}
+{% block contend %}
 {% load static %}
-{% block contends %}
 <!-- Material Design Iconic Font-V2.2.0 -->
 <link rel="stylesheet" href="{% static 'css/material-design-iconic-font.min.css' %}">
 <!-- Font Awesome -->
@@ -34,16 +34,7 @@
 <!-- Modernizr js -->
 <script src="{% static 'js/vendor/modernizr-2.8.3.min.js' %}"></script>
  <!-- Begin Li's Breadcrumb Area -->
- <div class="breadcrumb-area">
-    <div class="container">
-        <div class="breadcrumb-content">
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li class="active">OTP varification</li>
-            </ul>
-        </div>
-    </div>
-</div>
+
 <!-- Li's Breadcrumb Area End Here -->
 <!-- Begin Login Content Area -->
    <!-- jersey man user login-->
@@ -125,4 +116,4 @@ const timerInterval = setInterval(updateTimer, 1000);
 
 </script>
 
-{% endblock contends %}
+{% endblock contend %}

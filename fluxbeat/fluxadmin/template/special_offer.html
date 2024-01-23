@@ -1,0 +1,211 @@
+{% extends 'admin_sidebar.html' %}
+{% block sidebar%}
+{% load static %}
+
+<section class="content-main">
+    <div class="row">
+
+        <div class="col-lg-5">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Add Offer</h4>
+                </div>
+
+                <!-- -----------------------------product adding form------------------------------- -->
+                <div class="card-body">
+                    <form action="{% url 'special_offer' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            {% for message in messages %}
+                            <p class="d-flex justify-contend-center text-danger">{{message}}</p>
+                            {% endfor %}
+
+                        </div>
+                        <div class="mb-4">
+                            <label for="product_id" class="form-label">Offer Title</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="product_id"
+                                name="offer_title">
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="mb-4">
+                                <label class="form-label">Banner Image</label>
+                                <input placeholder="$" type="file" class="form-control" name="banner_image">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="mb-4">
+                                <label class="form-label">starting date</label>
+                                <input type="date" name="start_date" id="start_date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="mb-4">
+                                <label class="form-label">endging date</label>
+                                <input type="date" name="end_date" id="end_date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label" for="product_name">Offer percentage</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="offer_per"
+                                name="offer_per">
+                            <!-- <textarea placeholder="Type here" class="form-control" rows="4"></textarea> -->
+                        </div>
+                        <div class="mb-4">
+                            <div style="display: flex; column-gap: 10px;">
+                                <div>
+                                    <label class="form-label">
+                                        <input type="radio" name="opt" id="categoryRadio" onclick="toggleSelect('category')" value="category"> Category
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="form-label">
+                                        <input type="radio" name="opt" id="productRadio" onclick="toggleSelect('product')" value="product"> Product
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4" id="categorySelect" style="display: none;">
+                            <select class="form-select select-nice" name="cat_id">
+                                {% for i in category %}
+                                    <option value="{{i.id}}">{{i.id}}{{i.category_name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4" id="productSelect" style="display: none;">
+                            <select class="form-select select-nice" name="opt_name">
+                                {% for i in products %}
+                                    <option value="{{i.id}}">{{i.product_name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        
+                        
+
+                        
+
+                            <div class="mb-4">
+                                <input type="submit" value="Add Product " class="btn btn-success">
+                            </div>
+
+                        </div>
+
+                    </form>
+                </div>
+                <!-- end of product adding form------------------------------- -->
+
+            </div> <!-- card end// -->
+            <div class="col-lg-7">
+                <table class="table table-bordered">
+                    <thead >
+                      <tr>
+                        <th scope="col">offer title</th>
+                        <th scope="col">starting date</th>
+                        <th scope="col">ending date</th>
+                        <th scope="col">offer percentage</th>
+                        <th scope="col">offer applied for</th>
+                        <th scope="col">name</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in special_offer %}
+                      <tr>
+
+                        <td>{{i.offer_title}}</td>
+                        <td>{{i.stat_date}}</td>
+                       
+                        <td>{{i.end_date}}</td>
+                        <td>{{i.offer_per}}</td>
+                        <td>{{i.appied_for}}</td>
+                        <td>{{i.namee}}</td>
+                        <td><a href="{% url 'special_offer_delete' i.id %}"><span class="badge badge-pill " style="background-color: red;">Delete</span></a></td>
+                        <td><a href="{% url 'edit_special_offer' i.id %}" ><span class="badge badge-pill " style="background-color: rgb(215, 230, 10); color: black;">Edit</span></a></td>
+                        
+                      </tr>
+                      {% endfor %}
+                      
+                    </tbody>
+                  </table>
+                  {% for i in messages  %}
+                  <span id="message">{{i}}</span>
+                  {% endfor %}
+                  </table>
+            </div>
+        </div>
+
+</section> <!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear())
+            </script> ©, Evara - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">
+                All rights reserved
+            </div>
+        </div>
+    </div>
+</footer>
+
+</main>
+<script src="{% static 'assets/js/vendors/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/vendors/jquery.fullscreen.min.js' %}"></script>
+<script src="{% static 'assets/js/vendors/chart.js' %}"></script>
+<!-- Main Scr{% static 'ipt -->
+<script src="{% static 'assets/js/main.js" type="text/javascript' %}"></script>
+<script src="{% static 'assets/js/custom-chart.js" type="text/javascript' %}"></script>
+<!-- Add this to the head section of your HTML template -->
+
+
+</body>
+<!-- Your HTML template code -->
+
+<!-- Your HTML template code -->
+
+
+<script>
+    function toggleSelect(option) {
+        // Hide all selects
+        document.getElementById('categorySelect').style.display = 'none';
+        document.getElementById('productSelect').style.display = 'none';
+
+        // Show the selected select
+        document.getElementById(option + 'Select').style.display = 'block';
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        var today = new Date().toISOString().split('T')[0];
+
+// Set the value of the starting date input to today
+
+// Set the minimum date to today
+document.getElementById('start_date').min = today;
+document.getElementById('end_date').min = today;
+        message=document.getElementById('message').val.trim()
+        if(message == 'special offer created ,and applied to products')
+        {
+            Swal.fire({
+                icon: 'error',
+                title: 'success',
+                text: 'offer created succesfully and offer applied for product success',  // Display your success message here
+                showConfirmButton: false,
+                timer: 2000  // Automatically close after 1.5 seconds
+            });
+        }
+        });
+</script>
+
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-form-product-1.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:32 GMT -->
+
+</html>
+
+{% endblock sidebar %}

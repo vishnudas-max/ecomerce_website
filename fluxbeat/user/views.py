@@ -18,7 +18,45 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 from user.models import wishlist
 User=get_user_model()
+
+from django.core.paginator import Paginator
+
 # Create your views here.
+
+
+# -------------------------SHOP PRODUCT LIST---------------------------------------------------------------------------
+    
+def shop_product_list(request):
+  try:
+            if request.user.is_authenticated and not request.user.is_superuser:
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
+                c=1
+            else:
+                wishlist_count=0
+                cart_count=0
+                c=0
+      
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+            brands=brand.objects.all()
+            categorie=category.objects.all()
+
+
+            # set pagination------
+            p = Paginator(product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id'),7)
+            page = request.GET.get('page')
+            product_list =p.get_page(page)
+
+
+            return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+        
+  except Exception as e:
+        return HttpResponse(e)
+
+
+
+
 def home(request):
     try:
             if request.user.is_authenticated and not request.user.is_superuser:
@@ -29,6 +67,56 @@ def home(request):
                 wishlist_count=0
                 cart_count=0
                 c=0
+            banners=special_offer.objects.all()
+            banner_count=special_offer.objects.all().count()
+            if banner_count >=3:
+                banner_1 = special_offer.objects.all()[:1]
+                banner_2 = special_offer.objects.all()[1:2]
+               
+            else:
+                banner_1=[]
+                banner_2=[]
+
+            # deletin offers which are out of date-------------
+                
+
+            for offer in banners:
+                end_date=offer.end_date
+                print(end_date)
+                current_date = date.today()
+                print(current_date)
+                if current_date > end_date:
+                          if offer.appied_for == 'category':
+                             category_instance=category.objects.get(id=offer.namee)
+                             product_under_category=category_instance.category_products.all()
+                             if product_under_category:
+                                    for i in product_under_category:
+                              #  ---checking if offer is applied-
+                                            if i.offer_applied:
+                                                if i.offer_applied.id == offer.id:
+                                                    discount=i.offer_amount
+                                                    i.sale_prce += discount
+                                                    i.offer_amount = None
+                                                    i.offer_applied = None
+                                                    i.save()
+                             offer.delete()
+                          elif offer.appied_for == 'product':
+                          
+                               product_instance=product.objects.get(id=offer.namee)
+                              #  ----------checking if offer is applied----
+                               if product_instance.offer_applied:
+                                  if product_instance.offer_applied.id == offer.id:
+                                      discount=product_instance.offer_amount
+                                      product_instance.sale_prce += discount
+                                      product_instance.offer_amount = None
+                                      product_instance.offer_applied = None
+                                      product_instance.save()
+                               offer.delete()
+
+                  # deletin offers which are out of date-------------end
+                     
+
+
             top_sell=order_items.objects.values('proudct_id').annotate(item_count=Count('proudct_id')).order_by('-item_count')[:4]
             top_sell_data = []
             for i in top_sell:
@@ -50,7 +138,8 @@ def home(request):
             products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
             arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
             brands=brand.objects.all()
-            return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'top_selling':top_sell_data,'w':wishlist_count,'c':cart_count})
+            return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'top_selling':top_sell_data,'w':wishlist_count,'c':cart_count,'banner':banners,'banner_count':banner_count
+                                                ,'banner1':banner_1,'banner2':banner_2})
         
     except Exception as e:
         return HttpResponse(e)
@@ -78,28 +167,6 @@ def search_product(request):
                 categorie=category.objects.all()
                 return render(request,'shop-list-left.html',{"products":matching_products,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
    
-
-
-# -------------------------SHOP PRODUCT LIST---------------------------------------------------------------------------
-def shop_product_list(request):
-  try:
-            if request.user.is_authenticated and not request.user.is_superuser:
-                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
-                cart_count=cart.objects.filter(user_id=request.user.id).count()
-                c=1
-            else:
-                wishlist_count=0
-                cart_count=0
-                c=0
-      
-            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id')
-            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
-            brands=brand.objects.all()
-            categorie=category.objects.all()
-            return render(request,'shop-list-left.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
-        
-  except Exception as e:
-        return HttpResponse(e)
 
 
 # USER REGISTRATION AND VALIDATION........................................................................-----------------
@@ -1138,3 +1205,16 @@ def req_return(request):
 # ------------------ABOUT PAGE----------------------------
 
 
+def about(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+                c=1
+                wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+                cart_count=cart.objects.filter(user_id=request.user.id).count()
+        else:
+                wishlist_count=0
+                cart_count=0
+                c=0
+        return render(request,'about.html')
+    except Exception as e:
+        return HttpResponse(e)
