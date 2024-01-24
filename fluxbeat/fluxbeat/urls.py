@@ -61,7 +61,11 @@ urlpatterns = [
     path('req_return',views.req_return,name='req_return'),
     path('',include(pdfurls)),
     path('search_product',views.search_product,name='search_product'),
-    path('about',views.about,name='about')
+    path('about',views.about,name='about'),
+    path('sort_by/<str:type>',views.sort_by,name='sort_by'),
+    path('sort_by_category/<path:cat_name>/', views.sort_by_category, name='sort_by_category'),
+    path('filter_by_price',views.filter_by_price,name='filter_by_price')
+
     
 
 

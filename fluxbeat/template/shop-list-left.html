@@ -11,6 +11,7 @@
       -webkit-line-clamp: 3;
     }
 </style>
+<link rel="stylesheet" href="{% static 'price.css' %}"> 
    
     <main class="main">
         <div class="page-header breadcrumb-wrap">
@@ -27,27 +28,12 @@
                     <div class="col-lg-9">
                         <div class="shop-product-fillter style-2">
                             <div class="totall-product">
-                                <p> We found <strong class="text-brand">688</strong> items for you!</p>
+                                <!-- <p> We found <strong class="text-brand">688</strong> items for you!</p> -->
                             </div>
                             <div class="sort-by-product-area">
                                 <div class="sort-by-cover mr-10">
-                                    <div class="sort-by-product-wrap">
-                                        <div class="sort-by">
-                                            <span><i class="fi-rs-apps"></i>Show:</span>
-                                        </div>
-                                        <div class="sort-by-dropdown-wrap">
-                                            <span> 50 <i class="fi-rs-angle-small-down"></i></span>
-                                        </div>
-                                    </div>
-                                    <div class="sort-by-dropdown">
-                                        <ul>
-                                            <li><a class="active" href="#">50</a></li>
-                                            <li><a href="#">100</a></li>
-                                            <li><a href="#">150</a></li>
-                                            <li><a href="#">200</a></li>
-                                            <li><a href="#">All</a></li>
-                                        </ul>
-                                    </div>
+                                   
+
                                 </div>
                                 <div class="sort-by-cover">
                                     <div class="sort-by-product-wrap">
@@ -60,11 +46,11 @@
                                     </div>
                                     <div class="sort-by-dropdown">
                                         <ul>
-                                            <li><a class="active" href="#">Featured</a></li>
-                                            <li><a href="#">Price: Low to High</a></li>
-                                            <li><a href="#">Price: High to Low</a></li>
-                                            <li><a href="#">Release Date</a></li>
-                                            <li><a href="#">Avg. Rating</a></li>
+                                            <li><a class="active" href="{% url 'sort_by' 'featured'  %}">Featured</a></li>
+                                            <li><a href="{% url 'sort_by' 'lth'  %}">Price: Low to High</a></li>
+                                            <li><a href="{% url 'sort_by' 'htl'  %}">Price: High to Low</a></li>
+                                            <li><a href="{% url 'sort_by' 'date'  %}">Release Date</a></li>
+                                           
                                         </ul>
                                     </div>
                                 </div>
@@ -104,8 +90,8 @@
                                             </div>
                                             <h2><a href="shop-product-right.html">{{i.product_name}}</a></h2>
                                             <div class="product-price">
-                                                <span>₹{{i.product_price}} </span>
-                                                <span class="old-price">₹{{i.sale_prce}}</span>
+                                                <span>₹{{i.sale_prce}} </span>
+                                                <span class="old-price">₹{{i.product_price}}</span>
                                             </div>
                                             <p class="mt-15 limited-height" >{{i.description}}</p>
                                             <div class="product-action-1 show">
@@ -131,6 +117,7 @@
                         <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination justify-content-start">
+                                {% if products.paginator.num_pages > 1 %}
                                     {% if products.has_previous %}
                                         <a class="page-link" href="?page=1"><i class="fi-rs-angle-double-small-left"></i></a>
                                         <a href="?page={{products.previous_page_number}}">previous</a>
@@ -141,6 +128,8 @@
                                     {% if products.has_next %}
                                       <li class="page-item"><a class="page-link" href="?page={{products.next_page_number}}"><i class="fi-rs-angle-double-small-right"></i></a></li>
                                     {% endif %}
+                                    {% endif %}
+                                    
                             
           
                                 </ul>
@@ -155,7 +144,7 @@
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
                                 {% for j in cat %}
-                                <li><a href="shop-grid-right.html">{{j.category_name}}</a></li>
+                                <li><a href="{% url 'sort_by_category' j.category_name %}">{{ j.category_name }}</a></li>
                                 {% endfor %}
                                 
                             </ul>
@@ -166,43 +155,61 @@
                                 <h5 class="widget-title mb-10">Fill by price</h5>
                                 <div class="bt-1 border-color-1"></div>
                             </div>
-                            <div class="price-filter">
-                                <div class="price-filter-inner">
-                                    <div id="slider-range"></div>
-                                    <div class="price_slider_amount">
-                                        <div class="label-input">
-                                            <span>Range:</span><input type="text" id="amount" name="price" placeholder="Add Your Price" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="list-group">
-                                <div class="list-group-item mb-10 mt-10">
-                                    <label class="fw-900">Color</label>
-                                    <div class="custome-checkbox">
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="">
-                                        <label class="form-check-label" for="exampleCheckbox1"><span>Red (56)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox2" value="">
-                                        <label class="form-check-label" for="exampleCheckbox2"><span>Green (78)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox3" value="">
-                                        <label class="form-check-label" for="exampleCheckbox3"><span>Blue (54)</span></label>
-                                    </div>
-                                    <label class="fw-900 mt-15">Item Condition</label>
-                                    <div class="custome-checkbox">
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
-                                        <label class="form-check-label" for="exampleCheckbox11"><span>New (1506)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox21" value="">
-                                        <label class="form-check-label" for="exampleCheckbox21"><span>Refurbished (27)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox31" value="">
-                                        <label class="form-check-label" for="exampleCheckbox31"><span>Used (45)</span></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Fillter</a>
+
+
+                            <div class="mains"> 
+
+                                <div class="custom-wrapper"> 
+                        
+                                    <form action="{% url 'filter_by_price' %}" method="post">
+                                        {% csrf_token %}
+                                    <div class="price-input-container"> 
+                                        <div class="price-input"> 
+                                            <div class="price-field"> 
+                                                <span>Min-Price</span> 
+                                                <span>₹</span>
+                                                <input type="number" 
+                                                       class="min-input" 
+                                                       value="200"
+                                                       name="min_value"> 
+                                            </div> 
+                                            <div class="price-field"> 
+                                                <span>Max-Price</span> 
+                                                <span>₹</span>
+                                                <input type="number" 
+                                                       class="max-input" 
+                                                       value="8500"
+                                                       name="max_value"> 
+                                            </div> 
+                                        </div> 
+                                        <div class="slider-container"> 
+                                            <div class="price-slider"> 
+                                            </div> 
+                                        </div> 
+                                    </div> 
+                          
+                                    <!-- Slider -->
+                                    <div class="range-input">
+                                        <input type="range" 
+                                               class="min-range" 
+                                               min="0" 
+                                               max="30000" 
+                                               value="2500" 
+                                               step="1"> 
+                                        <input type="range" 
+                                               class="max-range" 
+                                               min="0" 
+                                               max="30000" 
+                                               value="8500" 
+                                               step="1"> 
+                                    </div> 
+                                
+                                </div> 
+                            </div>  
+
+
+                            <button class="btn btn-sm btn-default" ><i class="fi-rs-filter mr-5"></i> Fillter</button>
+                            </form>
                         </div>
                         <!-- Product sidebar Widget -->
                         <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
@@ -263,7 +270,7 @@
 
 
 </body>
-
+<script src="{% static 'price.js' %}"></script> 
 
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:09:48 GMT -->
 

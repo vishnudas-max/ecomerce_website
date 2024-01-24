@@ -44,7 +44,7 @@ def shop_product_list(request):
 
 
             # set pagination------
-            p = Paginator(product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('id'),7)
+            p = Paginator(products,7)
             page = request.GET.get('page')
             product_list =p.get_page(page)
 
@@ -149,23 +149,38 @@ def home(request):
 
 # -------------------------SEARCHING PRODUCT----------------
 def search_product(request):
-    if request.method == 'POST':
-                if request.user.is_authenticated and not request.user.is_superuser:
-                    c=1
-                    wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
-                    cart_count=cart.objects.filter(user_id=request.user.id).count()
-                else:
-                    wishlist_count=0
-                    cart_count=0
-                    c=0
-                brands=brand.objects.all()
-                arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            c=1
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+        else:
+            wishlist_count=0
+            cart_count=0
+            c=0
+        brands=brand.objects.all()
+        arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
 
+        if request.method == 'POST':
                 search_data=request.POST.get('search_code')
                
                 matching_products = product.objects.filter(product_name__icontains=search_data)
+                request.session['search_data']=search_data
+                p = Paginator(matching_products,7)
+                page = request.GET.get('page')
+                product_list =p.get_page(page)
                 categorie=category.objects.all()
-                return render(request,'shop-list-left.html',{"products":matching_products,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+                return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+        else:
+                search_data=request.session['search_data']
+                matching_products = product.objects.filter(product_name__icontains=search_data)
+                p = Paginator(matching_products,7)
+                page = request.GET.get('page')
+                product_list =p.get_page(page)
+                categorie=category.objects.all()
+                return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+    except Exception as e:
+        return HttpResponse(e)
    
 
 
@@ -1252,4 +1267,155 @@ def about(request):
         return render(request,'about.html')
     except Exception as e:
         return HttpResponse(e)
+    
 
+
+
+
+def sort_by(request,type):
+
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            c=1
+        else:
+            wishlist_count=0
+            cart_count=0
+            c=0
+        if type == 'featured':
+            
+            return redirect(shop_product_list)
+        elif type == 'lth':
+            
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('sale_prce')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+            brands=brand.objects.all()
+            categorie=category.objects.all()
+
+
+            # set pagination------
+            p = Paginator(products,7)
+            page = request.GET.get('page')
+            product_list =p.get_page(page)
+            return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+
+        elif type == 'htl':
+          
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('-sale_prce')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+            brands=brand.objects.all()
+            categorie=category.objects.all()
+
+
+            # set pagination------
+            p = Paginator(products,7)
+            page = request.GET.get('page')
+            product_list =p.get_page(page)
+
+
+            return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+       
+        elif type == 'date':
+   
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+            brands=brand.objects.all()
+            categorie=category.objects.all()
+
+
+            # set pagination------
+            p = Paginator(products,7)
+            page = request.GET.get('page')
+            product_list =p.get_page(page)
+
+
+            return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+       
+        elif type == 'cat':
+            
+            products=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+            brands=brand.objects.all()
+            categorie=category.objects.all()
+
+
+            # set pagination------
+            p = Paginator(products,7)
+            page = request.GET.get('page')
+            product_list =p.get_page(page)
+
+
+            return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+        else:
+            return redirect(shop_product_list)
+        
+
+
+# -------------------sor by category-----------------------------
+def sort_by_category(request, cat_name):
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            c=1
+        else:
+            wishlist_count=0
+            cart_count=0
+            c=0
+        data=str(cat_name)
+        products=product.objects.filter(category_id__category_name=data).select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('sale_prce')
+        arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+        brands=brand.objects.all()
+        categorie=category.objects.all()
+
+          # set pagination------
+        p = Paginator(products,7)
+        page = request.GET.get('page')
+        product_list =p.get_page(page)
+        return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+
+
+# ------------------------------filter by price------------
+
+def filter_by_price(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            c=1
+        else:
+            wishlist_count=0
+            cart_count=0
+            c=0
+        if request.method == 'POST':
+            min_price = Decimal(request.POST.get('min_value', 0))
+            max_price = Decimal(request.POST.get('max_value', float('inf')))
+
+            products=product.objects.filter(Q(sale_prce__gte=min_price) & Q(sale_prce__lte=max_price)).select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('sale_prce')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+            brands=brand.objects.all()
+            categorie=category.objects.all()
+
+            request.session['min_price']=int(min_price)
+            request.session['max_price']=int(max_price)
+              # set pagination------
+            p = Paginator(products,7)
+            page = request.GET.get('page')
+            product_list =p.get_page(page)
+            return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+        
+        # -------------if request is not post then appying pagination ot the result dataset----
+        else:
+            min_price= Decimal(request.session['min_price'])
+            max_price= Decimal(request.session['max_price'])
+            products=product.objects.filter(Q(sale_prce__gte=min_price) & Q(sale_prce__lte=max_price)).select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('sale_prce')
+            arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')[:4]
+            brands=brand.objects.all()
+            categorie=category.objects.all()
+            p = Paginator(products,7)
+            page = request.GET.get('page')
+            product_list =p.get_page(page)
+            return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
+
+            
+    except Exception as e:
+        return HttpResponse(e)
