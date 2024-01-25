@@ -20,7 +20,7 @@ from user.models import wishlist
 User=get_user_model()
 from user.models import referal
 from django.core.paginator import Paginator
-
+from django.views.decorators.cache import cache_control
 # Create your views here.
 
 
@@ -69,7 +69,7 @@ def home(request):
                 c=0
             banners=special_offer.objects.all()
             banner_count=special_offer.objects.all().count()
-            if banner_count >=3:
+            if banner_count >=2:
                 banner_1 = special_offer.objects.all()[:1]
                 banner_2 = special_offer.objects.all()[1:2]
                
@@ -278,6 +278,7 @@ def  send_otp(request):
 
 
 # ----------------------------------USER LOGIN ----------------------------
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_signin(request):
     try:
           if request.user.is_authenticated and not request.user.is_superuser:
@@ -310,6 +311,7 @@ def user_signin(request):
    
 
 # ----------------------------------------USER LOGOUT --------------------------------------------------
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_logout(request):
     logout(request)
     return redirect(home)
@@ -368,11 +370,12 @@ def product_detail(request,product_id):
                 cart_count=0
                 c=0
         productt=product.objects.get(id=product_id)
+        related_products=product.objects.filter(Q(brand_id=productt.brand_id) & Q(category_id=productt.category_id))
         offer=productt.product_price - productt.sale_prce
         current=productt.product_varients.all().first()
         varientss=productt.product_varients.all()
         imagess=current.image_field.all().order_by('-id')
-        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c,'w':wishlist_count,'c':cart_count})
+        return render(request,'product_detail.html',{'product':productt,'varients':varientss,'images':imagess,'offer':offer,'current':current,'login_status':c,'w':wishlist_count,'c':cart_count,'related_products':related_products})
     except Exception as e:
         return HttpResponse(e)
     
@@ -489,6 +492,17 @@ def add_to_cart(request,product_id,varient_id):
             arrival=product.objects.select_related('brand_id','category_id').annotate(offer=ExpressionWrapper(F('product_price') - F('sale_prce'),output_field=models.DecimalField( ))).order_by('product_date')
             brands=brand.objects.all()
             productt=product.objects.get(id=product_id)
+
+            banners=special_offer.objects.all()
+            banner_count=special_offer.objects.all().count()
+            if banner_count >=2:
+                banner_1 = special_offer.objects.all()[:1]
+                banner_2 = special_offer.objects.all()[1:2]
+               
+            else:
+                banner_1=[]
+                banner_2=[]
+
             if varient_id == 0:
                 current_varient=productt.product_varients.all().first()
             else:
@@ -496,13 +510,13 @@ def add_to_cart(request,product_id,varient_id):
             userr=User.objects.get(id=request.user.id)
             if cart.objects.filter(Q(user_id=userr) & Q(proudct_id=productt) & Q(varient_id=current_varient)).exists():
                     already = "All ready in cart !"
-                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already,'w':wishlist_count,'c':cart_count})
+                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already,'w':wishlist_count,'c':cart_count,'banner':banners,'banner_count':banner_count,'banner1':banner_1,'banner2':banner_2})
             if current_varient.quantity  == 0:
 
 
                 # ----------------sweet alert for items
                 stock_over = "Out of stock !"
-                return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':stock_over,'w':wishlist_count,'c':cart_count})
+                return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':stock_over,'w':wishlist_count,'c':cart_count,'banner':banners,'banner_count':banner_count,'banner1':banner_1,'banner2':banner_2})
             
             cart.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient)
             return redirect(home)
@@ -675,7 +689,7 @@ def edit_address(request,address_id):
 from .models import *
 
 # ---------------------------------------APPLY COUPON0------------------------------
-
+@login_required(login_url='user_signin')
 def apply_coupon(request):
     try:
         if request.method == 'POST':
@@ -730,6 +744,11 @@ def check_out(request):
         user_address=address.objects.filter(user_id=request.user.id)
         cart_items=cart.objects.filter(user_id=request.user.id).all()
         or_id=orders.objects.all().order_by('-id').first()
+        used=orders.objects.filter(user_id=request.user.id)
+        used_coupons=[]
+        for i in used:
+            used_coupons.append(i.offer_applied)
+        print(used_coupons)
         or_idd=or_id.id + 1
         sum=0
         for i in cart_items:
@@ -773,9 +792,9 @@ def check_out(request):
 
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})                            
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count,'used':used_coupons})                            
                           
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count,'used':used_coupons})
                         
 
                         if len(phone) !=10:
@@ -786,9 +805,9 @@ def check_out(request):
 
                                         return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})
+                                                                't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count,'used':used_coupons})
                             
-                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
+                            return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count,'used':used_coupons})
                     
 
                         ADDRESS=address.objects.create(
@@ -870,9 +889,9 @@ def check_out(request):
 
                                             return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                     'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})
+                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count,'used':used_coupons})
 
-                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
+                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count,'used':used_coupons})
                                 else:
                                         messages.info(request,'Insufficient wallet balance !')
                                         return redirect(check_out)
@@ -894,9 +913,9 @@ def check_out(request):
 
                                             return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                     'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count})
+                                                                    't_price':sum,'offer_per':offer_percentage,'message':message,'l':b,'w':wishlist_count,'c':cart_count,'used':used_coupons})
 
-                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
+                                    return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'l':b,'message':message,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count,'used':used_coupons})
                                 else:
                                         messages.info(request,'Insufficient wallet balance !')
                                         return redirect(check_out)
@@ -970,15 +989,16 @@ def check_out(request):
                     offer_percentage=cc.offer_per
                     return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':request.session['t_price'],'login_status':c,'or_id':or_idd,'coupon':cuponess,
                                                                 'dis_amount':request.session['dis_amount'],'couponcode':request.session['couponcode'],
-                                                                't_price':sum,'offer_per':offer_percentage,'w':wishlist_count,'c':cart_count})
+                                                                't_price':sum,'offer_per':offer_percentage,'w':wishlist_count,'c':cart_count,'used':used_coupons})
                 # ------------------if coupon is not applied-----------------
-                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count})
+                return render(request,'shop-checkout.html',{'cart_items':cart_items,'user_addresses':user_address,'sum':sum,'login_status':c,'or_id':or_idd,'coupon':cuponess,'w':wishlist_count,'c':cart_count,'used':used_coupons})
         else:
             return render(user_signin)
 
     
      
 # -=---------------------------------SUCCES PAGE------------------
+
 @login_required(login_url='user_signin') 
 def success(request,order_id):
     try:
@@ -1205,9 +1225,20 @@ def add_wishlist(request,product_id,varient_id):
             else:
                 current_varient=verients.objects.get(id=varient_id)
             userr=User.objects.get(id=request.user.id)
+
+            banners=special_offer.objects.all()
+            banner_count=special_offer.objects.all().count()
+            if banner_count >=2:
+                banner_1 = special_offer.objects.all()[:1]
+                banner_2 = special_offer.objects.all()[1:2]
+               
+            else:
+                banner_1=[]
+                banner_2=[]
+
             if wishlist.objects.filter(Q(user_id=userr) & Q(proudct_id=productt) & Q(varient_id=current_varient)).exists():
                     already_wish = "All ready in wishlist !"
-                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already_wish,'w':wishlist_count,'c':cart_count})
+                    return render(request,'index.html',{"products":products,"brands":brands,"arrival":arrival,'login_status':1,'success_message':already_wish,'w':wishlist_count,'c':cart_count,'banner':banners,'banner_count':banner_count,'banner1':banner_1,'banner2':banner_2})
 
             wishlist.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient,price=price)
             return redirect(home)
@@ -1264,7 +1295,7 @@ def about(request):
                 wishlist_count=0
                 cart_count=0
                 c=0
-        return render(request,'about.html')
+        return render(request,'about.html',{'login_status':c,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)
     
@@ -1417,5 +1448,34 @@ def filter_by_price(request):
             return render(request,'shop-list-left.html',{"products":product_list,"brands":brands,"arrival":arrival,'login_status':c,'cat':categorie,'w':wishlist_count,'c':cart_count})
 
             
+    except Exception as e:
+        return HttpResponse(e)
+
+
+def privacy_policy(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            c=1
+        else:
+            wishlist_count=0
+            cart_count=0
+            c=0
+        return render(request,'privacy_policy.html',{'login_status':c,'w':wishlist_count,'c':cart_count})
+    except Exception as e:
+        return HttpResponse(e)
+    
+def contact_us(request):
+    try:
+        if request.user.is_authenticated and not request.user.is_superuser:
+            wishlist_count=wishlist.objects.filter(user_id=request.user.id).count()
+            cart_count=cart.objects.filter(user_id=request.user.id).count()
+            c=1
+        else:
+            wishlist_count=0
+            cart_count=0
+            c=0
+        return render(request,'contactus.html',{'login_status':c,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)

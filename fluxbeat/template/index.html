@@ -63,7 +63,7 @@
                     <div class="container">
                         <div class="row align-items-center slider-animated-1">
                             <div class="col-lg-5 col-md-12 p-5"  style="background-image: url('{{i.banner_image.url}}'); 
-                            background-position: center; height: 100%; display: flex; flex-direction: column;
+                            background-position: center; height: 400PX; display: flex; flex-direction: column;
                              justify-content: center; background-size: cover; width: 100%;
                              backdrop-filter: backdr;">
                                
@@ -91,7 +91,7 @@
                     <div class="container">
                         <div class="row align-items-center slider-animated-1">
                             <div class="col-lg-5 col-md-12 p-5" style="background-image: url('{% static 'images/banner_main.jpg' %}'); 
-                                    background-position: center; height: 100%; display: flex; flex-direction: column;
+                                    background-position: center; height: 400PX; display: flex; flex-direction: column;
                                     justify-content: center; background-size: cover; width: 100%;
                                     backdrop-filter: blur(5px);">           
                                     
@@ -214,8 +214,7 @@
                                      
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up"
                                                 href="{% url 'add_wishlist' product_id=i.id varient_id=0 %}"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn hover-up"
-                                                href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                           
                                         </div>
                                         <div class="product-badges product-badges-position product-badges-mrg">
                                             <span class="best">Best Sell</span>
@@ -224,9 +223,9 @@
                            
                                     <div class="product-content-wrap">
                                         <div class="product-category">
-                                            <a href="shop-grid-right.html">{{i.category_id.category_name}}</a>
+                                            <a href="#">{{i.category_id.category_name}}</a>
                                         </div>
-                                        <h2 class="one-line-paragraph"><a href="shop-product-right.html">{{i.product_name}}</a></h2>
+                                        <h2 class="one-line-paragraph"><a href="{% url 'product_detail' i.id%}">{{i.product_name}}</a></h2>
                                         <div class="rating-result" title="90%">
                                             <span>
                                                 <span>{{i.offer}}</span>
@@ -279,9 +278,8 @@
                                         <div class="product-action-1">
  
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn hover-up"
-                                                href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                                href="{% url 'add_wishlist' product_id=i.id varient_id=0 %}"><i class="fi-rs-heart"></i></a>
+                                          
                                         </div>
                                         <div class="product-badges product-badges-position product-badges-mrg">
                                             <span class="hot">Hot</span>
@@ -289,21 +287,21 @@
                                     </div>
                                     <div class="product-content-wrap">  
                                         <div class="product-category">
-                                            <a href="shop-grid-right.html">Donec </a>
+                                            <a href="#">{{i.brand_id.brand_name}} </a>
                                         </div>
-                                        <h2><a href="shop-product-right.html">Lorem ipsum dolor</a></h2>
+                                        <h2><a href="{% url 'product_detail' i.id%}">{{i.product_name}}</a></h2>
                                         <div class="rating-result" title="90%">
                                             <span>
                                                 <span>90%</span>
                                             </span>
                                         </div>
                                         <div class="product-price">
-                                            <span>$238.85 </span>
-                                            <span class="old-price">$245.8</span>
+                                            <span>₹{{i.sale_prce}} </span>
+                                            <span class="old-price">₹{{i.product_price}}</span>
                                         </div>
                                         <div class="product-action-1 show">
                                             <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                href="{% url 'add_to_cart' product_id=i.id varient_id=0 %}"><i class="fi-rs-shopping-bag-add"></i></a>
                                         </div>
                                     </div>
                                 </div>
@@ -341,11 +339,9 @@
                                             </a>
                                         </div>
                                         <div class="product-action-1">
-                                            <a aria-label="Quick view" class="action-btn hover-up"
-                                                data-bs-toggle="modal" data-bs-target="#quickViewModal"><i
-                                                    class="fi-rs-eye"></i></a>
+
                                             <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                href="{% url 'add_wishlist' product_id=i.id varient_id=0 %}"><i class="fi-rs-heart"></i></a>
                                            
                                         </div>
                                         <div class="product-badges product-badges-position product-badges-mrg">
@@ -354,9 +350,9 @@
                                     </div>
                                     <div class="product-content-wrap">
                                         <div class="product-category">
-                                            <a href="shop-grid-right.html">{{i.brand_id.brand_name}}</a>
+                                            <a href="#">{{i.brand_id.brand_name}}</a>
                                         </div>
-                                        <h2 class="one-line-paragraph"><a href="shop-product-right.html">{{i.product_name}}</a></h2>
+                                        <h2 class="one-line-paragraph"><a href="{% url 'product_detail' i.id%}">{{i.product_name}}</a></h2>
                                         <div class="rating-result" title="90%">
                                             <span>
                                                 <span>90%</span>
@@ -370,7 +366,7 @@
                                         <div class="product-action-1 show">
                                            
                                             <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                                href="{% url 'add_to_cart' product_id=i.id varient_id=0 %}"><i class="fi-rs-shopping-bag-add"></i></a>
                                         </div>
                                     </div>
                                 </div>
@@ -399,7 +395,7 @@
                             {% if i.is_active == True %}
                         <div class="card-1" style="border: none;">
                             <figure class=" img-hover-scale overflow-hidden">
-                                <a href="shop-grid-right.html"><img src="{{i.brand_image.url}}"
+                                <a href="#"><img src="{{i.brand_image.url}}"
                                         alt="" style="width: 90px;"></a>
                             </figure>
                             <!-- <h5><a href="shop-grid-right.html">{{i.brand_name}}</a></h5> -->
@@ -437,11 +433,9 @@
                                     </a>
                                 </div>
                                 <div class="product-action-1">
-                                    <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal"
-                                        data-bs-target="#quickViewModal">
-                                        <i class="fi-rs-eye"></i></a>
+
                                     <a aria-label="Add To Wishlist" class="action-btn small hover-up"
-                                        href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
+                                        href="{% url 'add_wishlist' product_id=i.id varient_id=0 %}" tabindex="0"><i class="fi-rs-heart"></i></a>
 
                                 </div>
                                 <div class="product-badges product-badges-position product-badges-mrg">
@@ -449,7 +443,7 @@
                                 </div>
                             </div>
                             <div class="product-content-wrap">
-                                <h2><a href="shop-product-right.html">{{i.product_name}}</a></h2>
+                                <h2><a href="{% url 'product_detail' i.id%}">{{i.product_name}}</a></h2>
                                 <div class="rating-result" title="90%">
                                     <span>
                                         {{i.offer}}
@@ -484,7 +478,7 @@
                             {% for i in banner1 %}
                             <div class="col-md-6">
                                 <div class="banner-img banner-1 wow fadeIn animated">
-                                    <img src="{{i.banner_image.url}}" alt="" style="width: 100%; "">
+                                    <img src="{{i.banner_image.url}}" alt="" style="width: 100%;height: 300PX;">
                                     <div class="banner-text">
                                         <span style="color: white;">{{i.appied_for}}</span>
                                         <h4>{{i.offer_title}}</h4>
@@ -498,7 +492,7 @@
                                 {% for i in banner2 %}
                             <div class="col-md-6">
                                 <div class="banner-img banner-1 wow fadeIn animated">
-                                    <img src="{{i.banner_image.url}}" alt="" style="width: 100%;">
+                                    <img src="{{i.banner_image.url}}" alt="" style="width: 100%;height: 300PX;">
                                     <div class="banner-text">
                                         <span style="color: white;">{{i.appied_for}}</span>
                                         <h4>{{i.offer_title}}</h4>

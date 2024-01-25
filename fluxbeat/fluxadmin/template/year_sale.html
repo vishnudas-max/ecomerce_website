@@ -112,7 +112,7 @@
                         <th class="data" >{{i.id}}</th>
                         <th class="data" >{{i.proudct_id.product_name}}</th>
                         <th class="data" >{{i.user_id.first_name}}{{i.user_id.last_name}}</th>
-                        <th class="data" >{{i.total_quantity}}</th>
+                        <th class="data" >{{i.proudct_quantity}}</th>
                         <th class="data" >{{i.order_id.payment_id.Paymment_type}}</th>
                         <th class="data" >{% if i.order_id.payment_id.Paymment_status == True %}<span class="badge rounded-pill text-bg-info" style="background-color:rgb(8, 243, 4); width: 70px;">Paid</span> {% else %} <span class="badge rounded-pill text-bg-info" style="background-color:yellow; width: 70px;">Peding</span> {% endif %}</th>
                         <th class="data" ><span class="badge rounded-pill text-bg-info" style="background-color: aqua; width: 70px;">{{i.order_status}}</span></th>

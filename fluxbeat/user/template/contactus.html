@@ -1,0 +1,56 @@
+{% extends 'nav.html' %}
+{% block contend %}
+{% load static %}
+
+<div class="container">
+    <div class="row">
+        <h1 class="text-center mt-5 pt-5">Contact Us</h1>
+        <div class="col-12 col-lg-6 p-5">
+            <h4 class="text-center mb-4">Feedback Form</h4>
+            <form>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="inputEmail4">Name</label>
+                    <input type="text" class="form-control" id="inputEmail4" placeholder="Email">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="inputPassword4">Email</label>
+                    <input type="email" class="form-control" id="inputPassword4" placeholder="Password">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="inputAddress">Phone Number</label>
+                  <input type="text" class="form-control" id="inputAddress" placeholder="Enter your phone number">
+                </div>
+                <div class="form-group">
+                  <textarea name="" id="" cols="30" rows="30" class="form-control" placeholder="Message here....." style="height: 100px;"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+        </div>
+        <div class="col-12 col-lg-6 p-5">
+            <p>We value your feedback and are here to assist you. If you have any questions, concerns, or suggestions, please don't hesitate to reach out to us. Our customer support team is ready to help you.</p>
+            <h5>Customer Support:</h5>
+            
+            <h5>Business Inquiries:</h5>
+            <p>For business-related inquiries, partnerships, or collaborations, please contact our business development team.</p>
+            <a href="mailto:fluxbeatauth@gmail.com">fluxbeatauth@gmail.com</a>
+            <h5>Headquarters:</h5>
+            <p>FluxBeat <br> Moothakunnam,N.paravur <br> Ernakulam,Kerala <br> 683516</p>
+            <h5>Phone:</h5>
+            <a href="tel:9207069066">+(91)9207069066</a>
+            <h5>Social Media:</h5>
+            <p>Connect with us on social media for the latest updates, promotions, and community discussions.</p>
+            <ul>
+                <li><a href="">Facebook</a></li>
+                <li><a href="">Twitter</a></li>
+                <li><a href="">Instagram</a></li>
+            </ul>
+            <h5>Feedback</h5>
+            <p>We appreciate your feedback. Let us know about your experience with FluxBeat or share any suggestions you may have.</p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

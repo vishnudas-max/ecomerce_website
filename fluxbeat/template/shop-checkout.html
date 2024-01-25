@@ -49,6 +49,7 @@
             <div class="row overflow-auto pb-4">
                 <div class="col d-flex justify-content-around ">
                     {% for i in coupon %}
+                    {% if not i in used %}
                     <div class="container ">
                         <div class="row coupon_cover ">
                                    <div class="col-3 offer">
@@ -61,6 +62,7 @@
                                    </div>                    
                         </div>
                           </div>
+                          {% endif %}
                           {% endfor  %}
                     
                 </div>

@@ -64,7 +64,9 @@ urlpatterns = [
     path('about',views.about,name='about'),
     path('sort_by/<str:type>',views.sort_by,name='sort_by'),
     path('sort_by_category/<path:cat_name>/', views.sort_by_category, name='sort_by_category'),
-    path('filter_by_price',views.filter_by_price,name='filter_by_price')
+    path('filter_by_price',views.filter_by_price,name='filter_by_price'),
+    path('privacy_policy',views.privacy_policy,name='privacy_policy'),
+    path('contact_us',views.contact_us,name='contact_us')
 
     
 

@@ -96,7 +96,7 @@
                                             alt="#"></td>
                                     <td class="product-des product-name">
                                         <h5 class="product-name"><a
-                                                href="shop-product-right.html">{{i.proudct_id.product_name}}</a></h5>
+                                                href="{% url 'product_detail' i.proudct_id.id %}">{{i.proudct_id.product_name}}</a></h5>
                                         <p class="font-xs">{{i.proudct_id.brand_id.brand_name}}<br>
                                         </p>
                                     </td>

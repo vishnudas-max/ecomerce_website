@@ -16,7 +16,7 @@ from django.db.models import *
 import time
 from user.models import customeUser,order_items,orders, wallet
 from django.db.models import Count
-
+from django.views.decorators.cache import cache_control
 # Create your views here.
 @login_required(login_url='admin_login')
 def dashboard(request):
@@ -657,11 +657,13 @@ def category_blocker(request,cat_id):
    
 
 # ----------------------------------------------- ADMMIN LOG OUT-----------------------------------------------------
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def admin_logout(request):
    logout(request)
    return redirect(admin_login)
 
 # -----------------------------------------     ADMIN LOGIN -------------------------------
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def admin_login(request):
     try:
         if  request.user.is_authenticated and request.user.is_superuser:

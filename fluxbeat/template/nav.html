@@ -168,7 +168,7 @@
      
                                     
                                     <li>
-                                        <a href="page-contact.html">Contact</a>
+                                        <a href="{% url 'contact_us' %}">Contact</a>
                                     </li>
                                 </ul>
                             </nav>
@@ -241,18 +241,14 @@
        
                             </li>
                             <li>
-                                <a href="page-about.html">Shop</a>
+                                <a href="{% url 'shop_product_list' %}">Shop</a>
                             </li>
                             <li>
                                 <a href="{% url 'about' %}">About</a>
                             </li>
+ 
                             <li>
-                                <a href="{% url 'shop_product_list' %}">Shop</a>
-                            </li>
-
-                            
-                            <li>
-                                <a href="page-contact.html">Contact</a>
+                                <a href="{% url 'contact_us' %}">Contact</a>
                             </li>
                         </ul>
                     </nav>
@@ -338,10 +334,10 @@
                         <h5 class="widget-title wow fadeIn animated">About</h5>
                         <ul class="footer-list wow fadeIn animated mb-sm-5 mb-md-0">
                             <li><a href="{% url 'about' %}">About Us</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                            <li><a href="#">Terms &amp; Conditions</a></li>
-                            <li><a href="#">Contact Us</a></li>
-                            <li><a href="#">Support Center</a></li>
+                            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+                            <li><a href="{% url 'privacy_policy' %}">Terms &amp; Conditions</a></li>
+                            <li><a href="{% url 'contact_us' %}">Contact Us</a></li>
+                            <li><a href="{% url 'contact_us' %}">Support Center</a></li>
                         </ul>
                     </div>
                     <div class="col-lg-4  col-md-4">
