@@ -743,13 +743,17 @@ def check_out(request):
         cuponess=coupon.objects.filter(exp_date__gte=current_date)
         user_address=address.objects.filter(user_id=request.user.id)
         cart_items=cart.objects.filter(user_id=request.user.id).all()
-        or_id=orders.objects.all().order_by('-id').first()
+        try:
+            or_id=orders.objects.all().order_by('-id').first()
+            or_idd=or_id.id + 1
+        except:
+            or_idd=1
         used=orders.objects.filter(user_id=request.user.id)
         used_coupons=[]
         for i in used:
             used_coupons.append(i.offer_applied)
         print(used_coupons)
-        or_idd=or_id.id + 1
+        
         sum=0
         for i in cart_items:
             sum +=i.total_price

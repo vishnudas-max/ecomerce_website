@@ -504,10 +504,13 @@ def varient_img_add(request):
                 if request.method == 'POST' and request.FILES.getlist('varient_images'):
                     varient_images=request.FILES.getlist('varient_images')
                     owner=request.POST['owner']
-                    v=images.objects.order_by('-id').first()
-                    if v.owner == owner:
-                        messages.info(request,'Try another name to understand !')
-                        return redirect(varient)
+                    try:
+                        v=images.objects.order_by('-id').first()
+                        if v.owner == owner:
+                            messages.info(request,'Try another name to understand !')
+                            return redirect(varient)
+                    except Exception as e:
+                        return HttpResponse(e)
                     for i in varient_images:
                         new_file=images(image_1=i,owner=owner)
                         new_file.save()
