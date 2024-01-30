@@ -180,16 +180,16 @@
                     <div class="header-action-right d-block d-lg-none">
                         <div class="header-action-2">
                             <div class="header-action-icon-2">
-                                <a href="{% url 'view_cart' %}">
+                                <a href="{% url 'view_wishlist' %}">
                                     <img alt="" src="{% static 'userassets/imgs/theme/icons/icon-heart.svg' %}">
-                                    <span class="pro-count white">4</span>
+                                    <span class="pro-count white">{{w}}</span>
                                 </a>
                             </div>
                             <a href="{% url 'view_cart' %}"></a>
                             <div class="header-action-icon-2">
                                 <a class="mini-cart-icon" href="{% url 'view_cart' %}">
                                     <img alt="Evara" src="{% static 'userassets/imgs/theme/icons/icon-cart.svg' %}">
-                                    <span class="pro-count white">2</span>
+                                    <span class="pro-count white">{{c}}</span>
                                 </a>
                                
                             </div>
@@ -211,7 +211,7 @@
         <div class="mobile-header-wrapper-inner">
             <div class="mobile-header-top">
                 <div class="mobile-header-logo">
-                    <a href="index.html"><span style="color: black;width: 120px; margin-left: -10px;">🅵🅻🆄🆇ＢΞΛＴ</span></a>
+                    <a href="{% url 'user_home' %}"><span style="color: black;width: 120px; margin-left: -10px;">🅵🅻🆄🆇ＢΞΛＴ</span></a>
                 </div>
                 <div class="mobile-menu-close close-style-wrap close-style-position-inherit">
                     <button class="close-style search-close">
