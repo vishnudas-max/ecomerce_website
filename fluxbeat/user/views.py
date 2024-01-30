@@ -1246,6 +1246,8 @@ def add_wishlist(request,product_id,varient_id):
 
             wishlist.objects.create(user_id=userr,proudct_id=productt,varient_id=current_varient,price=price)
             return redirect(home)
+        else:
+            return redirect(user_signin)
     except Exception as e:
         return HttpResponse(e)
     
