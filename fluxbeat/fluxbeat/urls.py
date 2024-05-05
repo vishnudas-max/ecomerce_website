@@ -23,6 +23,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from pdfapp import urls as pdfurls
+from django.conf.urls import handler404
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.home,name='user_home'),
@@ -66,8 +68,8 @@ urlpatterns = [
     path('sort_by_category/<path:cat_name>/', views.sort_by_category, name='sort_by_category'),
     path('filter_by_price',views.filter_by_price,name='filter_by_price'),
     path('privacy_policy',views.privacy_policy,name='privacy_policy'),
-    path('contact_us',views.contact_us,name='contact_us')
-
+    path('contact_us',views.contact_us,name='contact_us'),
+    path('404', views.errorpage, name='custom_404'),
     
 
 
@@ -75,3 +77,5 @@ urlpatterns = [
     
 ] + static(settings.MEDIA_URL, document_root= settings.MEDIA_ROOT)
 
+
+handler404 = 'user.views.errorpage'

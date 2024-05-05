@@ -147,8 +147,12 @@ def order_view(request,order_id):
     try:
         if request.user.is_authenticated and request.user.is_superuser:
             order=orders.objects.get(id=order_id)
+            if order.address:
+                    address_detail=json.loads(order.address)
+            else:
+                    address_detail={}
             products=order.order_itemss.all()
-            return render(request,'dashboard_order_view.html',{'order':order,'items':products})
+            return render(request,'dashboard_order_view.html',{'order':order,'items':products,'address':address_detail})
     except Exception as e:
         return HttpResponse(e)
 

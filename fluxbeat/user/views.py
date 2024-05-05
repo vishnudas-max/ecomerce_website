@@ -234,8 +234,12 @@ def user_reg(request):
                      messages.info(request,'Enter a valid Phone number !')
                      return render(request,'user_reg.html',b)
                  
-                 if User.objects.filter(email=email).exists():
+                 elif User.objects.filter(email=email).exists():
                     messages.info(request,'Email already exist !')
+                    return render(request,'user_reg.html',b)
+                 
+                 elif User.objects.filter(phone_number=phoneno).exists():
+                    messages.info(request,'Phone Number already in use !')
                     return render(request,'user_reg.html',b)
                  
                  try:
@@ -1485,3 +1489,8 @@ def contact_us(request):
         return render(request,'contactus.html',{'login_status':c,'w':wishlist_count,'c':cart_count})
     except Exception as e:
         return HttpResponse(e)
+    
+
+
+def errorpage(request,exception=None):
+    return render(request,'404.html')
