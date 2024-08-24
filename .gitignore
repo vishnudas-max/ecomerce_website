@@ -115,3 +115,4 @@ conda-meta/
 
 # Other temporary files
 *.pid
+/projectenv
