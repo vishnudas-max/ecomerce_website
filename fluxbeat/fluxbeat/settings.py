@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'fluxbeat.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fluxbeat',
+        'NAME': 'fluxbeatest',
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',

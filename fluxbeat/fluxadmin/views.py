@@ -514,7 +514,7 @@ def varient_img_add(request):
                             messages.info(request,'Try another name to understand !')
                             return redirect(varient)
                     except Exception as e:
-                        return HttpResponse(e)
+                        print(e)
                     for i in varient_images:
                         new_file=images(image_1=i,owner=owner)
                         new_file.save()
