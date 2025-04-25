@@ -308,8 +308,14 @@ def user_signin(request):
                  else:
                        messages.info(request,'Email or Password does not match !')
                        return redirect(user_signin)
-
-             return render(request,'user_login.html')
+             account_created = False
+             for message in messages.get_messages(request):
+                if 'account-created' in message.tags:
+                    account_created = True
+                    # Manually remove the message by not including it in the response cycle
+                    break
+            # Return the login page with the created context
+             return render(request, 'user_login.html', {'account_created': account_created})
 
     except Exception as e:
         return HttpResponse(e)
@@ -350,7 +356,8 @@ def otp_varify(request):
                        current_wallet.save()
 
                   request.session.clear()
-                  return redirect(user_signin)
+                  messages.info(request,'account created',extra_tags='account-created')
+                  return redirect('user_signin')
               else:
                   messages.info(request,'Invalid OTP')
                   return render(request,'otp.html',{'k':0})
