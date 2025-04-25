@@ -1,6 +1,6 @@
 import datetime
 import json
-from django.shortcuts import render,HttpResponse,redirect,reverse
+from django.shortcuts import render,HttpResponse,redirect,reverse,HttpResponseRedirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -468,13 +468,13 @@ def user_update(request,user_id):
                      return redirect(user_account)
                  else:
                      if npassword != cpassword:
-                         messages.info(request,'password does not match !')
+                         messages.info(request,'password does not match !', extra_tags='user-update')
                          return redirect(user_account)
                      elif not re.match(password_pattern,npassword):
-                          messages.info(request,'Password is not Strong!')
+                          messages.info(request,'Password is not Strong!', extra_tags='user-update')
                           return redirect(user_account)
                      elif not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)?$',first_name):
-                          messages.info(request,'Enter a valid first name !')
+                          messages.info(request,'Enter a valid first name !', extra_tags='user-update')
                           return redirect(user_account)
                      b=User.objects.filter(id=user_id).update(first_name=first_name,last_name=last_name,phone_number=phone_number,password=make_password(npassword))
                      return redirect(user_account)
@@ -619,7 +619,9 @@ def add_address(request):
                         phone=phone,
                         address_type=address_type
                     )
-                    return redirect('user_account')
+                    url= reverse('user_account') + '#address'
+                    print(url)
+                    return HttpResponseRedirect(url)
 
                 return render(request, 'add_address.html',{'login_status':c,'w':wishlist_count,'c':cart_count})
     except Exception as e:
@@ -633,7 +635,9 @@ def delete_address(request,address_id):
     try:
          if request.user.is_authenticated and not request.user.is_superuser:
              address.objects.filter(id=address_id).delete()
-             return redirect(user_account)
+             url = reverse('user_account') + '#address'
+             return HttpResponseRedirect(url)
+         
     except Exception as e:
         return HttpResponse(e)
     
@@ -678,7 +682,8 @@ def edit_address(request,address_id):
                         phone=phone,
                         address_type=address_type
                     )
-                    return redirect(user_account)
+                    url = reverse('user_account') + '#address'
+                    return HttpResponseRedirect(url)
             return render(request,'edit_address.html',{'login_status':1,'address':current_address,'w':wishlist_count,'c':cart_count})
         else:
             return render(user_signin)
@@ -1089,8 +1094,8 @@ def cancel_order(request,order_id,order_type):
                     cart_order=order.order_id
                     cart_order.order_status = 'canceld'
                     cart_order.save()
-
-                 return redirect(user_account)
+                 url = reverse('user_account') + '#orders'
+                 return HttpResponseRedirect(url)
              
             # ---------------------------------- cancelling the all project in that purchase------------------------------
              if order_type == 'all':
@@ -1118,7 +1123,8 @@ def cancel_order(request,order_id,order_type):
                         i.varient_id.quantity += i.proudct_quantity
                         i.varient_id.save()
                         i.save()
-                 return redirect(user_account)
+                 url = reverse('user_account') + '#orders'
+                 return HttpResponseRedirect(url)
          else:
              return redirect(user_signin)
     except Exception as e:

@@ -203,7 +203,10 @@
                                                             </td>
 
                                                             {% if i.order_status == 'Processing' or i.order_status == 'shipped'  %}
-                                                            <td><a href="{% url 'cancel_order'  i.id 'all' %}" class="badge badge-danger" style=" background: #ff1e1e;">cancel all</a></td>
+                                                            <td>
+                                                                <a href="{% url 'cancel_order'  i.id 'all' %}" onclick="return confirmCancel(event)" class="badge badge-danger" style=" background: #ff1e1e;">cancel all</a>
+                                                            
+                                                            </td>
                                                             {% elif i.order_status == 'delivered' %}
                                                             <td><a  class="badge badge-danger" style=" background: #06dd54;">Deliverd</a></td>
                                                             {% endif %}
@@ -228,7 +231,10 @@
                                                             <td>{{j.proudct_status}}</td>
                                                             {% if i.order_status != 'canceld' %}
                                                                  {% if j.order_status == 'Processing' or j.order_status == 'shipped' %}
-                                                                 <td><a href="{% url 'cancel_order'  j.id 'order' %}" class="badge badge-danger" style=" background: #ff1e1e;">cancel order</a></td>
+                                                                 <td>
+                                                                    <a href="{% url 'cancel_order'  j.id 'order' %}" onclick="return confirmCancel(event)" class="badge badge-danger" style=" background: #ff1e1e;">cancel order</a>
+                                                                
+                                                                </td>
                                                                  {% endif %}
                                                                  {% if j.order_status == 'canceld' %}
                                                                  <td  class="text-danger">Canceled</td>
@@ -334,10 +340,12 @@
 
                                             <form method="post" action="{% url 'user_update' user.id %}#account-detail">
                                                 {% csrf_token %}
-                                                <div class="row">
+                                                <div class="row" >
 
                                                     {% for i in messages %}
-                                                    <label>{{i}}</label>
+                                                    {% if 'user-update' in i.tags %}
+                                                        <label style="color: red;">{{i}}</label>
+                                                        {% endif %}
                                                     {% endfor %}
 
                                                     <div class="form-group col-md-6">
@@ -394,16 +402,37 @@
 <!-- Preloader Start -->
 
 <!-- Vendor JS-->
-{% for i in messages %}
+<!-- {% for i in messages %}
 <span id="eror">{{i}}</span>
 {% endfor %}
-</body>
+</body> -->
 
 
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/page-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:11:15 GMT -->
 
 </html>
 <script>
+
+    function confirmCancel(event) {
+        event.preventDefault();  // Prevent the link from redirecting immediately
+
+            // Display SweetAlert confirmation
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to cancel this order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, cancel it!',
+                cancelButtonText: 'No, keep it',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = event.target.href;
+                }
+            });
+    }       
+
+
     document.addEventListener('DOMContentLoaded', function() {
         // Retrieve the content of the hidden paragraph
         var errorMessage = document.getElementById('eror').innerText.trim();
