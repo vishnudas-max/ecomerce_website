@@ -1,0 +1,495 @@
+﻿{% extends 'nav.html' %}
+{% block contend %}
+{% load static %}
+<style>
+    .custom-table {
+      
+      width: 100%;
+      border-radius: 10px;
+      border: 2px solid #000000; /* Set border color */
+    }
+
+    .custom-table {
+      background-color: #f8f9f7; /* Add a hover effect for better visibility */
+    }
+    .invoice
+    {
+        background: #06f8c49f;
+    /* border: 1px black; */
+    /* border: solid; */
+    /* border: 1px black; */
+    border: 1px rgba(0, 0, 0, 0.399) solid;
+    padding: 5px 14px;
+    height: 10px;
+    border-radius: 29px;
+    font-size: 10px;
+    }
+    .invoice:hover{
+        background-color: white;
+        border:1px solid #06f8c5;
+        color: black;
+    }
+    .historyr
+    {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    column-gap: 10px;
+    text-align: start;
+    background: #39d5a23b;
+    margin-top: 10px;
+    row-gap: 10px;
+    overflow-y: auto;
+
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.399);
+}
+ .historyr h1{
+    font-family: monospace;
+    text-align: center;
+
+ }
+ .historyr p{
+    margin-left: 10px;
+    font-size: 12px;
+ }
+
+   
+    
+ .history-list{
+    display: flex;
+    align-items: center;
+    position: relative;
+ }
+ .history-list span{
+    width: 5px;
+    height: 5px;
+    background-color: black;
+    border-radius: 100%;
+    margin-right: 5px;
+ }
+ .share_button
+ {
+    background: #047c7c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 6px;
+ }
+ .share_button:hover
+ {
+    background-color: white;
+    color: #047c7c;
+    border: 2px solid  #047c7c;
+    transition: all ease .3s;
+    padding: 5px 10px;
+
+ }
+  </style>
+
+
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow">Home</a>
+                <span></span> Pages
+                <span></span> Account
+            </div>
+        </div>
+    </div>
+    <section class="pt-150 pb-150">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 m-auto">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="dashboard-menu">
+                                <ul class="nav flex-column" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab"
+                                            href="#dashboard" role="tab" aria-controls="dashboard"
+                                            aria-selected="false"><i
+                                                class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders"
+                                            role="tab" aria-controls="orders" aria-selected="false"><i
+                                                class="fi-rs-shopping-bag mr-10"></i>Orders</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab"
+                                            href="#track-orders" role="tab" aria-controls="track-orders"
+                                            aria-selected="false"><i class="fi-rs-shopping-cart-check mr-10"></i>Wallet</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address"
+                                            role="tab" aria-controls="address" aria-selected="false"><i
+                                                class="fi-rs-marker mr-10"></i>My Address</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab"
+                                            href="#account-detail" role="tab" aria-controls="account-detail"
+                                            aria-selected="false"><i class="fi-rs-user mr-10"></i>Account details</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'user_logout' %}"><i
+                                                class="fi-rs-sign-out mr-10"></i>Logout</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="tab-content dashboard-content">
+                                <div class="tab-pane fade active show" id="dashboard" role="tabpanel"
+                                    aria-labelledby="dashboard-tab">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Hello {{user.first_name}}{{user.last_name}} </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p>From your account dashboard. you can easily check &amp; view your <a
+                                                    href="#">recent orders</a>, manage your <a href="#">shipping and
+                                                    billing addresses</a> and <a href="#">edit your password and account
+                                                    details.</a></p>
+                                        </div>
+                                        <div>
+                                            <div>
+                                                <button onclick="sharePage()" class="share_button">Refer Friend</button>
+                                            </div>
+
+<!-- Include JavaScript to handle the Web Share API -->
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Your Orders</h5>
+                                        </div>
+                                        <div class="card-body">
+                                    
+                                                {% for i in user_order %}
+                                                <a href="{% url 'create_pdf' i.id %}" class="invoice">Downlaod Invoice</a>
+                                                <div class="table-responsive" ">
+                                                <table style="background-color: rgba(11, 216, 165, 0.107);" >
+                                                    <thead>
+                                                        <tr style="background-color: rgba(11, 216, 165, 0.3);">
+                                                            <th>Order id</th>
+                                                            <th>Date</th>
+                                                            <th>Status</th>
+                                                            <th>Total</th>
+                                                            <th>Discount</th>
+                                                            <th>Sub total</th>
+                                                            <th>Payment Status</th>
+                                                            <th></th>
+                                                          
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody >
+                                                        <tr style="background-color: rgba(11, 216, 165, 0.3);">
+                                                            <td>{{i.id}}</td>
+                                                            <td>{{i.order_date}}</td>
+                                                            <td>{{i.order_status}}</td>
+                                                            <td>{{i.sub_total}}</td>
+                                                            <td>{{i.offer_applied.offer_per}}%</td>
+                                                            <td>{{i.offer_price}}</td>
+                                                            <td>{% if i.payment_id.Paymment_status == True %} <span class="badge badge-success" style="background-color: rgb(20, 253, 24);">Paid</span>
+                                                            {% else %}
+                                                            <span class="badge badge-warning" style="background-color: rgb(184, 184, 3);">Pending</span>
+                                                            {% endif %}
+                                                            </td>
+
+                                                            {% if i.order_status == 'Processing' or i.order_status == 'shipped'  %}
+                                                            <td><a href="{% url 'cancel_order'  i.id 'all' %}" class="badge badge-danger" style=" background: #ff1e1e;">cancel all</a></td>
+                                                            {% elif i.order_status == 'delivered' %}
+                                                            <td><a  class="badge badge-danger" style=" background: #06dd54;">Deliverd</a></td>
+                                                            {% endif %}
+                                                            {% if i.order_status == 'canceld' %}
+                                                            <td class="text-danger">Canceld!</td>
+                                                            {% endif %}
+                                                            
+                                                        </tr>
+                                                        {% for j in order_items %}
+                                            
+                                                        {% if j.order_id.id == i.id %}
+                                                        <tr>
+                                                            <td></td>
+                                                            <td>
+                                                                <div style="width: 30px;">
+                                                                    <img src="{{j.varient_id.varient_color.url}}"
+                                                                        alt="">
+                                                                </div>
+                                                            </td>
+                                                            <td>{{j.proudct_id.product_name}}</td>
+                                                            <td>X {{j.proudct_quantity}}</td>
+                                                            <td>{{j.proudct_status}}</td>
+                                                            {% if i.order_status != 'canceld' %}
+                                                                 {% if j.order_status == 'Processing' or j.order_status == 'shipped' %}
+                                                                 <td><a href="{% url 'cancel_order'  j.id 'order' %}" class="badge badge-danger" style=" background: #ff1e1e;">cancel order</a></td>
+                                                                 {% endif %}
+                                                                 {% if j.order_status == 'canceld' %}
+                                                                 <td  class="text-danger">Canceled</td>
+                                                                 {% endif %}
+                                                                 {% if j.order_status == 'returned' %}
+                                                                 <td  class="text-danger">Returend</td>
+                                                                 {% endif %}
+                                                            {% endif %}
+                                                            <td><a href="{% url 'order_detailes'  j.id %}" class="">view </a></td>
+                                                        </tr>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                                {% endfor %}
+
+
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="track-orders" role="tabpanel"
+                                    aria-labelledby="track-orders-tab">
+                                    <div class="row">
+                                        <div class="col-12 col-lg-6" style="padding-top: 10px;">
+                                            <div class="card-5" style="    width: 280px; background: #0c706557; border-radius: 10px;">
+                                                <div class="card-header" style="background-color: #089078;">
+                                                    <h5 class="mb-0 text-center">Wallet</h5>
+                                                </div>
+                                                <div class="card-body contact-from-area">
+                                                    
+                                                   <div class="row">
+                                                    <div class="col-7">
+                                                        <span style="    font-weight: 900;font-size: 16px;font-family: 'Spartan';">User</span>
+                                                        <div style="    font-family: sans-serif;font-size: medium;font-weight: 600;">
+                                                            {{wallet.user_id.first_name}}{{wallet.user_id.last_name}}</div>
+                                                       
+                                                    </div>
+                                                    
+                                                    <div class="col-5">
+                                                        <div style="    font-size: larger;
+                                                        font-family: 'Lato';
+                                                        font-weight: 900;
+                                                        ">Balance(₹) </div>
+                                                        <div style="    font-family: 'Spartan';
+                                                        font-weight: 600;
+                                                        margin-top: 10px;">{{wallet.wallet_amount}}</div>
+                                                    </div>
+                                                   </div>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="col-12 col-lg-6">
+                                               <div class="historyr" style="padding: 10px; max-width: 300px;">
+                                                <h1>HISTORY</h1>
+                                                    {% for i in history %}
+                                                    <div class="history-list"><span></span><p>{{i}}</p></div>
+                                                    {% endfor %}
+                                               </div>
+                                            </div>
+                                        <div style="display: flex; justify-content: center;padding-top: 10px;" > 
+                                            <a href="{% url 'user_home' %} "  style= "color:white;background-color:  #007a80;font-size: 18px;font-family: monospace;font-weight: 600;
+                                            border-radius: 10px; padding: 4px 12px;">Shop</a></div>
+                                        
+                                    </div>
+                                    
+                                </div>
+                                <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            {% for i in user_addresses %}
+                                            <div class="card mb-3 mb-lg-0">
+                                                <div class="card-header">
+                                                    <h5 class="mb-0">Shippig Address</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <address>{{i.address}}</address>
+                                                    <p>{{i.state}}</p>
+                                                    <p>{{i.country}}</p>
+                                                    <a class="btn-sm btn-primary mt-3"
+                                                        href="{% url 'edit_address' address_id=i.id %}"
+                                                        class="btn-small">Edit</a>
+                                                    <a class="btn-sm btn-primary ms-3"
+                                                        href="{% url 'delete_address' address_id=i.id %}"
+                                                        class="btn-small">delete</a>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+
+                                    </div>
+                                    <a href="{% url 'add_address' %}" class="btn btn-primary mt-5">Add Address</a>
+                                </div>
+                                <div class="tab-pane fade" id="account-detail" role="tabpanel"
+                                    aria-labelledby="account-detail-tab">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Account Details</h5>
+                                        </div>
+                                        <div class="card-body">
+
+                                            <form method="post" action="{% url 'user_update' user.id %}#account-detail">
+                                                {% csrf_token %}
+                                                <div class="row">
+
+                                                    {% for i in messages %}
+                                                    <label>{{i}}</label>
+                                                    {% endfor %}
+
+                                                    <div class="form-group col-md-6">
+                                                        <label>First Name <span class="required">*</span></label>
+                                                        <input required class="form-control square" name="first_name"
+                                                            type="text" value="{{user.first_name}}">
+                                                    </div>
+                                                    <div class="form-group col-md-6">
+                                                        <label>Last Name <span class="required">*</span></label>
+                                                        <input required="" class="form-control square" name="last_name"
+                                                            value="{{user.last_name}}">
+                                                    </div>
+                                                    <div class="form-group col-md-12">
+                                                        <label>Email<span class="required">*</span></label>
+                                                        <input required="" class="form-control square" name="email"
+                                                            type="email" value="{{user.email}}" readonly>
+                                                    </div>
+                                                    <div class="form-group col-md-12">
+                                                        <label>Phone Number <span class="required">*</span></label>
+                                                        <input required="" class="form-control square" name="phoneno"
+                                                            type="text" value="{{user.phone_number}}">
+                                                    </div>
+                                                    <label for="" style="color: blue; font-weight: 700; font-size: 15px; text-decoration: underline;">Change password here</label>
+                                                    <div class="form-group col-md-12">
+                                                        <label>New Password <span class="required">*</span></label>
+                                                        <input class="form-control square" name="npassword"
+                                                            type="password" value="">
+                                                    </div>
+                                                    <div class="form-group col-md-12">
+                                                        <label>Confirm Password <span class="required">*</span></label>
+                                                        <input class="form-control square" name="cpassword"
+                                                            type="password">
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <button type="submit" class="btn btn-fill-out submit"
+                                                            name="submit" value="Submit">Save</button>
+                                                    </div><!-- Include this link wherever you want to provide a password reset option -->
+                                          
+                                                    
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Preloader Start -->
+
+<!-- Vendor JS-->
+{% for i in messages %}
+<span id="eror">{{i}}</span>
+{% endfor %}
+</body>
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/page-account.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:11:15 GMT -->
+
+</html>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Retrieve the content of the hidden paragraph
+        var errorMessage = document.getElementById('eror').innerText.trim();
+
+        // Check if the errorMessage has content
+        if (errorMessage == 'Order concelled succesfully !') {
+            Swal.fire({
+                          title: "Order concelled succesfully !",
+                          text: "Amount succesfully credited to the wallet!",
+                          icon: "success"
+                        });
+             }
+    });
+
+</script>
+
+
+
+<script src="{% static 'userassets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
+<script src="{% static 'userassets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'userassets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
+<script src="{% static 'userassets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/slick.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/jquery.syotimer.min.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/wow.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/jquery-ui.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/magnific-popup.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/select2.min.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/waypoints.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/counterup.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/jquery.countdown.min.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/images-loaded.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/isotope.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/scrollup.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/jquery.vticker-min.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/jquery.theia.sticky.js' %}"></script>
+<script src="{% static 'userassets/js/plugins/jquery.elevatezoom.js' %}"></script>
+<!-- Template{% static '  JS -->
+<script src="{% static 'userassets/js/maind134.js' %}"></script>
+<script src="{% static 'userassets/js/shopd134.js' %}"></script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        
+        var hash = window.location.hash;
+        if (hash) {
+            var triggerEl = document.querySelector(`a[href="${hash}"]`);
+            if (triggerEl) {
+                // If Bootstrap 5, use this:
+                var tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+        }
+        const tabLinks = document.querySelectorAll('a[data-bs-toggle="tab"]');
+        tabLinks.forEach(function (link) {
+            link.addEventListener('shown.bs.tab', function (event) {
+                history.replaceState(null, null, event.target.getAttribute('href'));
+            });
+        });
+    });
+
+    function sharePage() {
+        if (navigator.share) {
+            const referalId = '{{ referal_id }}';
+            const referralText = `   USE  ${referalId} REFERAL CODE` +
+                                    '\nTO INSTANTLY GRAB ₹200 WALLET AMOUNT!' 
+            console.log(referralText)
+            navigator.share({
+                
+                title: document.title,
+                text: referralText,
+                url:window.location.href+referralText
+            })
+            .then(() => console.log('Shared successfully'))
+            .catch((error) => console.error('Error sharing:', error));
+        } else {
+            alert('Web Share API not supported in this browser.');
+        }
+    }
+</script>
+<script>
+    
+</script>
+
+{% endblock %}
