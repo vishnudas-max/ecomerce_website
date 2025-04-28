@@ -25,8 +25,7 @@
 ---
 
 ## 📂 Project Structure
-ecommerce-website/
-└── fluxbeat/
+fluxbeat
     ├── fluxbeat/                  # Main Django project configuration
     │   ├── __init__.py
     │   ├── settings.py            # Django settings (DB, media, static, etc.)
